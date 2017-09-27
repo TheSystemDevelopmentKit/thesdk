@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # THESDK class 
 # Provides commmon methods  for other classes TheSDK
 #
@@ -15,7 +16,7 @@ class thesdk(metaclass=abc.ABCMeta):
                 if hasattr(self,self.proplist[i-1]):
                     setattr(self,self.proplist[i-1],getattr(self.parent,self.proplist[i-1]))
 
-# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 26.09.2017 21:09
+# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 16:46
 #classdef (Abstract) thesdk < handle
 #    methods    
 #        %To copy the properties from the parent
