@@ -2,10 +2,11 @@
 # Provides commmon methods  for other classes TheSDK
 #
 ##############################################################################
+import abc
 import numpy as np
 from refptr import *
 
-class thesdk:
+class thesdk(metaclass=abc.ABCMeta):
     def copy_propval(self,*arg):
         if len(arg)>=2:
             self.parent=arg[0]
@@ -14,7 +15,7 @@ class thesdk:
                 if hasattr(self,self.proplist[i-1]):
                     setattr(self,self.proplist[i-1],getattr(self.parent,self.proplist[i-1]))
 
-# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 26.09.2017 17:33
+# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 26.09.2017 21:09
 #classdef (Abstract) thesdk < handle
 #    methods    
 #        %To copy the properties from the parent

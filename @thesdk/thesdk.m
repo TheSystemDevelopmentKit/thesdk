@@ -2,7 +2,7 @@
 % Provides commmon methods  for other classes TheSDK
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 06.09.2017 13:37
+% Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 16:46
 classdef (Abstract) thesdk < handle
     properties (Abstract, SetAccess = public )
         parent
