@@ -2,7 +2,7 @@
 # Provides commmon methods  for other classes TheSDK
 # Created by Marko Kosunen
 #
-# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:28
+# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:29
 ##############################################################################
 import abc
 import numpy as np
@@ -16,10 +16,11 @@ class thesdk(metaclass=abc.ABCMeta):
             for i in range(1,len(self.proplist)+1):
                 if hasattr(self,self.proplist[i-1]):
                     #Its nice to see how things propagate
-                    print("Setting %s: %s to %s" %(self, self.proplist[i-1], getattr(self.parent,self.proplist[i-1]) ))
-                    setattr(self,self.proplist[i-1],getattr(self.parent,self.proplist[i-1]))
+                    if  hasattr(self.parent,self.proplist[i-1]):
+                        print("Setting %s: %s to %s" %(self, self.proplist[i-1], getattr(self.parent,self.proplist[i-1]) ))
+                        setattr(self,self.proplist[i-1],getattr(self.parent,self.proplist[i-1]))
 
-# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:28
+# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:29
 #classdef (Abstract) thesdk < handle
 #    methods    
 #        %To copy the properties from the parent
