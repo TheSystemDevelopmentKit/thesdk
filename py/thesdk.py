@@ -2,7 +2,7 @@
 # Provides commmon methods  for other classes TheSDK
 # Created by Marko Kosunen
 #
-# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:35
+# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:44
 ##############################################################################
 import os
 import getpass
@@ -56,51 +56,11 @@ class thesdk(metaclass=abc.ABCMeta):
             self.proplist=arg[1]
             for i in range(1,len(self.proplist)+1):
                 if hasattr(self,self.proplist[i-1]):
+                    setattr(self,self.proplist[i-1],getattr(self.parent,self.proplist[i-1]))
+
                     #Its nice to see how things propagate
                     if  hasattr(self.parent,self.proplist[i-1]):
-                        msg="Setting %s: %s to %s" %(self, self.proplist[i-1], getattr(self.parent,self.proplist[i-1]))
-                        self.print_log({'type': 'I', 'msg':msg})
+                        print("Setting %s: %s to %s" %(self, self.proplist[i-1], getattr(self.parent,self.proplist[i-1]) ))
                         setattr(self,self.proplist[i-1],getattr(self.parent,self.proplist[i-1]))
 
-    #Method for logging
-    #This is a method because it uses the logfile property
-    def print_log(self,argdict={'type': 'I', 'msg': "Print this to log"} ):
-        if not os.path.isfile(self.logfile):
-            typestr="INFO at "
-            msg="Inited logging in %s" %(self.logfile)
-            fid= open(self.logfile, 'a')
-            print("%s %s thesdk: %s" %(time.strftime("%H:%M:%S"), typestr , msg))
-            fid.write("%s %s thesdk: %s\n" %(time.strftime("%H:%M:%S"), typestr, msg))
-            fid.close()
-
-        if argdict['type']== 'D' and self.DEBUG:
-            if self.DEBUG:
-                typestr="DEBUG at  "
-            else:
-                return
-        elif argdict['type']== 'I':
-           typestr="INFO at "
-        elif argdict['type']=='W':
-           typestr="WARNING! at"
-        elif argdict['type']=='E':
-           typestr="ERROR! at"
-        elif argdict['type']=='F':
-           typestr="FATAL ERROR! at"
-        else:
-           typestr="ERROR! at"
-           msg="Incorrect message type. Choose one of 'D', 'I', 'E' or 'F'."
-
-        print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , argdict['msg'])) 
-        #If logfile set, print also there 
-        if hasattr(self,"logfile"):
-            fid= open(self.logfile, 'a')
-            fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , argdict['msg'])) 
-            fid.close()
-
-        if argdict['type']=='F':
-            print("Quitting due to fatal error in %s" %(self.__class__.__name__))
-            if hasattr(self,"logfile"):
-                fid.write("%s Quitting due to fatal error in %s.\n" %( time.strftime("%H:%M:%S"), self.__class__.__name__))
-                fid.close()
-            quit()
 
