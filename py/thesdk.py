@@ -2,7 +2,7 @@
 # Provides commmon methods  for other classes TheSDK
 # Created by Marko Kosunen
 #
-# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:45
+# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:49
 ##############################################################################
 import os
 import getpass
