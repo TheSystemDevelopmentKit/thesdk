@@ -2,7 +2,7 @@
 # Provides commmon methods  for other classes TheSDK
 # Created by Marko Kosunen
 #
-# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:52
+# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:53
 ##############################################################################
 
 
@@ -26,12 +26,28 @@ import numpy as np
 
 class thesdk(metaclass=abc.ABCMeta):
     #Define here the common attributes for the system
+    
     #Solve for the THESDKHOME
-    HOME=os.getcwd()
-    for i in range(3):
+    #HOME=os.getcwd()
+    HOME=os.path.realpath(__file__)
+    for i in range(4):
         HOME=os.path.dirname(HOME)
     print("Home of TheSDK is %s" %(HOME))
 
+    #Appending all TheSDK python modules to system path (only ones, with set subtraction)
+    #This could be done as oneliner with lambda,filter, map and recude, but due to name scope 
+    #definitions, this is simpler method in class definition
+    ENTITIES=[(x[1]) for x in os.walk( HOME + "/Entities")][0]
+    
+    MODULEPATHS=[]
+    for i in ENTITIES:
+        if os.path.isdir(HOME+"/Entities/" + i +"/py"):
+            MODULEPATHS.append(HOME+"/Entities/" + i +"/py")
+    
+    for i in list(set(MODULEPATHS)-set(sys.path)):
+        print("Adding %s to system path" %(i))
+        sys.path.append(i)
+    
     #Default logfile. Override with initlog if you want something else
     #/tmp/TheSDK_randomstr_uname_YYYYMMDDHHMM.log
     logfile="/tmp/TheSDK_" + os.path.basename(tempfile.mkstemp()[1])+"_"+getpass.getuser()+"_"+time.strftime("%Y%m%d%H%M")+".log"
@@ -41,10 +57,8 @@ class thesdk(metaclass=abc.ABCMeta):
     #Do not create the logfile here
     #----logfile stuff ends here
 
-    def __init__(self):
-        pass
 
-    #Clas methpd for setting the logfile
+    #Clas method for setting the logfile
     @classmethod
     def initlog(cls,*arg):
         if len(arg) > 0:
