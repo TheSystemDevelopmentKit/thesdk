@@ -2,15 +2,21 @@
 # Provides commmon methods  for other classes TheSDK
 # Created by Marko Kosunen
 #
-# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:51
+# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:52
 ##############################################################################
+
+
+
+import sys
 import os
+import re
+import glob
 import getpass
 import time
 import tempfile
 import abc
 import numpy as np
-from refptr import *
+#from refptr import *
 #from inspect import currentframe, getframeinfo
 #Set 'must have methods' with abstractmethod
 #@abstractmethod
@@ -19,8 +25,12 @@ from refptr import *
 #be instantiated unless all of its abstract methods and properties are overridden.
 
 class thesdk(metaclass=abc.ABCMeta):
-    
     #Define here the common attributes for the system
+    #Solve for the THESDKHOME
+    HOME=os.getcwd()
+    for i in range(3):
+        HOME=os.path.dirname(HOME)
+    print("Home of TheSDK is %s" %(HOME))
 
     #Default logfile. Override with initlog if you want something else
     #/tmp/TheSDK_randomstr_uname_YYYYMMDDHHMM.log
