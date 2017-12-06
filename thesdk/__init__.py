@@ -2,7 +2,7 @@
 # Provides commmon methods  for other classes TheSDK
 # Created by Marko Kosunen
 #
-# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:57
+# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:58
 ##############################################################################
 import sys
 import os
@@ -23,9 +23,11 @@ import numpy as np
 
 class thesdk(metaclass=abc.ABCMeta):
     #Define here the common attributes for the system
+    
     #Solve for the THESDKHOME
-    HOME=os.getcwd()
-    for i in range(3):
+    #HOME=os.getcwd()
+    HOME=os.path.realpath(__file__)
+    for i in range(4):
         HOME=os.path.dirname(HOME)
     print("Home of TheSDK is %s" %(HOME))
 
@@ -38,10 +40,7 @@ class thesdk(metaclass=abc.ABCMeta):
     for i in ENTITIES:
         if os.path.isdir(HOME+"/Entities/" + i +"/py"):
             MODULEPATHS.append(HOME+"/Entities/" + i +"/py")
-        if os.path.isfile(HOME+"/Entities/" + i +"/" + i + "/__init__.py"):
-            MODULEPATHS.append(HOME+"/Entities/" + i)
     
-
     for i in list(set(MODULEPATHS)-set(sys.path)):
         print("Adding %s to system path" %(i))
         sys.path.append(i)
