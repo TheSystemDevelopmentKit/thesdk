@@ -2,22 +2,15 @@
 # Provides commmon methods  for other classes TheSDK
 # Created by Marko Kosunen
 #
-# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:53
+# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:54
 ##############################################################################
-
-
-
 import sys
 import os
-import re
-import glob
 import getpass
 import time
 import tempfile
 import abc
-import numpy as np
-#from refptr import *
-#from inspect import currentframe, getframeinfo
+
 #Set 'must have methods' with abstractmethod
 #@abstractmethod
 #Using this decorator requires that the class’s metaclass is ABCMeta or is 
@@ -80,8 +73,6 @@ class thesdk(metaclass=abc.ABCMeta):
             self.proplist=arg[1]
             for i in range(1,len(self.proplist)+1):
                 if hasattr(self,self.proplist[i-1]):
-                    setattr(self,self.proplist[i-1],getattr(self.parent,self.proplist[i-1]))
-
                     #Its nice to see how things propagate
                     if  hasattr(self.parent,self.proplist[i-1]):
                         msg="Setting %s: %s to %s" %(self, self.proplist[i-1], getattr(self.parent,self.proplist[i-1]))
