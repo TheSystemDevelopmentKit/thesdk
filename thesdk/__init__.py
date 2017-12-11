@@ -2,19 +2,15 @@
 # Provides commmon methods  for other classes TheSDK
 # Created by Marko Kosunen
 #
-# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:58
+# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:59
 ##############################################################################
 import sys
 import os
-import re
-import glob
 import getpass
 import time
 import tempfile
 import abc
-import numpy as np
-#from refptr import *
-#from inspect import currentframe, getframeinfo
+
 #Set 'must have methods' with abstractmethod
 #@abstractmethod
 #Using this decorator requires that the class’s metaclass is ABCMeta or is 
@@ -40,7 +36,10 @@ class thesdk(metaclass=abc.ABCMeta):
     for i in ENTITIES:
         if os.path.isdir(HOME+"/Entities/" + i +"/py"):
             MODULEPATHS.append(HOME+"/Entities/" + i +"/py")
+        if os.path.isfile(HOME+"/Entities/" + i +"/" + i + "/__init__.py"):
+            MODULEPATHS.append(HOME+"/Entities/" + i)
     
+
     for i in list(set(MODULEPATHS)-set(sys.path)):
         print("Adding %s to system path" %(i))
         sys.path.append(i)
