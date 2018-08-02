@@ -2,7 +2,7 @@
 # Provides commmon methods  for other classes TheSDK
 # Created by Marko Kosunen
 #
-# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 17:59
+# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 18:00
 ##############################################################################
 import sys
 import os
@@ -130,4 +130,16 @@ class thesdk(metaclass=abc.ABCMeta):
             fid= open(self.logfile, 'a')
             fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , argdict['msg'])) 
 
+
+#Class definitions that inherently belong to TheSDK
+class refptr:
+    def __init__(self): 
+        #self.parent =[];
+        #self.proplist = { 'Rs' };    #%properties that can be propagated from parent
+        #self.Rs = 100e6;             #% sampling frequency
+        self.Value = [];
+        #self.model='matlab';
+
+    #def get.Value(self):
+    #    return self.Value
 
