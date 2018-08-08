@@ -1,8 +1,8 @@
 # THESDK class 
-# Provides commmon methods  for other classes TheSDK
+# Provides commmon methods  for other classes in TheSDK
 # Created by Marko Kosunen
 #
-# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 18:00
+# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 18:01
 ##############################################################################
 import sys
 import os
@@ -84,11 +84,12 @@ class thesdk(metaclass=abc.ABCMeta):
 
     #Method for logging
     #This is a method because it uses the logfile property
+    # No longer refers to self, so can be directly called from thesdk
     def print_log(self,argdict={'type': 'I', 'msg': "Print this to log"} ):
-        if not os.path.isfile(self.logfile):
+        if not os.path.isfile(thesdk.logfile):
             typestr="INFO at "
-            msg="Inited logging in %s" %(self.logfile)
-            fid= open(self.logfile, 'a')
+            msg="Inited logging in %s" %(thesdk.logfile)
+            fid= open(thesdk.logfile, 'a')
             print("%s %s thesdk: %s" %(time.strftime("%H:%M:%S"), typestr , msg))
             fid.write("%s %s thesdk: %s\n" %(time.strftime("%H:%M:%S"), typestr, msg))
             fid.close()
@@ -98,7 +99,7 @@ class thesdk(metaclass=abc.ABCMeta):
                 typestr="DEBUG at"
                 print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , argdict['msg'])) 
                 if hasattr(self,"logfile"):
-                    fid= open(self.logfile, 'a')
+                    fid= open(thesdk.logfile, 'a')
                     fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , argdict['msg'])) 
             return
         elif argdict['type']== 'I':
@@ -116,7 +117,7 @@ class thesdk(metaclass=abc.ABCMeta):
            print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , argdict['msg'])) 
            print("Quitting due to fatal error in %s" %(self.__class__.__name__))
            if hasattr(self,"logfile"):
-               fid= open(self.logfile, 'a')
+               fid= open(thesdk.logfile, 'a')
                fid.write("%s Quitting due to fatal error in %s.\n" %( time.strftime("%H:%M:%S"), self.__class__.__name__))
                fid.close()
                quit()
@@ -127,7 +128,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
         #If logfile set, print also there 
         if hasattr(self,"logfile"):
-            fid= open(self.logfile, 'a')
+            fid= open(thesdk.logfile, 'a')
             fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , argdict['msg'])) 
 
 
