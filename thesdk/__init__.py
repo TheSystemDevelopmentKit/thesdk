@@ -2,7 +2,7 @@
 # Provides commmon methods  for other classes in TheSDK
 # Created by Marko Kosunen
 #
-# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 18:01
+# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 18:02
 ##############################################################################
 import sys
 import os
@@ -10,6 +10,7 @@ import getpass
 import time
 import tempfile
 import abc
+from abc import *
 
 #Set 'must have methods' with abstractmethod
 #@abstractmethod
@@ -69,6 +70,18 @@ class thesdk(metaclass=abc.ABCMeta):
         fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"),typestr, __class__.__name__ , msg))
         fid.close()
 
+    #Common properties
+    @property
+    def DEBUG(self):
+        if not hasattr(self,'_DEBUG'):
+            return 'False'
+        else:
+            return self._DEBUG
+    @DEBUG.setter
+    def DEBUG(self,value):
+        self._DEBUG=value
+
+
     #Common method to propagate system parameters
     def copy_propval(self,*arg):
         if len(arg)>=2:
@@ -84,7 +97,6 @@ class thesdk(metaclass=abc.ABCMeta):
 
     #Method for logging
     #This is a method because it uses the logfile property
-    # No longer refers to self, so can be directly called from thesdk
     def print_log(self,argdict={'type': 'I', 'msg': "Print this to log"} ):
         if not os.path.isfile(thesdk.logfile):
             typestr="INFO at "
@@ -130,7 +142,6 @@ class thesdk(metaclass=abc.ABCMeta):
         if hasattr(self,"logfile"):
             fid= open(thesdk.logfile, 'a')
             fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , argdict['msg'])) 
-
 
 #Class definitions that inherently belong to TheSDK
 class refptr:
