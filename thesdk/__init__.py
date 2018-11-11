@@ -2,15 +2,17 @@
 # Provides commmon methods  for other classes in TheSDK
 # Created by Marko Kosunen
 #
-# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 15.09.2018 18:02
+# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 11.11.2018 10:02
 ##############################################################################
 import sys
 import os
 import getpass
 import time
 import tempfile
+import re
 import abc
 from abc import *
+from functools import reduce
 
 #Set 'must have methods' with abstractmethod
 #@abstractmethod
@@ -29,7 +31,9 @@ class thesdk(metaclass=abc.ABCMeta):
     print("Home of TheSDK is %s" %(HOME))
     CONFIGFILE=HOME+'/TheSDK.config'
     print("Config file  of TheSDK is %s" %(CONFIGFILE))
-    GLOBAL_PARAMETERS=['LSFSUBMISSION']
+
+    #This becomes redundant after the GLOBALS dictionary is removed
+    global_parameters=['LSFSUBMISSION']
 
     #Appending all TheSDK python modules to system path (only ones, with set subtraction)
     #This could be done as oneliner with lambda,filter, map and recude, but due to name scope 
@@ -57,29 +61,26 @@ class thesdk(metaclass=abc.ABCMeta):
     #Do not create the logfile here
     #----logfile stuff ends here
 
-    #Classmethod for getting global parameters
-    @classmethod
-    def getglobval(cls,**kwargs):
-        # This is the sequence of string manipulations performed on a linege line
-        name=kwargs.get('name','')
-        str=kwargs.get('str','')
-        MATCH='('+name+'=)(.*)'
-        func_list=(
-            lambda s: re.sub(MATCH,r'\2',s), 
-            lambda s: re.sub(r'"','',s),
-            lambda s: re.sub(r'\n','',s)
-        )
-        return reduce(lambda s, func: func(s), func_list, str)
-    
-    fid = open('./TheSDK.config','r')
+    # Parse the glopal parameters from a TheSDK.config to a dict
+    # Delete parameter list as not needed any more
     GLOBALS={}
-    for name in GLOBAL_PARAMETERS:
-        GLOBALS[name]=''
-        for line in fid:
-            MATCH='('+name+'=)(.*)'
-            if re.match(MATCH,line):
-                GLOBALS[name]=getglobval(**{'name':name,'str':line})
-                print("GLOBALS[%s]=%s"%(name,GLOBALS[name]))
+    with  open(CONFIGFILE,'r') as fid:
+        for name in global_parameters:
+            global match
+            match='('+name+'=)(.*)'
+            func_list=(
+                lambda s: re.sub(match,r'\2',s),
+                lambda s: re.sub(r'"','',s),
+                lambda s: re.sub(r'\n','',s)
+            )
+            GLOBALS[name]=''
+            for line in fid:
+                if re.match(match,line):
+                    GLOBALS[name]=reduce(lambda s, func: func(s), func_list, line)
+            print("GLOBALS[%s]='%s'"%(name,GLOBALS[name]))
+    del match
+    del global_parameters
+    #----Global parameter stuff ends here
 
     #Clas method for setting the logfile
     @classmethod
