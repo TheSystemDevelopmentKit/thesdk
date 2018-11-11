@@ -79,7 +79,7 @@ class thesdk(metaclass=abc.ABCMeta):
             MATCH='('+name+'=)(.*)'
             if re.match(MATCH,line):
                 GLOBALS[name]=getglobval(**{'name':name,'str':line})
-                print("GLOBALS[%s]=%s"%(name,GLOBALS[name])
+                print("GLOBALS[%s]=%s"%(name,GLOBALS[name]))
 
     #Clas method for setting the logfile
     @classmethod
