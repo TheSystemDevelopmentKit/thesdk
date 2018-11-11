@@ -27,6 +27,9 @@ class thesdk(metaclass=abc.ABCMeta):
     for i in range(4):
         HOME=os.path.dirname(HOME)
     print("Home of TheSDK is %s" %(HOME))
+    CONFIGFILE=HOME+'/TheSDK.config'
+    print("Config file  of TheSDK is %s" %(CONFIGFILE))
+    GLOBAL_PARAMETERS=['LSFSUBMISSION']
 
     #Appending all TheSDK python modules to system path (only ones, with set subtraction)
     #This could be done as oneliner with lambda,filter, map and recude, but due to name scope 
@@ -54,6 +57,29 @@ class thesdk(metaclass=abc.ABCMeta):
     #Do not create the logfile here
     #----logfile stuff ends here
 
+    #Classmethod for getting global parameters
+    @classmethod
+    def getglobval(cls,**kwargs):
+        # This is the sequence of string manipulations performed on a linege line
+        name=kwargs.get('name','')
+        str=kwargs.get('str','')
+        MATCH='('+name+'=)(.*)'
+        func_list=(
+            lambda s: re.sub(MATCH,r'\2',s), 
+            lambda s: re.sub(r'"','',s),
+            lambda s: re.sub(r'\n','',s)
+        )
+        return reduce(lambda s, func: func(s), func_list, str)
+    
+    fid = open('./TheSDK.config','r')
+    GLOBALS={}
+    for name in GLOBAL_PARAMETERS:
+        GLOBALS[name]=''
+        for line in fid:
+            MATCH='('+name+'=)(.*)'
+            if re.match(MATCH,line):
+                GLOBALS[name]=getglobval(**{'name':name,'str':line})
+                print("GLOBALS[%s]=%s"%(name,GLOBALS[name])
 
     #Clas method for setting the logfile
     @classmethod
