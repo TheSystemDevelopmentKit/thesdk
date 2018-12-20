@@ -176,6 +176,10 @@ class refptr:
         #self.parent =[];
         #self.proplist = { 'Rs' };    #%properties that can be propagated from parent
         #self.Rs = 100e6;             #% sampling frequency
+        print('[OBSOLETE]: refptr is replaced byt the io clas in thesdk.io')
+        print('[OBSOLETE]: support will be removed in future releases')
+        print('[OBSOLETE]: Required modification: change references from refptr to io)
+        print('[OBSOLETE]: and from refptr.Value to io.data')
         self.Value = [];
         #self.model='matlab';
 
