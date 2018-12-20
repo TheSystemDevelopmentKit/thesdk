@@ -6,6 +6,7 @@
 ##############################################################################
 import sys
 import os
+import glob
 import getpass
 import time
 import tempfile
@@ -35,19 +36,10 @@ class thesdk(metaclass=abc.ABCMeta):
     #This becomes redundant after the GLOBALS dictionary is removed
     global_parameters=['LSFSUBMISSION']
 
-    #Appending all TheSDK python modules to system path (only ones, with set subtraction)
+    #Appending all TheSDK python modules to system path (only once, with set subtraction)
     #This could be done as oneliner with lambda,filter, map and recude, but due to name scope 
     #definitions, this is simpler method in class definition
-    ENTITIES=[(x[1]) for x in os.walk( HOME + "/Entities")][0]
-    
-    MODULEPATHS=[]
-    for i in ENTITIES:
-        if os.path.isdir(HOME+"/Entities/" + i +"/py"):
-            MODULEPATHS.append(HOME+"/Entities/" + i +"/py")
-        if os.path.isfile(HOME+"/Entities/" + i +"/" + i + "/__init__.py"):
-            MODULEPATHS.append(HOME+"/Entities/" + i)
-    
-
+    MODULEPATHS=[os.path.split(os.path.split(y)[0])[0] for y in [ filename for filename in glob.iglob( HOME+'/Entities/**/__init__.py',recursive=True)]] 
     for i in list(set(MODULEPATHS)-set(sys.path)):
         print("Adding %s to system path" %(i))
         sys.path.append(i)
@@ -176,6 +168,10 @@ class refptr:
         #self.parent =[];
         #self.proplist = { 'Rs' };    #%properties that can be propagated from parent
         #self.Rs = 100e6;             #% sampling frequency
+        print('[OBSOLETE]: refptr is replaced byt the io clas in thesdk.io')
+        print('[OBSOLETE]: support will be removed in future releases')
+        print('[OBSOLETE]: Required modification: change references from refptr to io')
+        print('[OBSOLETE]: and from refptr.Value to io.data')
         self.Value = [];
         #self.model='matlab';
 
