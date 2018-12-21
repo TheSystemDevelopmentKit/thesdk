@@ -2,8 +2,6 @@
 # Provides commmon methods  for other classes in TheSDK
 # Created by Marko Kosunen
 #
-# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 11.11.2018 10:02
-##############################################################################
 import sys
 import os
 import glob
@@ -32,6 +30,9 @@ class thesdk(metaclass=abc.ABCMeta):
     print("Home of TheSDK is %s" %(HOME))
     CONFIGFILE=HOME+'/TheSDK.config'
     print("Config file  of TheSDK is %s" %(CONFIGFILE))
+
+    #This becomes redundant after the GLOBALS dictionary is removed
+    global_parameters=['LSFSUBMISSION']
 
     #This becomes redundant after the GLOBALS dictionary is removed
     global_parameters=['LSFSUBMISSION']
@@ -165,16 +166,9 @@ class thesdk(metaclass=abc.ABCMeta):
 #Class definitions that inherently belong to TheSDK
 class refptr:
     def __init__(self): 
-        #self.parent =[];
-        #self.proplist = { 'Rs' };    #%properties that can be propagated from parent
-        #self.Rs = 100e6;             #% sampling frequency
         print('[OBSOLETE]: refptr is replaced byt the io clas in thesdk.io')
         print('[OBSOLETE]: support will be removed in future releases')
         print('[OBSOLETE]: Required modification: change references from refptr to io')
         print('[OBSOLETE]: and from refptr.Value to io.data')
         self.Value = [];
-        #self.model='matlab';
-
-    #def get.Value(self):
-    #    return self.Value
 
