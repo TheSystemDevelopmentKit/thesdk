@@ -37,16 +37,7 @@ class thesdk(metaclass=abc.ABCMeta):
     #Appending all TheSDK python modules to system path (only ones, with set subtraction)
     #This could be done as oneliner with lambda,filter, map and recude, but due to name scope 
     #definitions, this is simpler method in class definition
-    ENTITIES=[(x[1]) for x in os.walk( HOME + "/Entities")][0]
-    
-    MODULEPATHS=[]
-    for i in ENTITIES:
-        if os.path.isdir(HOME+"/Entities/" + i +"/py"):
-            MODULEPATHS.append(HOME+"/Entities/" + i +"/py")
-        if os.path.isfile(HOME+"/Entities/" + i +"/" + i + "/__init__.py"):
-            MODULEPATHS.append(HOME+"/Entities/" + i)
-    
-
+    MODULEPATHS=[os.path.split(os.path.split(y)[0])[0] for y in [ filename for filename in glob.iglob( HOME+'/Entities/**/__init__.py',recursive=True)]] 
     for i in list(set(MODULEPATHS)-set(sys.path)):
         print("Adding %s to system path" %(i))
         sys.path.append(i)
@@ -172,12 +163,26 @@ class thesdk(metaclass=abc.ABCMeta):
 #Class definitions that inherently belong to TheSDK
 class refptr:
     def __init__(self): 
-        #self.parent =[];
-        #self.proplist = { 'Rs' };    #%properties that can be propagated from parent
-        #self.Rs = 100e6;             #% sampling frequency
+        print('[OBSOLETE]: refptr class is replaced by the io class in thesdk.io module')
+        print('[OBSOLETE]: support will be removed in future releases\n')
+        print('[OBSOLETE]: Required modification: change references from refptr to io')
+        print('[OBSOLETE]: and from refptr.Value to io.data')
         self.Value = [];
-        #self.model='matlab';
 
-    #def get.Value(self):
-    #    return self.Value
+# As per Dec 2018, this is just a renamed refptr class with better
+# property definition
+class IO(metaclass=abc.ABCMeta):
+    def __init__(self): 
+        self._Data = None;
 
+    @property
+    def Data(self):
+        if hasattr(self,'_Data'):
+            return self._Data
+        else:
+            self._Data=None
+        return self._Data
+
+    @Data.setter
+    def Data(self,value):
+        self._Data=value
