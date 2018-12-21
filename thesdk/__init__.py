@@ -2,10 +2,9 @@
 # Provides commmon methods  for other classes in TheSDK
 # Created by Marko Kosunen
 #
-# Last modification by Marko Kosunen, marko.kosunen@aalto.fi, 11.11.2018 10:02
-##############################################################################
 import sys
 import os
+import glob
 import getpass
 import time
 import tempfile
