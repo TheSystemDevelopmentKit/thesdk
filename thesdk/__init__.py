@@ -140,6 +140,9 @@ class thesdk(metaclass=abc.ABCMeta):
         elif argdict['type']=='E':
            typestr="ERROR! at"
            print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , argdict['msg'])) 
+        elif argdict['type']=='O':
+           typestr="[OBSOLETE]: at"
+           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , argdict['msg'])) 
 
         elif argdict['type']=='F':
            typestr="FATAL ERROR! at"
@@ -161,12 +164,9 @@ class thesdk(metaclass=abc.ABCMeta):
             fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , argdict['msg'])) 
 
 #Class definitions that inherently belong to TheSDK
-class refptr:
+class refptr(thesdk):
     def __init__(self): 
-        print('[OBSOLETE]: refptr class is replaced by the io class in thesdk.io module')
-        print('[OBSOLETE]: support will be removed in future releases\n')
-        print('[OBSOLETE]: Required modification: change references from refptr to io')
-        print('[OBSOLETE]: and from refptr.Value to io.data')
+        self.print_log({'type':'O', 'msg':'refptr class is replaced by the IO class.\nSupport will be removed in future releases.\n\nRequired modification: change references from refptr to IO.and from refptr.Value to IO.Data'})
         self.Value = [];
 
 # As per Dec 2018, this is just a renamed refptr class with better
