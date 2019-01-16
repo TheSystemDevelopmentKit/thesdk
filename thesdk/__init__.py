@@ -114,7 +114,9 @@ class thesdk(metaclass=abc.ABCMeta):
 
     #Method for logging
     #This is a method because it uses the logfile property
-    def print_log(self,argdict={'type': 'I', 'msg': "Print this to log"} ):
+    def print_log(self,**kwargs):
+        type=kwargs.get('type','I')
+        msg=kwargs.get('msg',"Print this to log")
         if not os.path.isfile(thesdk.logfile):
             typestr="INFO at "
             msg="Inited logging in %s" %(thesdk.logfile)
@@ -123,7 +125,7 @@ class thesdk(metaclass=abc.ABCMeta):
             fid.write("%s %s thesdk: %s\n" %(time.strftime("%H:%M:%S"), typestr, msg))
             fid.close()
 
-        if argdict['type']== 'D':
+        if type== 'D':
             if self.DEBUG:
                 typestr="DEBUG at"
                 print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , argdict['msg'])) 
@@ -131,20 +133,20 @@ class thesdk(metaclass=abc.ABCMeta):
                     fid= open(thesdk.logfile, 'a')
                     fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , argdict['msg'])) 
             return
-        elif argdict['type']== 'I':
+        elif type== 'I':
            typestr="INFO at "
            print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , argdict['msg'])) 
-        elif argdict['type']=='W':
+        elif type=='W':
            typestr="WARNING! at"
            print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , argdict['msg'])) 
-        elif argdict['type']=='E':
+        elif type=='E':
            typestr="ERROR! at"
            print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , argdict['msg'])) 
-        elif argdict['type']=='O':
+        elif type=='O':
            typestr="[OBSOLETE]: at"
            print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , argdict['msg'])) 
 
-        elif argdict['type']=='F':
+        elif type=='F':
            typestr="FATAL ERROR! at"
            print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , argdict['msg'])) 
            print("Quitting due to fatal error in %s" %(self.__class__.__name__))
