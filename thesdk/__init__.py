@@ -171,7 +171,7 @@ class refptr(thesdk):
 
 # As per Dec 2018, this is just a renamed refptr class with better
 # property definition
-class IO(metaclass=abc.ABCMeta):
+class IO(thesdk):
     def __init__(self): 
         self._Data = None;
 
@@ -186,3 +186,16 @@ class IO(metaclass=abc.ABCMeta):
     @Data.setter
     def Data(self,value):
         self._Data=value
+
+
+# Bundle is a Dict of something
+# Class is needed to define bundle operations
+class Bundle(thesdk):
+    def __init__(self): 
+       self.Members=dict([])
+
+    def new(self,**kwargs):
+        name=kwargs.get('name','')
+        val=kwargs.get('val','')
+        self.Members[name]=val
+
