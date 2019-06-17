@@ -98,6 +98,14 @@ class thesdk(metaclass=abc.ABCMeta):
     def DEBUG(self,value):
         self._DEBUG=value
 
+    @property
+    @abstractmethod
+    def _classfile(self):
+        return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
+    #This must be in every subclass file.
+    #@property
+    #def _classfile(self):
+    #    return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
 
     #Common method to propagate system parameters
     def copy_propval(self,*arg):
@@ -174,9 +182,22 @@ class refptr(thesdk):
 # As per Dec 2018, this is just a renamed refptr class with better
 # property definition
 class IO(thesdk):
-    def __init__(self): 
+    @property
+    def _classfile(self):
+        return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
+
+    def __init__(self,**kwargs): 
         self._Data = None;
 
+        # IO's are output by default
+        # Currently less needed for Python, but used in Verilog
+        self._dir=kwargs.get('dir','out')
+
+        self._iotype=kwargs.get('iotype','sample') # The file is a data file by default 
+                                              # Option: sample, event. file 
+                                              # Events are presented in time-value combinatios 
+                                              # time in the column 0
+        self._ionames=kwargs.get('ionames',[]) #list of signal names associated with this io
     @property
     def Data(self):
         if hasattr(self,'_Data'):
@@ -189,10 +210,64 @@ class IO(thesdk):
     def Data(self,value):
         self._Data=value
 
+    @property
+    def data(self):
+        if hasattr(self,'_Data'):
+            return self._Data
+        else:
+            self._Data=None
+
+        self.print_log(type='O',msg='IO attribute \'data\' is obsoleted by attribute \'Data\'' )
+        return self._Data
+
+    @data.setter
+    def data(self,value):
+        self._Data=value
+
+    @property
+    def dir(self):
+        if hasattr(self,'_dir'):
+            return self._dir
+        else:
+            self._dir=None
+        return self._dir
+
+    @dir.setter
+    def dir(self,value):
+        self._dir=value
+
+    @property
+    def iotype(self):
+        if hasattr(self,'_iotype'):
+            return self._iotype
+        else:
+            self._iotype='sample'
+        return self._iotype
+
+    @iotype.setter
+    def iotype(self,value):
+        self._iotype=value
+
+    @property
+    def ionames(self):
+        if hasattr(self,'_ionames'):
+            return self._ionames
+        else:
+            self._ionames=[]
+        return self._ionames
+
+    @ionames.setter
+    def ionames(self,value):
+        self._ionames=value
+    
 
 # Bundle is a Dict of something
 # Class is needed to define bundle operations
 class Bundle(thesdk):
+    @property
+    def _classfile(self):
+        return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
+
     def __init__(self): 
        self.Members=dict([])
 
@@ -200,4 +275,6 @@ class Bundle(thesdk):
         name=kwargs.get('name','')
         val=kwargs.get('val','')
         self.Members[name]=val
+
+
 
