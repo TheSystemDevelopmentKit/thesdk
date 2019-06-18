@@ -187,11 +187,12 @@ class IO(thesdk):
         return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
 
     def __init__(self,**kwargs): 
-        self._Data = None;
+        self._Data = kwargs.get('Data',None)
 
         # IO's are output by default
         # Currently less needed for Python, but used in Verilog
         self._dir=kwargs.get('dir','out')
+        self._datatype=kwargs.get('datatype',None)
 
         self._iotype=kwargs.get('iotype','sample') # The file is a data file by default 
                                               # Option: sample, event. file 
@@ -244,9 +245,17 @@ class IO(thesdk):
             self._iotype='sample'
         return self._iotype
 
-    @iotype.setter
-    def iotype(self,value):
-        self._iotype=value
+    @property
+    def datatype(self):
+        if hasattr(self,'_datatype'):
+            return self._datatype
+        else:
+            self._datatype=None
+        return self._datatype
+
+    @datatype.setter
+    def datatype(self,value):
+        self._datatype=value
 
     @property
     def ionames(self):
