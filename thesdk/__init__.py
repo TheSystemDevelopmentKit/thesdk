@@ -225,51 +225,6 @@ class IO(thesdk):
     def data(self,value):
         self._Data=value
 
-    @property
-    def dir(self):
-        if hasattr(self,'_dir'):
-            return self._dir
-        else:
-            self._dir=None
-        return self._dir
-
-    @dir.setter
-    def dir(self,value):
-        self._dir=value
-
-    @property
-    def iotype(self):
-        if hasattr(self,'_iotype'):
-            return self._iotype
-        else:
-            self._iotype='sample'
-        return self._iotype
-
-    @property
-    def datatype(self):
-        if hasattr(self,'_datatype'):
-            return self._datatype
-        else:
-            self._datatype=None
-        return self._datatype
-
-    @datatype.setter
-    def datatype(self,value):
-        self._datatype=value
-
-    @property
-    def ionames(self):
-        if hasattr(self,'_ionames'):
-            return self._ionames
-        else:
-            self._ionames=[]
-        return self._ionames
-
-    @ionames.setter
-    def ionames(self,value):
-        self._ionames=value
-    
-
 # Bundle is a Dict of something
 # Class is needed to define bundle operations
 class Bundle(thesdk):
