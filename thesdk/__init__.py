@@ -70,6 +70,7 @@ class thesdk(metaclass=abc.ABCMeta):
             print("GLOBALS[%s]='%s'"%(name,GLOBALS[name]))
     del match
     del global_parameters
+    del name
     #----Global parameter stuff ends here
 
     #Clas method for setting the logfile
