@@ -190,16 +190,6 @@ class IO(thesdk):
     def __init__(self,**kwargs): 
         self._Data = kwargs.get('Data',None)
 
-        # IO's are output by default
-        # Currently less needed for Python, but used in Verilog
-        self._dir=kwargs.get('dir','out')
-        self._datatype=kwargs.get('datatype',None)
-
-        self._iotype=kwargs.get('iotype','sample') # The file is a data file by default 
-                                              # Option: sample, event. file 
-                                              # Events are presented in time-value combinatios 
-                                              # time in the column 0
-        self._ionames=kwargs.get('ionames',[]) #list of signal names associated with this io
     @property
     def Data(self):
         if hasattr(self,'_Data'):
