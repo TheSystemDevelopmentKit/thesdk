@@ -219,6 +219,10 @@ class IO(thesdk):
 # Bundle is a Dict of something
 # Class is needed to define bundle operations
 class Bundle(thesdk):
+
+    def __getattr__(self,name):
+        return self.Members[name]
+
     @property
     def _classfile(self):
         return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
