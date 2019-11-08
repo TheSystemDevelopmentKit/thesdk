@@ -12,6 +12,7 @@ import re
 import abc
 from abc import *
 from functools import reduce
+import pdb
 
 #Set 'must have methods' with abstractmethod
 #@abstractmethod
@@ -32,7 +33,7 @@ class thesdk(metaclass=abc.ABCMeta):
     print("Config file  of TheSDK is %s" %(CONFIGFILE))
 
     #This becomes redundant after the GLOBALS dictionary is removed
-    global_parameters=['LSFSUBMISSION']
+    global_parameters=['LSFSUBMISSION','ELDOLIBPATH']
 
     #Appending all TheSDK python modules to system path (only ones, with set subtraction)
     #This could be done as oneliner with lambda,filter, map and recude, but due to name scope 
@@ -54,8 +55,8 @@ class thesdk(metaclass=abc.ABCMeta):
     # Parse the glopal parameters from a TheSDK.config to a dict
     # Delete parameter list as not needed any more
     GLOBALS={}
-    with  open(CONFIGFILE,'r') as fid:
-        for name in global_parameters:
+    for name in global_parameters:
+        with  open(CONFIGFILE,'r') as fid:
             global match
             match='('+name+'=)(.*)'
             func_list=(
