@@ -140,7 +140,7 @@ class iofile(IO):
 
     @abstractproperty
     def file(self):
-        self._file=self.parent.vlogsimpath +'/' + self.name \
+        self._file=self.parent.simpath +'/' + self.name \
                 + '_' + self.rndpart +'.txt'
         return self._file
 
