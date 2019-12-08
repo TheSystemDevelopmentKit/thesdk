@@ -134,6 +134,11 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property 
     def simpath(self):
+        ''' Simulation directoryaccording to model type
+            Default: Self.entitypath/Simulations/<simulator>sim
+            For verilog and vhdl <simulator> is rtl.
+
+        '''
         if not hasattr(self,'_simpath'):
             if self.model=='py':
                 self._simpath=self.entitypath+self.name
