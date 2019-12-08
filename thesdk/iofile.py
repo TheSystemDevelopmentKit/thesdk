@@ -138,10 +138,14 @@ class iofile(IO):
         self._ionames=value
 
 
-    @abstractproperty
+    @property
     def file(self):
         self._file=self.parent.simpath +'/' + self.name \
                 + '_' + self.rndpart +'.txt'
+        return self._file
+    @file.setter
+    def file(self,val):
+        self._file=val
         return self._file
 
 
