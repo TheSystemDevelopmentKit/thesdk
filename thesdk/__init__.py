@@ -107,6 +107,51 @@ class thesdk(metaclass=abc.ABCMeta):
     #@property
     #def _classfile(self):
     #    return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
+    
+    @property
+    def entitypath(self):
+        if not hasattr(self, '_entitypath'):
+            self._entitypath= os.path.dirname(os.path.dirname(self._classfile))
+        return self._entitypath
+    #No setter, no deleter.
+
+
+    @property
+    def model(self):
+        if not hasattr(self,'_model'):
+            self.print_log(type='F', msg='You MUST set the simulation model.')
+        else:
+            return self._model
+    @model.setter
+    def model(self,val):
+        if val in [ 'py', 'sv', 'vhdl', 'eldo', 'spectre' ]:
+            self._model=val
+        else:
+            self.print_log(type='W', msg= 'Simulator model %s not supported.' %(val))
+            self._model=val
+
+        return self._model
+
+    @property 
+    def simpath(self):
+        ''' Simulation directoryaccording to model type
+            Default: Self.entitypath/Simulations/<simulator>sim
+            For verilog and vhdl <simulator> is rtl.
+
+        '''
+        if not hasattr(self,'_simpath'):
+            if self.model=='py':
+                self._simpath=self.entitypath+self.name
+            elif (self.model=='sv') or (self.model=='vhdl'):
+                self._simpath=self.entitypath+'/Simulations/rtlsim'
+            elif (self.model=='eldo'):
+                self._simpath=self.entitypath+'/Simulations/' +self.model + 'sim'
+        return self._simpath
+
+    @simpath.setter
+    def simpath(self,val):
+        self._simpath=val
+        return self._simpath
 
     #Common method to propagate system parameters
     def copy_propval(self,*arg):
@@ -137,42 +182,52 @@ class thesdk(metaclass=abc.ABCMeta):
         if type== 'D':
             if self.DEBUG:
                 typestr="DEBUG at"
-                print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , msg)) 
+                print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
+                    self.__class__.__name__ , msg)) 
                 if hasattr(self,"logfile"):
                     fid= open(thesdk.logfile, 'a')
-                    fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , msg)) 
+                    fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), 
+                        typestr, self.__class__.__name__ , msg)) 
             return
         elif type== 'I':
            typestr="INFO at "
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , msg)) 
+           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
+               self.__class__.__name__ , msg)) 
         elif type=='W':
            typestr="WARNING! at"
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , msg)) 
+           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), 
+               typestr, self.__class__.__name__ , msg)) 
         elif type=='E':
            typestr="ERROR! at"
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , msg)) 
+           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
+               self.__class__.__name__ , msg)) 
         elif type=='O':
            typestr="[OBSOLETE]: at"
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , msg)) 
+           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
+               self.__class__.__name__ , msg)) 
 
         elif type=='F':
            typestr="FATAL ERROR! at"
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , msg)) 
+           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
+               self.__class__.__name__ , msg)) 
            print("Quitting due to fatal error in %s" %(self.__class__.__name__))
            if hasattr(self,"logfile"):
                fid= open(thesdk.logfile, 'a')
-               fid.write("%s Quitting due to fatal error in %s.\n" %( time.strftime("%H:%M:%S"), self.__class__.__name__))
+               fid.write("%s Quitting due to fatal error in %s.\n" 
+                       %( time.strftime("%H:%M:%S"), self.__class__.__name__))
                fid.close()
                quit()
         else:
            typestr="ERROR! at"
            msg="Incorrect message type. Choose one of 'D', 'I', 'E' or 'F'."
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , msg)) 
+           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
+               self.__class__.__name__ , msg)) 
 
         #If logfile set, print also there 
         if hasattr(self,"logfile"):
             fid= open(thesdk.logfile, 'a')
-            fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), typestr, self.__class__.__name__ , msg)) 
+            fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), 
+                typestr, self.__class__.__name__ , msg)) 
 
 #Class definitions that inherently belong to TheSDK
 class refptr(thesdk):
