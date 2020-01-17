@@ -1,3 +1,20 @@
+"""
+======
+Thesdk
+======
+Documentation initialized with thesdk_helpers/shell/initdoc.sh.
+
+Current docstring documentation style is Numpy
+https://numpydoc.readthedocs.io/en/latest/format.html
+
+This text here is to remind you that documentation is imortant.
+However, you may find it out the even the documentation of this
+entity may be outdated and incomplete. Regardless of that, every day
+and in every way we are getting better and better :).
+ 
+Created by your_name_here, email, 20200117.
+
+"""
 # THESDK class 
 # Provides commmon methods  for other classes in TheSDK
 # Created by Marko Kosunen
