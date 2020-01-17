@@ -25,7 +25,6 @@ from abc import *
 from thesdk import *
 import numpy as np
 import pandas as pd
-from verilog.connector import intend
 
 class iofile(IO):
     """
