@@ -8,8 +8,10 @@
 
 .. automodule:: thesdk
    :members:
-   :undoc-members:
 
+.. automodule:: thesdk.iofile
+   :members:
+   :undoc-members:
 
 Indices and tables
 ==================
