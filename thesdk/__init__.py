@@ -1,9 +1,14 @@
 """
-======
 Thesdk
 ======
-Documentation initialized with thesdk_helpers/shell/initdoc.sh.
 
+Superclass class of TheSyDeKick - universal System Development Kit  
+Provides commmon methods and utility classes for other classes in TheSyDeKic
+
+Created by Marko Kosunen, mrko.kosunen@aalto.fi, 2017.
+
+Documentation instructions
+--------------------------
 Current docstring documentation style is Numpy
 https://numpydoc.readthedocs.io/en/latest/format.html
 
@@ -11,14 +16,41 @@ This text here is to remind you that documentation is imortant.
 However, you may find it out the even the documentation of this
 entity may be outdated and incomplete. Regardless of that, every day
 and in every way we are getting better and better :).
- 
-Created by your_name_here, email, 20200117.
+
+
+Class Attributes
+================
+
+Following class attribute are set when this class imported
+
+Attributes
+__________
+
+
+    HOME : strl
+        Directory ../../../ counting from location __init__.py file of thesdkclass. Used as a reference point for other locations
+    
+    CONFIGFILE : str
+        HOME/TheSDK.config.
+    
+    MODULEPATHS : str
+        List of directories under HOME/Entities  that contain __init__.py file. Appended to sys.path to locate TheSyDeKick system modules
+
+    logfile : str
+       Default logfile:  /tmp/TheSDK_randomstr_uname_YYYYMMDDHHMM.log
+       Override with initlog if you want something else
+
+    global_parameters : list(str)
+       List of global parameters to be read to GLOBALS dictionary from CONFIGFILE
+
+    GLOBALS : Dict
+       Dictionary of global parameters, keys defined by global_parameters, values defined in CONFIGFILE
+
+
+Classes
+=======
 
 """
-# THESDK class 
-# Provides commmon methods  for other classes in TheSDK
-# Created by Marko Kosunen
-#
 import sys
 import os
 import glob
@@ -37,8 +69,11 @@ from functools import reduce
 #be instantiated unless all of its abstract methods and properties are overridden.
 
 class thesdk(metaclass=abc.ABCMeta):
-    #Define here the common attributes for the system
-    
+    ''' Defines the common attributes  and locations for ThsSydeKick environment
+
+
+    '''
+
     #Solve for the THESDKHOME
     #HOME=os.getcwd()
     HOME=os.path.realpath(__file__)
@@ -48,8 +83,8 @@ class thesdk(metaclass=abc.ABCMeta):
     CONFIGFILE=HOME+'/TheSDK.config'
     print("Config file  of TheSDK is %s" %(CONFIGFILE))
 
-    #This becomes redundant after the GLOBALS dictionary is removed
-    global_parameters=['LSFSUBMISSION']
+    #This becomes redundant after the GLOBALS dictionary is created
+    global_parameters=['LSFSUBMISSION', 'ELDOLIBFILE' ]
 
     #Appending all TheSDK python modules to system path (only ones, with set subtraction)
     #This could be done as oneliner with lambda,filter, map and recude, but due to name scope 
@@ -59,8 +94,6 @@ class thesdk(metaclass=abc.ABCMeta):
         print("Adding %s to system path" %(i))
         sys.path.append(i)
     
-    #Default logfile. Override with initlog if you want something else
-    #/tmp/TheSDK_randomstr_uname_YYYYMMDDHHMM.log
     logfile="/tmp/TheSDK_" + os.path.basename(tempfile.mkstemp()[1])+"_"+getpass.getuser()+"_"+time.strftime("%Y%m%d%H%M")+".log"
     if os.path.isfile(logfile):
         os.remove(logfile)
@@ -90,9 +123,12 @@ class thesdk(metaclass=abc.ABCMeta):
     del name
     #----Global parameter stuff ends here
 
-    #Clas method for setting the logfile
     @classmethod
     def initlog(cls,*arg):
+        '''
+        Initializes logging. logfile passed as a parameter
+
+        '''
         if len(arg) > 0:
             __class__.logfile=arg[0]
 
@@ -119,14 +155,22 @@ class thesdk(metaclass=abc.ABCMeta):
     @property
     @abstractmethod
     def _classfile(self):
+        ''' Abstract property of thesdk class. Defines the location of the classfile 
+
+            Define in every child class of thesdk as :: 
+
+                def _classfile(self):
+                    return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
+
+
+        '''
         return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
-    #This must be in every subclass file.
-    #@property
-    #def _classfile(self):
-    #    return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
     
     @property
     def entitypath(self):
+        ''' Path to entity. Extracted from the location of __init__.py file.
+
+        '''
         if not hasattr(self, '_entitypath'):
             self._entitypath= os.path.dirname(os.path.dirname(self._classfile))
         return self._entitypath
@@ -135,6 +179,11 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def model(self):
+        ''' Simulation model to be used 
+
+        'py' |  'sv' |  'vhdl' |  'eldo' |  'spectre'   
+
+        '''
         if not hasattr(self,'_model'):
             self.print_log(type='F', msg='You MUST set the simulation model.')
         else:
@@ -151,9 +200,10 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property 
     def simpath(self):
-        ''' Simulation directoryaccording to model type
+        ''' Simulation directory according to model
+
             Default: Self.entitypath/Simulations/<simulator>sim
-            For verilog and vhdl <simulator> is rtl.
+            For verilog and vhdl <simulator> is 'rtl'.
 
         '''
         if not hasattr(self,'_simpath'):
@@ -172,6 +222,23 @@ class thesdk(metaclass=abc.ABCMeta):
 
     #Common method to propagate system parameters
     def copy_propval(self,*arg):
+        ''' Method to copy attributes form parent. 
+        
+        Example ::
+
+           a=some_thesdk_class(self)
+
+        Attributes listed in proplist attribute of 'some_thesdkclass' are copied from
+        self to a. Impemented by including following code at the end of __init__ method 
+        of every entity ::
+        
+            if len(arg)>=1:
+                parent=arg[0]
+                self.copy_propval(parent,self.proplist)
+                self.parent =parent;
+
+        '''
+           
         if len(arg)>=2:
             self.parent=arg[0]
             self.proplist=arg[1]
@@ -186,6 +253,22 @@ class thesdk(metaclass=abc.ABCMeta):
     #Method for logging
     #This is a method because it uses the logfile property
     def print_log(self,**kwargs):
+        ''' Method to print messages to 'logfile'
+
+        Parameters
+        ----------
+        type : str
+            'I' = Information
+            'D' = Debug. Enabled by setting the Debug-attribute of an instance to true
+            'W' = Warnig
+            'E' = Error
+            'F' = Fatal, quits the execution
+
+        msg : str
+           The messge to be printed
+
+        '''
+
         type=kwargs.get('type','I')
         msg=kwargs.get('msg',"Print this to log")
         if not os.path.isfile(thesdk.logfile):
@@ -246,24 +329,38 @@ class thesdk(metaclass=abc.ABCMeta):
             fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), 
                 typestr, self.__class__.__name__ , msg)) 
 
-#Class definitions that inherently belong to TheSDK
-class refptr(thesdk):
-    def __init__(self): 
-        self.print_log(type='O', msg='refptr class is replaced by the IO class.\nSupport will be removed in future releases.\n\nRequired modification: change references from refptr to IO.and from refptr.Value to IO.Data')
-        self.Value = [];
-
-# As per Dec 2018, this is just a renamed refptr class with better
-# property definition
 class IO(thesdk):
+    ''' TheSyDeKick IO handling class
+
+    The IOs of an entity must be defined as :: 
+
+        self.a=IO() 
+        
+    and referredt to as :: 
+    
+        self.a.Data
+
+    '''
     @property
     def _classfile(self):
         return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
 
     def __init__(self,**kwargs): 
+        ''' Parameters
+            ----------
+            Data : numpy_array
+               Sets the Data attribute during the initialization
+               Default: None
+
+       '''
+
         self._Data = kwargs.get('Data',None)
 
     @property
     def Data(self):
+        '''Data value of this IO
+        
+        ''' 
         if hasattr(self,'_Data'):
             return self._Data
         else:
@@ -281,7 +378,7 @@ class IO(thesdk):
         else:
             self._Data=None
 
-        self.print_log(type='O',msg='IO attribute \'data\' is obsoleted by attribute \'Data\'' )
+        self.print_log(type='O',msg='IO attribute \'data\' is obsoleted by attribute \'Data\' Will be removed in release 1.4' )
         return self._Data
 
     @data.setter
@@ -306,6 +403,4 @@ class Bundle(thesdk):
         name=kwargs.get('name','')
         val=kwargs.get('val','')
         self.Members[name]=val
-
-
 

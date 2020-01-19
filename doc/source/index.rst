@@ -8,6 +8,8 @@
 
 .. automodule:: thesdk
    :members:
+   :private-members:
+   :member-order: bysource
 
 .. automodule:: thesdk.iofile
    :members:
