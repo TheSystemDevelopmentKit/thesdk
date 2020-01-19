@@ -9,6 +9,7 @@
 .. automodule:: thesdk
    :members:
    :private-members:
+   :special-members: __getattr__
    :member-order: bysource
 
 .. automodule:: thesdk.iofile

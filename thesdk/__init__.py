@@ -47,9 +47,6 @@ __________
        Dictionary of global parameters, keys defined by global_parameters, values defined in CONFIGFILE
 
 
-Classes
-=======
-
 """
 import sys
 import os
@@ -69,8 +66,8 @@ from functools import reduce
 #be instantiated unless all of its abstract methods and properties are overridden.
 
 class thesdk(metaclass=abc.ABCMeta):
-    ''' Defines the common attributes  and locations for ThsSydeKick environment
-
+    ''' Defines the common attributes  and locations 
+    for ThsSydeKick environment
 
     '''
 
@@ -89,12 +86,14 @@ class thesdk(metaclass=abc.ABCMeta):
     #Appending all TheSDK python modules to system path (only ones, with set subtraction)
     #This could be done as oneliner with lambda,filter, map and recude, but due to name scope 
     #definitions, this is simpler method in class definition
-    MODULEPATHS=[os.path.split(os.path.split(y)[0])[0] for y in [ filename for filename in glob.iglob( HOME+'/Entities/**/__init__.py',recursive=True)]] 
+    MODULEPATHS=[os.path.split(os.path.split(y)[0])[0] for y in [ filename for filename in 
+        glob.iglob( HOME+'/Entities/**/__init__.py',recursive=True)]] 
     for i in list(set(MODULEPATHS)-set(sys.path)):
         print("Adding %s to system path" %(i))
         sys.path.append(i)
     
-    logfile="/tmp/TheSDK_" + os.path.basename(tempfile.mkstemp()[1])+"_"+getpass.getuser()+"_"+time.strftime("%Y%m%d%H%M")+".log"
+    logfile=("/tmp/TheSDK_" + os.path.basename(tempfile.mkstemp()[1])+"_"+getpass.getuser()
+        +"_"+time.strftime("%Y%m%d%H%M")+".log")
     if os.path.isfile(logfile):
         os.remove(logfile)
     print("Setting default logfile %s" %(logfile))
@@ -258,7 +257,7 @@ class thesdk(metaclass=abc.ABCMeta):
         Parameters
         ----------
         type : str
-            'I' = Information
+            'I' = Information 
             'D' = Debug. Enabled by setting the Debug-attribute of an instance to true
             'W' = Warnig
             'E' = Error
@@ -330,7 +329,7 @@ class thesdk(metaclass=abc.ABCMeta):
                 typestr, self.__class__.__name__ , msg)) 
 
 class IO(thesdk):
-    ''' TheSyDeKick IO handling class
+    ''' TheSyDeKick IO class
 
     The IOs of an entity must be defined as :: 
 
@@ -348,9 +347,9 @@ class IO(thesdk):
     def __init__(self,**kwargs): 
         ''' Parameters
             ----------
-            Data : numpy_array
+
+            Data : numpy_array, None
                Sets the Data attribute during the initialization
-               Default: None
 
        '''
 
@@ -388,8 +387,18 @@ class IO(thesdk):
 # Bundle is a Dict of something
 # Class is needed to define bundle operations
 class Bundle(thesdk):
-
+    '''Bundle class of nametd things.
+    
+    '''
     def __getattr__(self,name):
+        '''Access the attribute <nam> directly
+        
+        Returns
+        -------
+            type of dict member
+                self.Members['name']
+
+        '''
         return self.Members[name]
 
     @property
@@ -397,9 +406,22 @@ class Bundle(thesdk):
         return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
 
     def __init__(self): 
-       self.Members=dict([])
+        '''Attributes
+           ----------
+
+           Members: dict, dict([])
+
+        '''
+        self.Members=dict([])
 
     def new(self,**kwargs):
+        '''Parameters
+           ----------
+
+           name: str, optional
+           val: str, optional
+
+        '''
         name=kwargs.get('name','')
         val=kwargs.get('val','')
         self.Members[name]=val

@@ -31,6 +31,7 @@ version = ''
 # The full version, including alpha/beta/rc tags
 release = '1.3'
 
+autoclass_content='both'
 
 # -- General configuration ---------------------------------------------------
 
