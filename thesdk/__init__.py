@@ -256,15 +256,18 @@ class thesdk(metaclass=abc.ABCMeta):
 
         Parameters
         ----------
-        type : str
-            'I' = Information 
-            'D' = Debug. Enabled by setting the Debug-attribute of an instance to true
-            'W' = Warnig
-            'E' = Error
-            'F' = Fatal, quits the execution
+         **kwargs :  
+                 type : str  
+                    'I' = Information 
+                    'D' = Debug. Enabled by setting the Debug-attribute of an instance to true
+                    'W' = Warnig
+                    'E' = Error
+                    'F' = Fatal, quits the execution
 
-        msg : str
-           The messge to be printed
+
+
+                 msg : str
+                     The messge to be printed
 
         '''
 
@@ -328,7 +331,7 @@ class thesdk(metaclass=abc.ABCMeta):
             fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), 
                 typestr, self.__class__.__name__ , msg)) 
 
-class IO(thesdk):
+class IO(metaclass=abc.ABCMeta):
     ''' TheSyDeKick IO class
 
     The IOs of an entity must be defined as :: 
@@ -347,9 +350,10 @@ class IO(thesdk):
     def __init__(self,**kwargs): 
         ''' Parameters
             ----------
+            **kwargs :  
 
-            Data : numpy_array, None
-               Sets the Data attribute during the initialization
+               Data : numpy_array, None
+                   Sets the Data attribute during the initialization
 
        '''
 
@@ -386,12 +390,13 @@ class IO(thesdk):
 
 # Bundle is a Dict of something
 # Class is needed to define bundle operations
-class Bundle(thesdk):
-    '''Bundle class of nametd things.
+class Bundle(metaclass=abc.ABCMeta):
+    '''Bundle class of named things.
     
     '''
     def __getattr__(self,name):
-        '''Access the attribute <nam> directly
+        '''Access the attribute <name> directly
+        Not tested.
         
         Returns
         -------
@@ -400,10 +405,6 @@ class Bundle(thesdk):
 
         '''
         return self.Members[name]
-
-    @property
-    def _classfile(self):
-        return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
 
     def __init__(self): 
         '''Attributes
@@ -418,8 +419,9 @@ class Bundle(thesdk):
         '''Parameters
            ----------
 
-           name: str, optional
-           val: str, optional
+           **kwargs:
+               name: str, optional
+               val: str, optional
 
         '''
         name=kwargs.get('name','')
