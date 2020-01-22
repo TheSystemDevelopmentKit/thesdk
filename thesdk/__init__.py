@@ -218,7 +218,7 @@ class thesdk(metaclass=abc.ABCMeta):
     def simpath(self,val):
         self._simpath=val
         return self._simpath
-
+    
     #Common method to propagate system parameters
     def copy_propval(self,*arg):
         ''' Method to copy attributes form parent. 
@@ -331,16 +331,15 @@ class thesdk(metaclass=abc.ABCMeta):
             fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), 
                 typestr, self.__class__.__name__ , msg)) 
 
-class IO(metaclass=abc.ABCMeta):
-    ''' TheSyDeKick IO class
+class IO(thesdk):
+    ''' TheSyDeKick IO class. Child of thesdk to utilize logging method.
 
     The IOs of an entity must be defined as :: 
-
-        self.a=IO() 
+        self.IOS=Bundle()
+        self.IOS.Members['a']=IO() 
         
-    and referredt to as :: 
-    
-        self.a.Data
+    and referred to as :: 
+        self.IOS.Members['a'].Data
 
     '''
     @property

@@ -28,7 +28,7 @@ import pandas as pd
 
 class iofile(IO):
      '''
-     Class to provide file IO for external simulatiors. 
+     Class to provide file IO for external simulators. 
      
      When created, adds an iofile object to the parents iofile_bundle attribute.
      Accessible as iofile_bundle.Members['name'].
