@@ -290,6 +290,7 @@ class thesdk(metaclass=abc.ABCMeta):
                     fid= open(thesdk.logfile, 'a')
                     fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), 
                         typestr, self.__class__.__name__ , msg)) 
+                    fid.close()
             return
         elif type== 'I':
            typestr="INFO at "
@@ -330,6 +331,7 @@ class thesdk(metaclass=abc.ABCMeta):
             fid= open(thesdk.logfile, 'a')
             fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), 
                 typestr, self.__class__.__name__ , msg)) 
+            fid.close()
 
 class IO(metaclass=abc.ABCMeta):
     ''' TheSyDeKick IO class
