@@ -103,8 +103,8 @@ class thesdk(metaclass=abc.ABCMeta):
     # Parse the glopal parameters from a TheSDK.config to a dict
     # Delete parameter list as not needed any more
     GLOBALS={}
-    with  open(CONFIGFILE,'r') as fid:
-        for name in global_parameters:
+    for name in global_parameters:
+        with  open(CONFIGFILE,'r') as fid:
             global match
             match='('+name+'=)(.*)'
             func_list=(
@@ -117,6 +117,7 @@ class thesdk(metaclass=abc.ABCMeta):
                 if re.match(match,line):
                     GLOBALS[name]=reduce(lambda s, func: func(s), func_list, line)
             print("GLOBALS[%s]='%s'"%(name,GLOBALS[name]))
+        fid.close()
     del match
     del global_parameters
     del name
@@ -290,6 +291,7 @@ class thesdk(metaclass=abc.ABCMeta):
                     fid= open(thesdk.logfile, 'a')
                     fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), 
                         typestr, self.__class__.__name__ , msg)) 
+                    fid.close()
             return
         elif type== 'I':
            typestr="INFO at "
@@ -330,6 +332,7 @@ class thesdk(metaclass=abc.ABCMeta):
             fid= open(thesdk.logfile, 'a')
             fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), 
                 typestr, self.__class__.__name__ , msg)) 
+            fid.close()
 
 class IO(thesdk):
     ''' TheSyDeKick IO class. Child of thesdk to utilize logging method.
