@@ -112,11 +112,10 @@ class thesdk(metaclass=abc.ABCMeta):
                 lambda s: re.sub(r'"','',s),
                 lambda s: re.sub(r'\n','',s)
             )
-            GLOBALS[name]=''
             for line in fid:
                 if re.match(match,line):
                     GLOBALS[name]=reduce(lambda s, func: func(s), func_list, line)
-            print("GLOBALS[%s]='%s'"%(name,GLOBALS[name]))
+                    print("GLOBALS[%s]='%s'"%(name,GLOBALS[name]))
         fid.close()
     del match
     del global_parameters
