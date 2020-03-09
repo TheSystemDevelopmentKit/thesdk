@@ -247,7 +247,7 @@ class iofile(IO):
  
              # Numbers are printed as intergers
              # These are verilog related, do not belong here
-             if datatype is [ 'int', 'sint', 'complex', 'scomplex' ]:
+             if datatype in [ 'int', 'sint', 'complex', 'scomplex' ]:
                  df=pd.DataFrame(parsed,dtype='int')
              else:
                  df=pd.DataFrame(parsed,dtype=datatype)
@@ -277,7 +277,11 @@ class iofile(IO):
                         parsed=np.r_['1',parsed,data[:,i].reshape(-1,1)]
                         header_line.append('%s_%s' %(self.name,i))
  
-             df=pd.DataFrame(parsed,dtype=datatype)
+             if datatype in [ 'int', 'sint', 'complex', 'scomplex' ]:
+                 df=pd.DataFrame(parsed,dtype='int')
+             else:
+                 df=pd.DataFrame(parsed,dtype=datatype)
+
              if self.hasheader:
                  df.to_csv(path_or_buf=self.file,sep="\t",index=False,header=header_line)
              else:
