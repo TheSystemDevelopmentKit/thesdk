@@ -77,6 +77,7 @@ class iofile(IO):
              self.hasheader=kwargs.get('hasheader',False) # Headers False by default. 
                                                           # Do not generate things just 
                                                           # to remove them in the next step
+
              if hasattr(self.parent,'preserve_iofiles'):
                  self.preserve=parent.preserve_iofiles
              else:
@@ -177,8 +178,9 @@ class iofile(IO):
          ''' Name of the IO file to be read or written.
 
          '''
-         self._file=self.parent.simpath +'/' + self.name \
-                 + '_' + self.rndpart +'.txt'
+         if not hasattr(self,'_file'):
+             self._file=self.parent.simpath +'/' + self.name \
+                     + '_' + self.rndpart +'.txt'
          return self._file
      @file.setter
      def file(self,val):
