@@ -81,7 +81,7 @@ class thesdk(metaclass=abc.ABCMeta):
     print("Config file  of TheSDK is %s" %(CONFIGFILE))
 
     #This becomes redundant after the GLOBALS dictionary is created
-    global_parameters=['LSFSUBMISSION', 'ELDOLIBFILE' ]
+    global_parameters=['LSFSUBMISSION','ELDOLIBFILE','SPECTRELIBFILE']
 
     #Appending all TheSDK python modules to system path (only ones, with set subtraction)
     #This could be done as oneliner with lambda,filter, map and recude, but due to name scope 
