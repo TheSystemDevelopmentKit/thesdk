@@ -275,7 +275,7 @@ class thesdk(metaclass=abc.ABCMeta):
         msg=kwargs.get('msg',"Print this to log")
         if not os.path.isfile(thesdk.logfile):
             typestr="INFO at"
-            msg="Inited logging in %s" %(thesdk.logfile)
+            initmsg="Inited logging in %s" %(thesdk.logfile)
             fid= open(thesdk.logfile, 'a')
             print("%s %s thesdk: %s" %(time.strftime("%H:%M:%S"), typestr , initmsg))
             fid.write("%s %s thesdk: %s\n" %(time.strftime("%H:%M:%S"), typestr, initmsg))
