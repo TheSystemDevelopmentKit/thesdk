@@ -81,7 +81,7 @@ class thesdk(metaclass=abc.ABCMeta):
     print("Config file  of TheSDK is %s" %(CONFIGFILE))
 
     #This becomes redundant after the GLOBALS dictionary is created
-    global_parameters=['LSFSUBMISSION','ELDOLIBFILE','SPECTRELIBFILE']
+    global_parameters=['LSFSUBMISSION','LSFINTERACTIVE','ELDOLIBFILE','SPECTRELIBFILE']
 
     #Appending all TheSDK python modules to system path (only ones, with set subtraction)
     #This could be done as oneliner with lambda,filter, map and recude, but due to name scope 
@@ -274,7 +274,7 @@ class thesdk(metaclass=abc.ABCMeta):
         type=kwargs.get('type','I')
         msg=kwargs.get('msg',"Print this to log")
         if not os.path.isfile(thesdk.logfile):
-            typestr="INFO at "
+            typestr="INFO at"
             msg="Inited logging in %s" %(thesdk.logfile)
             fid= open(thesdk.logfile, 'a')
             print("%s %s thesdk: %s" %(time.strftime("%H:%M:%S"), typestr , msg))
@@ -293,7 +293,7 @@ class thesdk(metaclass=abc.ABCMeta):
                     fid.close()
             return
         elif type== 'I':
-           typestr="INFO at "
+           typestr="INFO at"
            print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
                self.__class__.__name__ , msg)) 
         elif type=='W':
