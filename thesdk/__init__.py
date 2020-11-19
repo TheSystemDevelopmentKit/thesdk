@@ -1,51 +1,22 @@
 """
+======
 Thesdk
 ======
 
-Superclass class of TheSyDeKick - universal System Development Kit  
-Provides commmon methods and utility classes for other classes in TheSyDeKic
+Superclass class of TheSyDeKick - universal System Development Kit. Provides
+commmon methods and utility classes for other classes in TheSyDeKick.
 
 Created by Marko Kosunen, mrko.kosunen@aalto.fi, 2017.
 
 Documentation instructions
---------------------------
+
 Current docstring documentation style is Numpy
 https://numpydoc.readthedocs.io/en/latest/format.html
 
-This text here is to remind you that documentation is imortant.
+This text here is to remind you that documentation is important.
 However, you may find it out the even the documentation of this
 entity may be outdated and incomplete. Regardless of that, every day
 and in every way we are getting better and better :).
-
-
-Class Attributes
-================
-
-Following class attribute are set when this class imported
-
-Attributes
-__________
-
-
-    HOME : strl
-        Directory ../../../ counting from location __init__.py file of thesdkclass. Used as a reference point for other locations
-    
-    CONFIGFILE : str
-        HOME/TheSDK.config.
-    
-    MODULEPATHS : str
-        List of directories under HOME/Entities  that contain __init__.py file. Appended to sys.path to locate TheSyDeKick system modules
-
-    logfile : str
-       Default logfile:  /tmp/TheSDK_randomstr_uname_YYYYMMDDHHMM.log
-       Override with initlog if you want something else
-
-    global_parameters : list(str)
-       List of global parameters to be read to GLOBALS dictionary from CONFIGFILE
-
-    GLOBALS : Dict
-       Dictionary of global parameters, keys defined by global_parameters, values defined in CONFIGFILE
-
 
 """
 import sys
@@ -69,8 +40,33 @@ import functools
 #be instantiated unless all of its abstract methods and properties are overridden.
 
 class thesdk(metaclass=abc.ABCMeta):
-    ''' Defines the common attributes  and locations 
-    for ThsSydeKick environment
+    '''
+    Following class attribute are set when this class imported
+
+    Attributes
+    ----------
+
+    HOME : strl
+        Directory ../../../ counting from location __init__.py file of
+        thesdkclass. Used as a reference point for other locations
+
+    CONFIGFILE : str
+        HOME/TheSDK.config.
+
+    MODULEPATHS : str
+        List of directories under HOME/Entities  that contain __init__.py file.
+        Appended to sys.path to locate TheSyDeKick system modules
+
+    logfile : str
+       Default logfile:  /tmp/TheSDK_randomstr_uname_YYYYMMDDHHMM.log
+       Override with initlog if you want something else
+
+    global_parameters : list(str)
+       List of global parameters to be read to GLOBALS dictionary from CONFIGFILE
+
+    GLOBALS : Dict
+       Dictionary of global parameters, keys defined by global_parameters,
+       values defined in CONFIGFILE
 
     '''
 
@@ -127,9 +123,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @classmethod
     def initlog(cls,*arg):
-        '''
-        Initializes logging. logfile passed as a parameter
-
+        '''Initializes logging. logfile passed as a parameter
         '''
         if len(arg) > 0:
             __class__.logfile=arg[0]
@@ -157,13 +151,13 @@ class thesdk(metaclass=abc.ABCMeta):
     @property
     @abstractmethod
     def _classfile(self):
-        ''' Abstract property of thesdk class. Defines the location of the classfile 
+        ''' Abstract property of thesdk class. Defines the location of the
+        classfile. 
 
-            Define in every child class of thesdk as :: 
+        Define in every child class of thesdk as:: 
 
-                def _classfile(self):
-                    return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
-
+            def _classfile(self):
+                return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
 
         '''
         return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
@@ -171,7 +165,6 @@ class thesdk(metaclass=abc.ABCMeta):
     @property
     def entitypath(self):
         ''' Path to entity. Extracted from the location of __init__.py file.
-
         '''
         if not hasattr(self, '_entitypath'):
             self._entitypath= os.path.dirname(os.path.dirname(self._classfile))
@@ -202,11 +195,10 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property 
     def simpath(self):
-        ''' Simulation directory according to model
+        ''' Simulation directory according to model.
 
-            Default: Self.entitypath/Simulations/<simulator>sim
-            For verilog and vhdl <simulator> is 'rtl'.
-
+        Default: Self.entitypath/Simulations/<simulator>sim
+        For verilog and vhdl <simulator> is 'rtl'.
         '''
         if not hasattr(self,'_simpath'):
             if self.model=='py':
@@ -226,13 +218,13 @@ class thesdk(metaclass=abc.ABCMeta):
     def copy_propval(self,*arg):
         ''' Method to copy attributes form parent. 
         
-        Example ::
+        Example::
 
            a=some_thesdk_class(self)
 
         Attributes listed in proplist attribute of 'some_thesdkclass' are copied from
         self to a. Impemented by including following code at the end of __init__ method 
-        of every entity ::
+        of every entity::
         
             if len(arg)>=1:
                 parent=arg[0]
@@ -266,8 +258,6 @@ class thesdk(metaclass=abc.ABCMeta):
                     'W' = Warnig
                     'E' = Error
                     'F' = Fatal, quits the execution
-
-
 
                  msg : str
                      The messge to be printed
@@ -339,29 +329,29 @@ class thesdk(metaclass=abc.ABCMeta):
     def timer(func):
         ''' Timer decorator
 
-            Print execution time of member functions of classes inheriting
-            thesdk to the logfile.
+        Print execution time of member functions of classes inheriting
+        thesdk to the logfile.
 
-            The timer is applied by decorating the function to be timed with
-            '\@thesdk.timer'. For example, calling a function
-            'calculate_something()' belonging to an example class
-            calculator(thesdk), would print the following::
+        The timer is applied by decorating the function to be timed with
+        '\@thesdk.timer'. For example, calling a function
+        'calculate_something()' belonging to an example class
+        calculator(thesdk), would print the following::
 
-                class calculator(thesdk):
+            class calculator(thesdk):
 
-                    @thesdk.timer
-                    def calculate_something(self):
-                        # Time-consuming calculations here
-                        print(result)
-                        return result
+                @thesdk.timer
+                def calculate_something(self):
+                    # Time-consuming calculations here
+                    print(result)
+                    return result
 
-                >>> calc = calculator()
-                >>> result = calc.calculate_something():
-                42
-                10:25:17 INFO at calculator: Finished 'calculate_something' in 0.758 s.
-                >>> print(result)
-                42
-                
+            >>> calc = calculator()
+            >>> result = calc.calculate_something():
+            42
+            10:25:17 INFO at calculator: Finished 'calculate_something' in 0.758 s.
+            >>> print(result)
+            42
+            
         '''
         @functools.wraps(func)
         def wrapper_timer(*args, **kwargs):
@@ -376,11 +366,13 @@ class thesdk(metaclass=abc.ABCMeta):
 class IO(thesdk):
     ''' TheSyDeKick IO class. Child of thesdk to utilize logging method.
 
-    The IOs of an entity must be defined as :: 
+    The IOs of an entity must be defined as:: 
+
         self.IOS=Bundle()
         self.IOS.Members['a']=IO() 
         
-    and referred to as :: 
+    and referred to as:: 
+        
         self.IOS.Members['a'].Data
 
     '''

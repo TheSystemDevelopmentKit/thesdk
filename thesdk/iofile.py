@@ -1,7 +1,7 @@
 """
-======================
-Iofile package 
-======================
+==============
+Iofile package
+==============
 
 Provides Common file-io related attributes and methods 
 for TheSyDeKinck
