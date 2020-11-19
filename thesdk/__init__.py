@@ -59,6 +59,9 @@ import abc
 from abc import *
 from functools import reduce
 
+import time
+import functools
+
 #Set 'must have methods' with abstractmethod
 #@abstractmethod
 #Using this decorator requires that the class’s metaclass is ABCMeta or is 
@@ -332,6 +335,43 @@ class thesdk(metaclass=abc.ABCMeta):
             fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), 
                 typestr, self.__class__.__name__ , msg)) 
             fid.close()
+
+    def timer(func):
+        ''' Timer decorator
+
+            Print execution time of member functions of classes inheriting
+            thesdk to the logfile.
+
+            The timer is applied by decorating the function to be timed with
+            '\@thesdk.timer'. For example, calling a function
+            'calculate_something()' belonging to an example class
+            calculator(thesdk), would print the following::
+
+                class calculator(thesdk):
+
+                    @thesdk.timer
+                    def calculate_something(self):
+                        # Time-consuming calculations here
+                        print(result)
+                        return result
+
+                >>> calc = calculator()
+                >>> result = calc.calculate_something():
+                42
+                10:25:17 INFO at calculator: Finished 'calculate_something' in 0.758 s.
+                >>> print(result)
+                42
+                
+        '''
+        @functools.wraps(func)
+        def wrapper_timer(*args, **kwargs):
+            start = time.perf_counter()
+            retval = func(*args, **kwargs)
+            stop = time.perf_counter()
+            duration = stop-start
+            args[0].print_log(type='I',msg='Finished \'%s\' in %.03f s.' % (func.__name__,duration))
+            return retval
+        return wrapper_timer
 
 class IO(thesdk):
     ''' TheSyDeKick IO class. Child of thesdk to utilize logging method.
