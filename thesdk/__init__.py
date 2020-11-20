@@ -46,25 +46,25 @@ class thesdk(metaclass=abc.ABCMeta):
     Attributes
     ----------
 
-    HOME : strl
+    HOME: strl
         Directory ../../../ counting from location __init__.py file of
         thesdkclass. Used as a reference point for other locations
 
-    CONFIGFILE : str
+    CONFIGFILE: str
         HOME/TheSDK.config.
 
-    MODULEPATHS : str
+    MODULEPATHS: str
         List of directories under HOME/Entities  that contain __init__.py file.
         Appended to sys.path to locate TheSyDeKick system modules
 
-    logfile : str
+    logfile: str
        Default logfile:  /tmp/TheSDK_randomstr_uname_YYYYMMDDHHMM.log
        Override with initlog if you want something else
 
-    global_parameters : list(str)
+    global_parameters: list(str)
        List of global parameters to be read to GLOBALS dictionary from CONFIGFILE
 
-    GLOBALS : Dict
+    GLOBALS: Dict
        Dictionary of global parameters, keys defined by global_parameters,
        values defined in CONFIGFILE
 
@@ -251,15 +251,15 @@ class thesdk(metaclass=abc.ABCMeta):
 
         Parameters
         ----------
-         **kwargs :  
-                 type : str  
+         **kwargs:  
+                 type: str  
                     'I' = Information 
                     'D' = Debug. Enabled by setting the Debug-attribute of an instance to true
                     'W' = Warnig
                     'E' = Error
                     'F' = Fatal, quits the execution
 
-                 msg : str
+                 msg: str
                      The messge to be printed
 
         '''
@@ -327,7 +327,7 @@ class thesdk(metaclass=abc.ABCMeta):
             fid.close()
 
     def timer(func):
-        ''' Timer decorator
+        """ Timer decorator
 
         Print execution time of member functions of classes inheriting
         thesdk to the logfile.
@@ -352,7 +352,7 @@ class thesdk(metaclass=abc.ABCMeta):
             >>> print(result)
             42
             
-        '''
+        """
         @functools.wraps(func)
         def wrapper_timer(*args, **kwargs):
             start = time.perf_counter()
@@ -383,9 +383,9 @@ class IO(thesdk):
     def __init__(self,**kwargs): 
         ''' Parameters
             ----------
-            **kwargs :  
+            **kwargs:  
 
-               Data : numpy_array, None
+               Data: numpy_array, None
                    Sets the Data attribute during the initialization
 
        '''
