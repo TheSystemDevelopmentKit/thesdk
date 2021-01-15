@@ -79,7 +79,7 @@ class thesdk(metaclass=abc.ABCMeta):
     CONFIGFILE=HOME+'/TheSDK.config'
     print("Config file  of TheSDK is %s" %(CONFIGFILE))
 
-    #This becomes redundant after the GLOBALS dictionary is created
+    #This variable becomes redundant after the GLOBALS dictionary is created
     global_parameters=['LSFSUBMISSION','LSFINTERACTIVE','ELDOLIBFILE','SPECTRELIBFILE']
 
     #Appending all TheSDK python modules to system path (only ones, with set subtraction)
@@ -204,9 +204,15 @@ class thesdk(metaclass=abc.ABCMeta):
             if self.model=='py':
                 self._simpath=self.entitypath+self.name
             elif (self.model=='sv') or (self.model=='vhdl'):
-                self._simpath=self.entitypath+'/Simulations/rtlsim'
+                # This is now defined in rtl library, and used here only to
+                # retain backwards compatibility. We should determine later on if we take
+                # Any stance towards the supported packages in this package.
+                # See: https://github.com/TheSystemDevelopmentKit/thesdk/issues/12
+                self._simpath=self.rtlsimpath
             elif (self.model=='eldo'):
                 self._simpath=self.entitypath+'/Simulations/' +self.model + 'sim'
+            if not os.path.exists(self._simpath):
+                os.makedirs(self._simpath)
         return self._simpath
 
     @simpath.setter
@@ -258,6 +264,7 @@ class thesdk(metaclass=abc.ABCMeta):
                     'W' = Warnig
                     'E' = Error
                     'F' = Fatal, quits the execution
+                    'O' = Obsolete, used for obsolition warnings. 
 
                  msg: str
                      The messge to be printed
