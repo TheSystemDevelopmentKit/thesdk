@@ -176,7 +176,7 @@ class thesdk(metaclass=abc.ABCMeta):
     def model(self):
         ''' Simulation model to be used 
 
-        'py' |  'sv' |  'vhdl' |  'eldo' |  'spectre'   
+        'py' |  'sv' |  'vhdl' |  'eldo' |  'spectre' | 'hw' 
 
         '''
         if not hasattr(self,'_model'):
@@ -185,7 +185,7 @@ class thesdk(metaclass=abc.ABCMeta):
             return self._model
     @model.setter
     def model(self,val):
-        if val in [ 'py', 'sv', 'vhdl', 'eldo', 'spectre' ]:
+        if val in [ 'py', 'sv', 'vhdl', 'eldo', 'spectre', 'hw' ]:
             self._model=val
         else:
             self.print_log(type='W', msg= 'Simulator model %s not supported.' %(val))
@@ -255,7 +255,7 @@ class thesdk(metaclass=abc.ABCMeta):
                  type: str  
                     'I' = Information 
                     'D' = Debug. Enabled by setting the Debug-attribute of an instance to true
-                    'W' = Warnig
+                    'W' = Warning
                     'E' = Error
                     'F' = Fatal, quits the execution
 
