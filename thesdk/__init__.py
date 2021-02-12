@@ -29,6 +29,7 @@ import re
 import abc
 from abc import *
 from functools import reduce
+import multiprocessing
 
 import time
 import functools
@@ -362,6 +363,37 @@ class thesdk(metaclass=abc.ABCMeta):
             args[0].print_log(type='I',msg='Finished \'%s\' in %.03f s.' % (func.__name__,duration))
             return retval
         return wrapper_timer
+
+
+    def run_parallel(self, **kwargs):
+        """ TODO...
+
+        ----------
+        Parameters
+        ----------
+         **kwargs:  
+                 duts: (??)
+                    Set of instances 
+                 method: str
+                     Method called for each object (default: run)
+        """ 
+
+        duts=kwargs.get('duts') 
+        method=kwargs.get('method','run') 
+        que=[]
+        proc=[]
+        n=0
+        for i in duts:
+            que.append(multiprocessing.Queue())
+            proc.append(multiprocessing.Process(target=getattr(i,method) ,args=(que[n],)))
+            proc[n].start()
+            n+=1
+
+        n=0
+        for i in duts:
+            i.ret_var=que[n].get() # returned values/arrays from parallel simulations
+            proc[n].join()
+            n+=1
 
 class IO(thesdk):
     ''' TheSyDeKick IO class. Child of thesdk to utilize logging method.
