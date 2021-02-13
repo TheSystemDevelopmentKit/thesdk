@@ -6,7 +6,7 @@ Thesdk
 Superclass class of TheSyDeKick - universal System Development Kit. Provides
 commmon methods and utility classes for other classes in TheSyDeKick.
 
-Created by Marko Kosunen, mrko.kosunen@aalto.fi, 2017.
+Created by Marko Kosunen, marko.kosunen@aalto.fi, 2017.
 
 Documentation instructions
 
@@ -14,7 +14,7 @@ Current docstring documentation style is Numpy
 https://numpydoc.readthedocs.io/en/latest/format.html
 
 This text here is to remind you that documentation is important.
-However, you may find it out the even the documentation of this
+However, you may find out that even the documentation of this
 entity may be outdated and incomplete. Regardless of that, every day
 and in every way we are getting better and better :).
 
@@ -41,12 +41,12 @@ import functools
 
 class thesdk(metaclass=abc.ABCMeta):
     '''
-    Following class attribute are set when this class imported
+    Following class attributes are set when this class imported
 
     Attributes
     ----------
 
-    HOME: strl
+    HOME: str
         Directory ../../../ counting from location __init__.py file of
         thesdkclass. Used as a reference point for other locations
 
@@ -64,7 +64,7 @@ class thesdk(metaclass=abc.ABCMeta):
     global_parameters: list(str)
        List of global parameters to be read to GLOBALS dictionary from CONFIGFILE
 
-    GLOBALS: Dict
+    GLOBALS: dict
        Dictionary of global parameters, keys defined by global_parameters,
        values defined in CONFIGFILE
 
@@ -77,12 +77,12 @@ class thesdk(metaclass=abc.ABCMeta):
         HOME=os.path.dirname(HOME)
     print("Home of TheSDK is %s" %(HOME))
     CONFIGFILE=HOME+'/TheSDK.config'
-    print("Config file  of TheSDK is %s" %(CONFIGFILE))
+    print("Config file of TheSDK is %s" %(CONFIGFILE))
 
-    #This becomes redundant after the GLOBALS dictionary is created
+    #This variable becomes redundant after the GLOBALS dictionary is created
     global_parameters=['LSFSUBMISSION','LSFINTERACTIVE','ELDOLIBFILE','SPECTRELIBFILE']
 
-    #Appending all TheSDK python modules to system path (only ones, with set subtraction)
+    #Appending all TheSDK python modules to system path (only once, with set subtraction)
     #This could be done as oneliner with lambda,filter, map and recude, but due to name scope 
     #definitions, this is simpler method in class definition
     MODULEPATHS=[os.path.split(os.path.split(y)[0])[0] for y in [ filename for filename in 
@@ -131,7 +131,7 @@ class thesdk(metaclass=abc.ABCMeta):
         if os.path.isfile(__class__.logfile):
             os.remove(__class__.logfile)
         typestr="INFO at "
-        msg="Default logfile override. Inited logging in %s" %(__class__.logfile)
+        msg="Default logfile override. Initialized logging in %s" %(__class__.logfile)
         fid= open(__class__.logfile, 'a')
         print("%s %s  %s: %s" %(time.strftime("%H:%M:%S"),typestr, __class__.__name__ , msg))
         fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"),typestr, __class__.__name__ , msg))
@@ -197,16 +197,22 @@ class thesdk(metaclass=abc.ABCMeta):
     def simpath(self):
         ''' Simulation directory according to model.
 
-        Default: Self.entitypath/Simulations/<simulator>sim
+        Default: self.entitypath/Simulations/<simulator>sim
         For verilog and vhdl <simulator> is 'rtl'.
         '''
         if not hasattr(self,'_simpath'):
             if self.model=='py':
                 self._simpath=self.entitypath+self.name
             elif (self.model=='sv') or (self.model=='vhdl'):
-                self._simpath=self.entitypath+'/Simulations/rtlsim'
+                # This is now defined in rtl library, and used here only to
+                # retain backwards compatibility. We should determine later on if we take
+                # Any stance towards the supported packages in this package.
+                # See: https://github.com/TheSystemDevelopmentKit/thesdk/issues/12
+                self._simpath=self.rtlsimpath
             elif (self.model=='eldo'):
                 self._simpath=self.entitypath+'/Simulations/' +self.model + 'sim'
+            if not os.path.exists(self._simpath):
+                os.makedirs(self._simpath)
         return self._simpath
 
     @simpath.setter
@@ -258,6 +264,7 @@ class thesdk(metaclass=abc.ABCMeta):
                     'W' = Warning
                     'E' = Error
                     'F' = Fatal, quits the execution
+                    'O' = Obsolete, used for obsolition warnings. 
 
                  msg: str
                      The messge to be printed
@@ -268,7 +275,7 @@ class thesdk(metaclass=abc.ABCMeta):
         msg=kwargs.get('msg',"Print this to log")
         if not os.path.isfile(thesdk.logfile):
             typestr="INFO at"
-            initmsg="Inited logging in %s" %(thesdk.logfile)
+            initmsg="Initialized logging in %s" %(thesdk.logfile)
             fid= open(thesdk.logfile, 'a')
             print("%s %s thesdk: %s" %(time.strftime("%H:%M:%S"), typestr , initmsg))
             fid.write("%s %s thesdk: %s\n" %(time.strftime("%H:%M:%S"), typestr, initmsg))
