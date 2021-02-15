@@ -366,7 +366,27 @@ class thesdk(metaclass=abc.ABCMeta):
 
 
     def run_parallel(self, **kwargs):
-        """ TODO...
+        """ 
+        Parameters you need to set for instances you want to run in parallel::
+
+            self.par= True
+            self.queue= []
+            self.return_IOS= True/False # Decides if IOS are updated for after running each instance
+
+        The method you call (for example run), needs to have::
+
+            def run(self,*arg):
+                if len(arg)>0:
+                    self.par=True      #flag for parallel processing
+                    self.queue=arg[0]  #multiprocessing.queue as the first argument
+
+        To get data out place this at the end of your method. ::
+
+            if self.par==True: 
+                retlist = self.IOSdict_for_parent() # returns a dictionary in a list (if return_IOS is false, the dict is empty). Currently required even if return_IOS = False
+                customret = {'amplitude' : self.sig_sco.peak_to_peak} #optional. Example for returning data other than IOS. These key value pairs end up as parameters for the ran instance
+                retlist.append(customret) #optional (see above)
+                self.queue.put(retlist)
 
         ----------
         Parameters
@@ -376,7 +396,7 @@ class thesdk(metaclass=abc.ABCMeta):
                     Set of instances 
                  method: str
                      Method called for each object (default: run)
-        """ 
+        """
 
         duts=kwargs.get('duts') 
         method=kwargs.get('method','run') 
@@ -391,9 +411,24 @@ class thesdk(metaclass=abc.ABCMeta):
 
         n=0
         for i in duts:
-            i.ret_var=que[n].get() # returned values/arrays from parallel simulations
+            list_of_dicts=que[n].get() # returned list of dictionaries simulations
+            for j in range(len(list_of_dicts)):
+                if j==0: #IOs dictionary must be the first item in the returned list
+                    if self.return_IOS:
+                        for key,value in list_of_dicts[j].items():
+                            i.IOS.Members[key].Data=value
+                else:
+                    for key,value in list_of_dicts[j].items():
+                        setattr(i,key,value)
             proc[n].join()
             n+=1
+
+    def IOSdict_for_parent(self):
+        IOSdict = [{}]
+        if self.return_IOS:
+            for key,value in self.IOS.Members.items():
+                IOSdict[0][key] = value.Data
+        return IOSdict
 
 class IO(thesdk):
     ''' TheSyDeKick IO class. Child of thesdk to utilize logging method.
