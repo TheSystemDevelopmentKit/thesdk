@@ -29,6 +29,7 @@ import re
 import abc
 from abc import *
 from functools import reduce
+import multiprocessing
 
 import time
 import functools
@@ -369,6 +370,65 @@ class thesdk(metaclass=abc.ABCMeta):
             args[0].print_log(type='I',msg='Finished \'%s\' in %.03f s.' % (func.__name__,duration))
             return retval
         return wrapper_timer
+
+
+    def run_parallel(self, **kwargs):
+        """ 
+        Parameters you need to set for instances you want to run in parallel::
+
+            self.par= True
+            self.queue= []
+            self.return_IOS= True/False # Decides if IOS are updated for after running each instance
+
+        The method you call (for example run), needs to have::
+
+            def run(self,*arg):
+                if len(arg)>0:
+                    self.par=True      #flag for parallel processing
+                    self.queue=arg[0]  #multiprocessing.queue as the first argument
+
+        To get data out place this at the end of your method. ::
+
+            if self.par==True: 
+                retlist = self.IOSdict_for_parent() # returns a dictionary in a list (if return_IOS is false, the dict is empty). Currently required even if return_IOS = False
+                customret = {'amplitude' : self.sig_sco.peak_to_peak} #optional. Example for returning data other than IOS. These key value pairs end up as parameters for the ran instance
+                retlist.append(customret) #optional (see above)
+                self.queue.put(retlist)
+
+        ----------
+        Parameters
+        ----------
+         **kwargs:  
+                 duts: (??)
+                    Set of instances 
+                 method: str
+                     Method called for each object (default: run)
+        """
+
+        duts=kwargs.get('duts') 
+        method=kwargs.get('method','run') 
+        que=[]
+        proc=[]
+        n=0
+        for i in duts:
+            que.append(multiprocessing.Queue())
+            proc.append(multiprocessing.Process(target=getattr(i,method) ,args=(que[n],)))
+            proc[n].start()
+            n+=1
+        n=0
+        for i in duts:
+            ret_dict=que[n].get() # returned dictionary
+            self.print_log(type='I', msg='Saving results from parallel run of %s' %(i))
+            for key,value in ret_dict.items():
+                if key in i.IOS.Members:
+                    i.IOS.Members[key] = value
+                elif hasattr(i,key):
+                    setattr(i,key,value)
+                else:
+                    self.print_log(type='W', msg='Reult data from parallel run of %s saved to new attribute \'%s\'' %(i, key))
+                    setattr(i,key,value)
+            proc[n].join()
+            n+=1
 
 class IO(thesdk):
     ''' TheSyDeKick IO class. Child of thesdk to utilize logging method.
