@@ -408,27 +408,20 @@ class thesdk(metaclass=abc.ABCMeta):
             proc.append(multiprocessing.Process(target=getattr(i,method) ,args=(que[n],)))
             proc[n].start()
             n+=1
-
         n=0
         for i in duts:
-            list_of_dicts=que[n].get() # returned list of dictionaries simulations
-            for j in range(len(list_of_dicts)):
-                if j==0: #IOs dictionary must be the first item in the returned list
-                    if self.return_IOS:
-                        for key,value in list_of_dicts[j].items():
-                            i.IOS.Members[key].Data=value
+            ret_dict=que[n].get() # returned dictionary
+            self.print_log(type='I', msg='Saving results from parallel run of %s' %(i))
+            for key,value in ret_dict.items():
+                if key in i.IOS.Members:
+                    i.IOS.Members[key] = value
+                elif hasattr(i,key):
+                    setattr(i,key,value)
                 else:
-                    for key,value in list_of_dicts[j].items():
-                        setattr(i,key,value)
+                    self.print_log(type='W', msg='Reult data from parallel run of %s saved to new attribute \'%s\'' %(i, key))
+                    setattr(i,key,value)
             proc[n].join()
             n+=1
-
-    def IOSdict_for_parent(self):
-        IOSdict = [{}]
-        if self.return_IOS:
-            for key,value in self.IOS.Members.items():
-                IOSdict[0][key] = value.Data
-        return IOSdict
 
 class IO(thesdk):
     ''' TheSyDeKick IO class. Child of thesdk to utilize logging method.
