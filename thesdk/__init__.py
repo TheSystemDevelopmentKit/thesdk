@@ -454,10 +454,52 @@ class thesdk(metaclass=abc.ABCMeta):
                 elif hasattr(i,key):
                     setattr(i,key,value)
                 else:
-                    self.print_log(type='W', msg='Result data from parallel run of %s saved to new attribute \'%s\'' %(i, key))
-                    setattr(i,key,value)
+                    i.extracts.Members[key] = value
             proc[n].join()
             n+=1
+
+    @property
+    def IOS(self):  
+        """ Type: Bundle of IO's
+        
+        Property holding the IOS
+
+        Example:
+            self.IOS.Members['input_A']=IO()
+        
+        """
+
+        if hasattr(self,'_IOS'):
+            return self._IOS
+        else:
+            self._IOS = Bundle()
+        return self._IOS
+
+    @IOS.setter
+    def IOS(self,value):
+        self._IOS = value
+
+    @property
+    def extracts(self):  
+        """ Type: Bundle 
+        
+        Bundle for holding the returned results from simulations that are not
+        attributes or IO's
+
+        Example:
+            self.IOS.Members['input_A']=IO()
+        
+        """
+
+        if hasattr(self,'_extracts'):
+            return self._extracts
+        else:
+            self._extracts = Bundle()
+        return self._extracts
+
+    @extracts.setter
+    def IOS(self,value):
+        self._IOS = value
 
 class IO(thesdk):
     ''' TheSyDeKick IO class. Child of thesdk to utilize logging method.
