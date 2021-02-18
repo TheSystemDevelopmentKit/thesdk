@@ -371,6 +371,37 @@ class thesdk(metaclass=abc.ABCMeta):
             return retval
         return wrapper_timer
 
+    @property
+    def par(self):  
+        """True | False (default)
+
+        Property defines whether parallel run is intended or not"""
+
+        if hasattr(self,'_par'):
+            return self._par
+        else:
+            self._par=False
+        return self._par
+
+    @par.setter
+    def par(self,value):
+        self._par = value
+
+    @property
+    def queue(self):  
+        """Property holding the queue for parallel run result
+        
+        """
+
+        if hasattr(self,'_queue'):
+            return self._queue
+        else:
+            self._queue = []
+        return self._queue
+
+    @queue.setter
+    def queue(self,value):
+        self._queue = value
 
     def run_parallel(self, **kwargs):
         """ 
@@ -378,7 +409,6 @@ class thesdk(metaclass=abc.ABCMeta):
 
             self.par= True
             self.queue= []
-            self.return_IOS= True/False # Decides if IOS are updated for after running each instance
 
         The method you call (for example run), needs to have::
 
@@ -399,8 +429,8 @@ class thesdk(metaclass=abc.ABCMeta):
         Parameters
         ----------
          **kwargs:  
-                 duts: (??)
-                    Set of instances 
+                 duts: list
+                    List of instances 
                  method: str
                      Method called for each object (default: run)
         """
@@ -425,7 +455,7 @@ class thesdk(metaclass=abc.ABCMeta):
                 elif hasattr(i,key):
                     setattr(i,key,value)
                 else:
-                    self.print_log(type='W', msg='Reult data from parallel run of %s saved to new attribute \'%s\'' %(i, key))
+                    self.print_log(type='W', msg='Result data from parallel run of %s saved to new attribute \'%s\'' %(i, key))
                     setattr(i,key,value)
             proc[n].join()
             n+=1
