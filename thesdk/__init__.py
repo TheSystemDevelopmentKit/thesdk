@@ -404,35 +404,39 @@ class thesdk(metaclass=abc.ABCMeta):
         self._queue = value
 
     def run_parallel(self, **kwargs):
-        """ 
-        Parameters you need to set for instances you want to run in parallel::
+        """ Run instances in parallel and collect results
+
+        Usage: Takes in a set of instances, runs a given method for them, and saves result data to the original instances
+
+        Parameters you need in the instances::
 
             self.par= True
             self.queue= []
 
-        The method you call (for example run), needs to have::
+        In order to pass the return que from the parent, the method you call (for example run), needs to have::
 
             def run(self,*arg):
                 if len(arg)>0:
                     self.par=True      #flag for parallel processing
                     self.queue=arg[0]  #multiprocessing.queue as the first argument
 
-        To get data out place this at the end of your method. ::
+        Results are returned as a dictionary. The dictionary can include IOS, which are saved to IOS of the original instance. 
+        Otherwise non-IO key-value pairs are saved as attributes for the original instance.
+        This is an example of returning both IOS and other data (place at the end of your simlation)::
 
             if self.par==True: 
-                retlist = self.IOSdict_for_parent() # returns a dictionary in a list (if return_IOS is false, the dict is empty). Currently required even if return_IOS = False
-                customret = {'amplitude' : self.sig_sco.peak_to_peak} #optional. Example for returning data other than IOS. These key value pairs end up as parameters for the ran instance
-                retlist.append(customret) #optional (see above)
-                self.queue.put(retlist)
+                ret_dict = {'NF' : 25} 
+                ret_dict.update(self.IOS.Members) #Adds IOS to return dictionary
+                self.queue.put(ret_dict)
 
         ----------
         Parameters
         ----------
          **kwargs:  
                  duts: list
-                    List of instances 
+                    List of instances you want to simulate
                  method: str
-                     Method called for each object (default: run)
+                     Method called for each instance (default: run)
         """
 
         duts=kwargs.get('duts') 
