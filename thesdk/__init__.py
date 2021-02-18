@@ -341,8 +341,8 @@ class thesdk(metaclass=abc.ABCMeta):
         thesdk to the logfile.
 
         The timer is applied by decorating the function to be timed with
-        '\@thesdk.timer'. For example, calling a function
-        'calculate_something()' belonging to an example class
+        \@thesdk.timer. For example, calling a function
+        calculate_something() belonging to an example class
         calculator(thesdk), would print the following::
 
             class calculator(thesdk):
@@ -353,11 +353,11 @@ class thesdk(metaclass=abc.ABCMeta):
                     print(result)
                     return result
 
-            >>> calc = calculator()
-            >>> result = calc.calculate_something():
+            >> calc = calculator()
+            >> result = calc.calculate_something()
             42
             10:25:17 INFO at calculator: Finished 'calculate_something' in 0.758 s.
-            >>> print(result)
+            >> print(result)
             42
             
         """
@@ -392,7 +392,6 @@ class thesdk(metaclass=abc.ABCMeta):
         """Property holding the queue for parallel run result
         
         """
-
         if hasattr(self,'_queue'):
             return self._queue
         else:
@@ -406,22 +405,27 @@ class thesdk(metaclass=abc.ABCMeta):
     def run_parallel(self, **kwargs):
         """ Run instances in parallel and collect results
 
-        Usage: Takes in a set of instances, runs a given method for them, and saves result data to the original instances
+        Usage: Takes in a set of instances, runs a given method for them, and
+        saves result data to the original instances.
 
-        In order to pass the return que from the parent, the method you call (for example run), needs to have::
+        Results are returned as a dictionary. The dictionary can include IOS,
+        which are saved to IOS of the original instance. Otherwise non-IO
+        key-value pairs are saved as members of self.extracts.Members for the
+        original instance. This is an example of returning both IOS and other
+        data (place at the end of your simulation method, e.g. run())::
 
-            def run(self,*arg):
-                if len(arg)>0:
-                    self.par=True      #flag for parallel processing
-                    self.queue=arg[0]  #multiprocessing.queue as the first argument
-
-        Results are returned as a dictionary. The dictionary can include IOS, which are saved to IOS of the original instance. 
-        Otherwise non-IO key-value pairs are saved as attributes for the original instance.
-        This is an example of returning both IOS and other data (place at the end of your simlation)::
-
-            if self.par==True: 
+            if self.par: 
                 ret_dict = {'NF' : 25} 
                 ret_dict.update(self.IOS.Members) #Adds IOS to return dictionary
+                self.queue.put(ret_dict)
+
+        Some simulator modules can populate the extracts-bundle with generic
+        extracted parameters. To pass this dictionary to the original instance,
+        following example can be used::
+
+            if self.par: 
+                # Combine IOS and extracts into one dictionary
+                ret_dict = {**self.IOS.Members,**self.extracts.Members} 
                 self.queue.put(ret_dict)
 
         ----------
@@ -442,6 +446,8 @@ class thesdk(metaclass=abc.ABCMeta):
         for i in duts:
             que.append(multiprocessing.Queue())
             proc.append(multiprocessing.Process(target=getattr(i,method) ,args=(que[n],)))
+            i.par = True
+            i.queue = que[n]
             proc[n].start()
             n+=1
         n=0
@@ -484,10 +490,10 @@ class thesdk(metaclass=abc.ABCMeta):
         """ Type: Bundle 
         
         Bundle for holding the returned results from simulations that are not
-        attributes or IO's
+        attributes or IOs. 
 
         Example:
-            self.IOS.Members['input_A']=IO()
+            self.extracts.Members['sndr']=60
         
         """
 
@@ -498,8 +504,8 @@ class thesdk(metaclass=abc.ABCMeta):
         return self._extracts
 
     @extracts.setter
-    def IOS(self,value):
-        self._IOS = value
+    def extracts(self,value):
+        self._extracts = value
 
 class IO(thesdk):
     ''' TheSyDeKick IO class. Child of thesdk to utilize logging method.
