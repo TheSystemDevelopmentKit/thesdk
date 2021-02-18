@@ -408,11 +408,6 @@ class thesdk(metaclass=abc.ABCMeta):
 
         Usage: Takes in a set of instances, runs a given method for them, and saves result data to the original instances
 
-        Parameters you need in the instances::
-
-            self.par= True
-            self.queue= []
-
         In order to pass the return que from the parent, the method you call (for example run), needs to have::
 
             def run(self,*arg):
