@@ -445,7 +445,7 @@ class thesdk(metaclass=abc.ABCMeta):
         n=0
         for i in duts:
             que.append(multiprocessing.Queue())
-            proc.append(multiprocessing.Process(target=getattr(i,method) ,args=(que[n],)))
+            proc.append(multiprocessing.Process(target=getattr(i,method)))
             i.par = True
             i.queue = que[n]
             proc[n].start()
