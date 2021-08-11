@@ -6,7 +6,7 @@ Thesdk
 Superclass class of TheSyDeKick - universal System Development Kit. Provides
 commmon methods and utility classes for other classes in TheSyDeKick.
 
-Created by Marko Kosunen, mrko.kosunen@aalto.fi, 2017.
+Created by Marko Kosunen, marko.kosunen@aalto.fi, 2017.
 
 Documentation instructions
 
@@ -14,7 +14,7 @@ Current docstring documentation style is Numpy
 https://numpydoc.readthedocs.io/en/latest/format.html
 
 This text here is to remind you that documentation is important.
-However, you may find it out the even the documentation of this
+However, you may find out that even the documentation of this
 entity may be outdated and incomplete. Regardless of that, every day
 and in every way we are getting better and better :).
 
@@ -29,6 +29,7 @@ import re
 import abc
 from abc import *
 from functools import reduce
+import multiprocessing
 
 import time
 import functools
@@ -41,12 +42,12 @@ import functools
 
 class thesdk(metaclass=abc.ABCMeta):
     '''
-    Following class attribute are set when this class imported
+    Following class attributes are set when this class imported
 
     Attributes
     ----------
 
-    HOME: strl
+    HOME: str
         Directory ../../../ counting from location __init__.py file of
         thesdkclass. Used as a reference point for other locations
 
@@ -64,7 +65,7 @@ class thesdk(metaclass=abc.ABCMeta):
     global_parameters: list(str)
        List of global parameters to be read to GLOBALS dictionary from CONFIGFILE
 
-    GLOBALS: Dict
+    GLOBALS: dict
        Dictionary of global parameters, keys defined by global_parameters,
        values defined in CONFIGFILE
 
@@ -77,19 +78,20 @@ class thesdk(metaclass=abc.ABCMeta):
         HOME=os.path.dirname(HOME)
     print("Home of TheSDK is %s" %(HOME))
     CONFIGFILE=HOME+'/TheSDK.config'
-    print("Config file  of TheSDK is %s" %(CONFIGFILE))
+    print("Config file of TheSDK is %s" %(CONFIGFILE))
 
     #This variable becomes redundant after the GLOBALS dictionary is created
     global_parameters=['LSFSUBMISSION','LSFINTERACTIVE','ELDOLIBFILE','SPECTRELIBFILE']
 
-    #Appending all TheSDK python modules to system path (only ones, with set subtraction)
+    #Appending all TheSDK python modules to system path (only once, with set subtraction)
     #This could be done as oneliner with lambda,filter, map and recude, but due to name scope 
     #definitions, this is simpler method in class definition
     MODULEPATHS=[os.path.split(os.path.split(y)[0])[0] for y in [ filename for filename in 
         glob.iglob( HOME+'/Entities/**/__init__.py',recursive=True)]] 
     for i in list(set(MODULEPATHS)-set(sys.path)):
-        print("Adding %s to system path" %(i))
-        sys.path.append(i)
+        if 'BagModules' not in i:
+            print("Adding %s to system path" %(i))
+            sys.path.append(i)
     
     logfile=("/tmp/TheSDK_" + os.path.basename(tempfile.mkstemp()[1])+"_"+getpass.getuser()
         +"_"+time.strftime("%Y%m%d%H%M")+".log")
@@ -131,7 +133,7 @@ class thesdk(metaclass=abc.ABCMeta):
         if os.path.isfile(__class__.logfile):
             os.remove(__class__.logfile)
         typestr="INFO at "
-        msg="Default logfile override. Inited logging in %s" %(__class__.logfile)
+        msg="Default logfile override. Initialized logging in %s" %(__class__.logfile)
         fid= open(__class__.logfile, 'a')
         print("%s %s  %s: %s" %(time.strftime("%H:%M:%S"),typestr, __class__.__name__ , msg))
         fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"),typestr, __class__.__name__ , msg))
@@ -176,7 +178,7 @@ class thesdk(metaclass=abc.ABCMeta):
     def model(self):
         ''' Simulation model to be used 
 
-        'py' |  'sv' |  'vhdl' |  'eldo' |  'spectre'   
+        'py' |  'sv' |  'vhdl' |  'eldo' |  'spectre' | 'ngspice' | 'hw' 
 
         '''
         if not hasattr(self,'_model'):
@@ -185,7 +187,7 @@ class thesdk(metaclass=abc.ABCMeta):
             return self._model
     @model.setter
     def model(self,val):
-        if val in [ 'py', 'sv', 'vhdl', 'eldo', 'spectre' ]:
+        if val in [ 'py', 'sv', 'vhdl', 'eldo', 'spectre', 'ngspice', 'hw' ]:
             self._model=val
         else:
             self.print_log(type='W', msg= 'Simulator model %s not supported.' %(val))
@@ -197,7 +199,7 @@ class thesdk(metaclass=abc.ABCMeta):
     def simpath(self):
         ''' Simulation directory according to model.
 
-        Default: Self.entitypath/Simulations/<simulator>sim
+        Default: self.entitypath/Simulations/<simulator>sim
         For verilog and vhdl <simulator> is 'rtl'.
         '''
         if not hasattr(self,'_simpath'):
@@ -261,7 +263,7 @@ class thesdk(metaclass=abc.ABCMeta):
                  type: str  
                     'I' = Information 
                     'D' = Debug. Enabled by setting the Debug-attribute of an instance to true
-                    'W' = Warnig
+                    'W' = Warning
                     'E' = Error
                     'F' = Fatal, quits the execution
                     'O' = Obsolete, used for obsolition warnings. 
@@ -275,7 +277,7 @@ class thesdk(metaclass=abc.ABCMeta):
         msg=kwargs.get('msg',"Print this to log")
         if not os.path.isfile(thesdk.logfile):
             typestr="INFO at"
-            initmsg="Inited logging in %s" %(thesdk.logfile)
+            initmsg="Initialized logging in %s" %(thesdk.logfile)
             fid= open(thesdk.logfile, 'a')
             print("%s %s thesdk: %s" %(time.strftime("%H:%M:%S"), typestr , initmsg))
             fid.write("%s %s thesdk: %s\n" %(time.strftime("%H:%M:%S"), typestr, initmsg))
@@ -340,8 +342,8 @@ class thesdk(metaclass=abc.ABCMeta):
         thesdk to the logfile.
 
         The timer is applied by decorating the function to be timed with
-        '\@thesdk.timer'. For example, calling a function
-        'calculate_something()' belonging to an example class
+        \@thesdk.timer. For example, calling a function
+        calculate_something() belonging to an example class
         calculator(thesdk), would print the following::
 
             class calculator(thesdk):
@@ -352,11 +354,11 @@ class thesdk(metaclass=abc.ABCMeta):
                     print(result)
                     return result
 
-            >>> calc = calculator()
-            >>> result = calc.calculate_something():
+            >> calc = calculator()
+            >> result = calc.calculate_something()
             42
             10:25:17 INFO at calculator: Finished 'calculate_something' in 0.758 s.
-            >>> print(result)
+            >> print(result)
             42
             
         """
@@ -369,6 +371,142 @@ class thesdk(metaclass=abc.ABCMeta):
             args[0].print_log(type='I',msg='Finished \'%s\' in %.03f s.' % (func.__name__,duration))
             return retval
         return wrapper_timer
+
+    @property
+    def par(self):  
+        """True | False (default)
+
+        Property defines whether parallel run is intended or not"""
+
+        if hasattr(self,'_par'):
+            return self._par
+        else:
+            self._par=False
+        return self._par
+
+    @par.setter
+    def par(self,value):
+        self._par = value
+
+    @property
+    def queue(self):  
+        """Property holding the queue for parallel run result
+        
+        """
+        if hasattr(self,'_queue'):
+            return self._queue
+        else:
+            self._queue = []
+        return self._queue
+
+    @queue.setter
+    def queue(self,value):
+        self._queue = value
+
+    def run_parallel(self, **kwargs):
+        """ Run instances in parallel and collect results
+
+        Usage: Takes in a set of instances, runs a given method for them, and
+        saves result data to the original instances.
+
+        Results are returned as a dictionary. The dictionary can include IOS,
+        which are saved to IOS of the original instance. Otherwise non-IO
+        key-value pairs are saved as members of self.extracts.Members for the
+        original instance. This is an example of returning both IOS and other
+        data (place at the end of your simulation method, e.g. run())::
+
+            if self.par: 
+                ret_dict = {'NF' : 25} 
+                ret_dict.update(self.IOS.Members) #Adds IOS to return dictionary
+                self.queue.put(ret_dict)
+
+        Some simulator modules can populate the extracts-bundle with generic
+        extracted parameters. To pass this dictionary to the original instance,
+        following example can be used::
+
+            if self.par: 
+                # Combine IOS and extracts into one dictionary
+                ret_dict = {**self.IOS.Members,**self.extracts.Members} 
+                self.queue.put(ret_dict)
+
+        ----------
+        Parameters
+        ----------
+         **kwargs:  
+                 duts: list
+                    List of instances you want to simulate
+                 method: str
+                     Method called for each instance (default: run)
+        """
+
+        duts=kwargs.get('duts') 
+        method=kwargs.get('method','run') 
+        que=[]
+        proc=[]
+        n=0
+        for i in duts:
+            que.append(multiprocessing.Queue())
+            proc.append(multiprocessing.Process(target=getattr(i,method)))
+            i.par = True
+            i.queue = que[n]
+            proc[n].start()
+            n+=1
+        n=0
+        for i in duts:
+            ret_dict=que[n].get() # returned dictionary
+            self.print_log(type='I', msg='Saving results from parallel run of %s' %(i))
+            for key,value in ret_dict.items():
+                if key in i.IOS.Members:
+                    i.IOS.Members[key] = value
+                elif hasattr(i,key):
+                    setattr(i,key,value)
+                else:
+                    i.extracts.Members[key] = value
+            proc[n].join()
+            n+=1
+
+    @property
+    def IOS(self):  
+        """ Type: Bundle of IO's
+        
+        Property holding the IOS
+
+        Example:
+            self.IOS.Members['input_A']=IO()
+        
+        """
+
+        if hasattr(self,'_IOS'):
+            return self._IOS
+        else:
+            self._IOS = Bundle()
+        return self._IOS
+
+    @IOS.setter
+    def IOS(self,value):
+        self._IOS = value
+
+    @property
+    def extracts(self):  
+        """ Type: Bundle 
+        
+        Bundle for holding the returned results from simulations that are not
+        attributes or IOs. 
+
+        Example:
+            self.extracts.Members['sndr']=60
+        
+        """
+
+        if hasattr(self,'_extracts'):
+            return self._extracts
+        else:
+            self._extracts = Bundle()
+        return self._extracts
+
+    @extracts.setter
+    def extracts(self,value):
+        self._extracts = value
 
 class IO(thesdk):
     ''' TheSyDeKick IO class. Child of thesdk to utilize logging method.
