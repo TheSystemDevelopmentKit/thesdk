@@ -178,7 +178,7 @@ class thesdk(metaclass=abc.ABCMeta):
     def model(self):
         ''' Simulation model to be used 
 
-        'py' |  'sv' |  'vhdl' |  'eldo' |  'spectre' | 'hw' 
+        'py' |  'sv' |  'vhdl' |  'eldo' |  'spectre' | 'ngspice' | 'hw' 
 
         '''
         if not hasattr(self,'_model'):
@@ -187,7 +187,7 @@ class thesdk(metaclass=abc.ABCMeta):
             return self._model
     @model.setter
     def model(self,val):
-        if val in [ 'py', 'sv', 'vhdl', 'eldo', 'spectre', 'hw' ]:
+        if val in [ 'py', 'sv', 'vhdl', 'eldo', 'spectre', 'ngspice', 'hw' ]:
             self._model=val
         else:
             self.print_log(type='W', msg= 'Simulator model %s not supported.' %(val))
