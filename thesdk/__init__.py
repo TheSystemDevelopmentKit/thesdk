@@ -33,6 +33,7 @@ import multiprocessing
 
 import time
 import functools
+import contextlib as cl
 
 #Set 'must have methods' with abstractmethod
 #@abstractmethod
@@ -305,7 +306,7 @@ class thesdk(metaclass=abc.ABCMeta):
            print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
                self.__class__.__name__ , msg)) 
         elif type=='O':
-           typestr="[OBSOLETE]: at"
+           typestr="OBSOLETE: at"
            print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
                self.__class__.__name__ , msg)) 
 
@@ -369,6 +370,35 @@ class thesdk(metaclass=abc.ABCMeta):
             args[0].print_log(type='I',msg='Finished \'%s\' in %.03f s.' % (func.__name__,duration))
             return retval
         return wrapper_timer
+
+    @cl.contextmanager
+    def silence(self,show_error=True,debug=False):
+        '''
+        Context manager to redirect stdout (and optional errors) to /dev/null.
+        Useful for cleaning up verbose function outputs. The silencing can be
+        bypassed by setting debug=True. Errors are let through by default, but
+        error messages can be silenced also by setting show_error=False.
+        Silences only Python outputs (external commands such as spectre can
+        still write to stdout).
+        
+        To silence (prevent printing to stdout) of a section of code::
+            
+            print('This is printed normally')
+            with self.silence():
+                print('This will not be printed')
+            print('This is again printed normally')
+
+        '''
+        if not debug:
+            with open(os.devnull, 'w') as fnull:
+                if not show_error:
+                    with cl.redirect_stderr(fnull) as err, cl.redirect_stdout(fnull) as out:
+                        yield (err, out)
+                else:
+                    with cl.redirect_stdout(fnull) as out:
+                        yield out
+        else:
+            yield
 
     @property
     def par(self):  
