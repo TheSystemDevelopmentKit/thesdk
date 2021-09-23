@@ -142,9 +142,8 @@ class thesdk(metaclass=abc.ABCMeta):
     @property
     def DEBUG(self):
         if not hasattr(self,'_DEBUG'):
-            return 'False'
-        else:
-            return self._DEBUG
+            self._DEBUG = False
+        return self._DEBUG
     @DEBUG.setter
     def DEBUG(self,value):
         self._DEBUG=value
