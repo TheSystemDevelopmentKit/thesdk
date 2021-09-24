@@ -290,10 +290,10 @@ class thesdk(metaclass=abc.ABCMeta):
                     self.__class__.__name__ , msg)) 
                 if hasattr(self,"logfile"):
                     fid= open(thesdk.logfile, 'a')
-                    fid.write("%s Quitting due to fatal error in %s.\n" 
-                            %( time.strftime("%H:%M:%S"), self.__class__.__name__))
+                    fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), 
+                    typestr, self.__class__.__name__ , msg)) 
                     fid.close()
-                    return
+            return
         elif type== 'I':
            typestr="INFO at"
            print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
