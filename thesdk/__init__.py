@@ -34,6 +34,7 @@ import multiprocessing
 import time
 import functools
 import contextlib as cl
+import pdb
 
 #Set 'must have methods' with abstractmethod
 #@abstractmethod
@@ -283,24 +284,24 @@ class thesdk(metaclass=abc.ABCMeta):
             fid.close()
 
         if type== 'D':
+            typestr="DEBUG at"
             if self.DEBUG:
-                typestr="DEBUG at"
                 print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
                     self.__class__.__name__ , msg)) 
                 if hasattr(self,"logfile"):
                     fid= open(thesdk.logfile, 'a')
-                    fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), 
-                        typestr, self.__class__.__name__ , msg)) 
+                    fid.write("%s Quitting due to fatal error in %s.\n" 
+                            %( time.strftime("%H:%M:%S"), self.__class__.__name__))
                     fid.close()
-            return
+                    return
         elif type== 'I':
            typestr="INFO at"
            print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
                self.__class__.__name__ , msg)) 
         elif type=='W':
            typestr="WARNING! at"
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), 
-               typestr, self.__class__.__name__ , msg)) 
+           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
+               self.__class__.__name__ , msg)) 
         elif type=='E':
            typestr="ERROR! at"
            print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
@@ -323,7 +324,7 @@ class thesdk(metaclass=abc.ABCMeta):
                quit()
         else:
            typestr="ERROR! at"
-           msg="Incorrect message type. Choose one of 'D', 'I', 'E' or 'F'."
+           msg="Incorrect message type '%s'. Choose one of 'D', 'I', 'E' or 'F'." % type
            print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
                self.__class__.__name__ , msg)) 
 
