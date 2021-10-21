@@ -142,8 +142,10 @@ class thesdk(metaclass=abc.ABCMeta):
     #Common properties
     @property
     def DEBUG(self):
+        '''Set this to True if you want the debug messages printed
+        '''
         if not hasattr(self,'_DEBUG'):
-            return 'False'
+            return False
         else:
             return self._DEBUG
     @DEBUG.setter
