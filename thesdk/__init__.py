@@ -33,6 +33,8 @@ import multiprocessing
 
 import time
 import functools
+import contextlib as cl
+import pdb
 
 #Set 'must have methods' with abstractmethod
 #@abstractmethod
@@ -145,9 +147,8 @@ class thesdk(metaclass=abc.ABCMeta):
         '''Set this to True if you want the debug messages printed
         '''
         if not hasattr(self,'_DEBUG'):
-            return False
-        else:
-            return self._DEBUG
+            self._DEBUG = False
+        return self._DEBUG
     @DEBUG.setter
     def DEBUG(self,value):
         self._DEBUG=value
@@ -286,14 +287,14 @@ class thesdk(metaclass=abc.ABCMeta):
             fid.close()
 
         if type== 'D':
+            typestr="DEBUG at"
             if self.DEBUG:
-                typestr="DEBUG at"
                 print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
                     self.__class__.__name__ , msg)) 
                 if hasattr(self,"logfile"):
                     fid= open(thesdk.logfile, 'a')
                     fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), 
-                        typestr, self.__class__.__name__ , msg)) 
+                    typestr, self.__class__.__name__ , msg)) 
                     fid.close()
             return
         elif type== 'I':
@@ -302,14 +303,14 @@ class thesdk(metaclass=abc.ABCMeta):
                self.__class__.__name__ , msg)) 
         elif type=='W':
            typestr="WARNING! at"
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), 
-               typestr, self.__class__.__name__ , msg)) 
+           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
+               self.__class__.__name__ , msg)) 
         elif type=='E':
            typestr="ERROR! at"
            print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
                self.__class__.__name__ , msg)) 
         elif type=='O':
-           typestr="[OBSOLETE]: at"
+           typestr="OBSOLETE: at"
            print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
                self.__class__.__name__ , msg)) 
 
@@ -326,7 +327,7 @@ class thesdk(metaclass=abc.ABCMeta):
                quit()
         else:
            typestr="ERROR! at"
-           msg="Incorrect message type. Choose one of 'D', 'I', 'E' or 'F'."
+           msg="Incorrect message type '%s'. Choose one of 'D', 'I', 'E' or 'F'." % type
            print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
                self.__class__.__name__ , msg)) 
 
@@ -373,6 +374,35 @@ class thesdk(metaclass=abc.ABCMeta):
             args[0].print_log(type='I',msg='Finished \'%s\' in %.03f s.' % (func.__name__,duration))
             return retval
         return wrapper_timer
+
+    @cl.contextmanager
+    def silence(self,show_error=True,debug=False):
+        '''
+        Context manager to redirect stdout (and optional errors) to /dev/null.
+        Useful for cleaning up verbose function outputs. The silencing can be
+        bypassed by setting debug=True. Errors are let through by default, but
+        error messages can be silenced also by setting show_error=False.
+        Silences only Python outputs (external commands such as spectre can
+        still write to stdout).
+        
+        To silence (prevent printing to stdout) of a section of code::
+            
+            print('This is printed normally')
+            with self.silence():
+                print('This will not be printed')
+            print('This is again printed normally')
+
+        '''
+        if not debug:
+            with open(os.devnull, 'w') as fnull:
+                if not show_error:
+                    with cl.redirect_stderr(fnull) as err, cl.redirect_stdout(fnull) as out:
+                        yield (err, out)
+                else:
+                    with cl.redirect_stdout(fnull) as out:
+                        yield out
+        else:
+            yield
 
     @property
     def par(self):  
