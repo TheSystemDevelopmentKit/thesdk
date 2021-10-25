@@ -16,7 +16,7 @@ all: doc
 
 doc:
 	cd $THISDIR/doc && \\
-	make html
+	make html latexpdf
 
 clean:
 	cd ${THISDIR}/doc && \\

@@ -516,14 +516,15 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def extracts(self):  
-        """ Type: Bundle 
+        """ Bundle
         
-        Bundle for holding the returned results from simulations that are not
-        attributes or IOs. 
+        Bundle for holding the returned results from simulations that are
+        not attributes or IOs. 
 
-        Example:
+        Example::
+
             self.extracts.Members['sndr']=60
-        
+
         """
 
         if hasattr(self,'_extracts'):
