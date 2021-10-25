@@ -35,6 +35,7 @@ import time
 import functools
 import contextlib as cl
 import pdb
+import pickle
 
 #Set 'must have methods' with abstractmethod
 #@abstractmethod
@@ -216,7 +217,6 @@ class thesdk(metaclass=abc.ABCMeta):
             if not os.path.exists(self._simpath):
                 os.makedirs(self._simpath)
         return self._simpath
-
     @simpath.setter
     def simpath(self,val):
         self._simpath=val
@@ -510,7 +510,6 @@ class thesdk(metaclass=abc.ABCMeta):
         else:
             self._IOS = Bundle()
         return self._IOS
-
     @IOS.setter
     def IOS(self,value):
         self._IOS = value
@@ -532,10 +531,118 @@ class thesdk(metaclass=abc.ABCMeta):
         else:
             self._extracts = Bundle()
         return self._extracts
-
     @extracts.setter
     def extracts(self,value):
         self._extracts = value
+
+    @property
+    def statepath(self):  
+        """ String
+        
+        Path where the entity state is stored and where existing states are
+        loaded from.
+        """
+        if not hasattr(self,'_statepath'):
+            self._statepath = '%s/states/%s' % (self.entitypath,self.model)
+        return self._statepath
+    @statepath.setter
+    def statepath(self,value):
+        self._statepath = value
+
+    @property
+    def save_state(self):  
+        """ Boolean (default False)
+        
+        Save the entity state after simulation (including output data). Any
+        stored state can be loaded using the matching state name passed to the
+        `load_state` property. The state is saved to `savestatepath` by default.
+        """
+        if not hasattr(self,'_save_state'):
+            self._save_state = False
+        return self._save_state
+    @save_state.setter
+    def save_state(self,value):
+        self._save_state = value
+
+    @property
+    def load_state(self):  
+        """ String (default '')
+
+        Feature for loading results of previous simulation. When calling run()
+        with this property set, the simulation is not re-executed, but the
+        entity state and output data will be read from the saved state. The
+        string value should be the `runname` of the desired simulation.
+        
+        Loading the most recent result automatically::
+
+            self.load_state = 'last'
+            # or
+            self.load_state = 'latest'
+
+        Loading a specific past result using the `runname`::
+
+            self.load_state = '20201002103638_tmpdbw11nr4'
+
+        List available results by providing any non-existent `runname`::
+
+            self.load_state = 'this_does_not_exist'
+        """
+        if not hasattr(self,'_load_state'):
+            self._load_state=''
+        return self._load_state
+    @load_state.setter
+    def load_state(self,value):
+        self._load_state=value
+
+    def _write_state(self):
+        """ Write the entity state to a binary file.
+
+        This should be called after the simulation has finished. This will
+        probably need to be overloaded by the specific simulator module for
+        more specific result storing.
+        """
+        pathname = '%s/%s' % (self.statepath,self.runname)
+        try:
+            if not (os.path.exists(pathname)):
+                os.makedirs(pathname)
+        except:
+            self.print_log(type='E',msg='Failed to create %s' % pathname)
+        try:
+            with open('%s/state.pickle' % pathname,'wb') as f:
+                pickle.dump(self,f)
+            self.print_log(type='I',msg='Saving state %s' % pathname)
+        except:
+            self.print_log(type='E',msg='Failed saving state %s' % pathname)
+
+    def _read_state(self):
+        """ Read the entity state from a binary file.
+
+        """
+        self.runname = self.load_state
+        if self.runname == 'latest' or self.runname == 'last':
+            results = glob.glob(self.statepath+'/*')
+            latest = max(results, key=os.path.getctime)
+            self.runname = latest.split('/')[-1]
+        pathname = '%s/%s' % (self.statepath,self.runname)
+        if not os.path.exists(pathname):
+            self.print_log(type='E',msg='Existing results not found in %s' % pathname)
+            existing = os.listdir(self.statepath)
+            self.print_log(type='I',msg='Found results:')
+            for f in existing:
+                self.print_log(type='I',msg='%s' % f)
+        try:
+            with open('%s/state.pickle' % pathname,'rb') as f:
+                obj = pickle.load(f)
+                # TODO: check if this breaks the IO pointers in hierarchical simulations
+                self.__dict__.update(obj.__dict__)
+            self.print_log(type='I',msg='Loaded state %s' % pathname)
+        except:
+            self.print_log(type='F',msg='Failed loading state %s' % pathname)
+
+    def __getstate__(self):
+        return self.__dict__.copy()
+    def __setstate__(self,state):
+        self.__dict__.update(state)
 
 class IO(thesdk):
     ''' TheSyDeKick IO class. Child of thesdk to utilize logging method.
@@ -595,6 +702,11 @@ class IO(thesdk):
     def data(self,value):
         self._Data=value
 
+    def __getstate__(self):
+        return self.__dict__.copy()
+    def __setstate__(self,state):
+        self.__dict__.update(state)
+
 # Bundle is a Dict of something
 # Class is needed to define bundle operations
 class Bundle(metaclass=abc.ABCMeta):
@@ -635,3 +747,7 @@ class Bundle(metaclass=abc.ABCMeta):
         val=kwargs.get('val','')
         self.Members[name]=val
 
+    def __getstate__(self):
+        return self.__dict__.copy()
+    def __setstate__(self,state):
+        self.__dict__.update(state)
