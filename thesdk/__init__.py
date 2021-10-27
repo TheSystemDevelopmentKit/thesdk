@@ -134,10 +134,11 @@ class thesdk(metaclass=abc.ABCMeta):
 
         if os.path.isfile(__class__.logfile):
             os.remove(__class__.logfile)
-        typestr="INFO at "
+        typestr="[INFO]"
         msg="Default logfile override. Initialized logging in %s" %(__class__.logfile)
+        print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cgreen,typestr,cend, 
+            self.__class__.__name__ , msg))
         fid= open(__class__.logfile, 'a')
-        print("%s %s  %s: %s" %(time.strftime("%H:%M:%S"),typestr, __class__.__name__ , msg))
         fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"),typestr, __class__.__name__ , msg))
         fid.close()
 
@@ -275,19 +276,33 @@ class thesdk(metaclass=abc.ABCMeta):
 
         type=kwargs.get('type','I')
         msg=kwargs.get('msg',"Print this to log")
+
+        # Colors for stdout prints
+        self.print_colors = True
+        cend    = '' if not self.print_colors else '\33[0m'
+        cblack  = '' if not self.print_colors else '\33[30m'
+        cred    = '' if not self.print_colors else '\33[31m'
+        cgreen  = '' if not self.print_colors else '\33[32m'
+        cyellow = '' if not self.print_colors else '\33[33m'
+        cblue   = '' if not self.print_colors else '\33[34m'
+        cviolet = '' if not self.print_colors else '\33[35m'
+        cbeige  = '' if not self.print_colors else '\33[36m'
+        cwhite  = '' if not self.print_colors else '\33[37m'
+
         if not os.path.isfile(thesdk.logfile):
-            typestr="INFO at"
+            typestr="[INFO]"
             initmsg="Initialized logging in %s" %(thesdk.logfile)
+            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cgreen,typestr,cend, 
+                self.__class__.__name__ , msg))
             fid= open(thesdk.logfile, 'a')
-            print("%s %s thesdk: %s" %(time.strftime("%H:%M:%S"), typestr , initmsg))
             fid.write("%s %s thesdk: %s\n" %(time.strftime("%H:%M:%S"), typestr, initmsg))
             fid.close()
 
         if type== 'D':
-            typestr="DEBUG at"
             if self.DEBUG:
-                print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
-                    self.__class__.__name__ , msg)) 
+                typestr="[DEBUG]"
+                print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cblue,typestr,cend, 
+                    self.__class__.__name__ , msg))
                 if hasattr(self,"logfile"):
                     fid= open(thesdk.logfile, 'a')
                     fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), 
@@ -295,38 +310,37 @@ class thesdk(metaclass=abc.ABCMeta):
                     fid.close()
             return
         elif type== 'I':
-           typestr="INFO at"
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
-               self.__class__.__name__ , msg)) 
+            typestr="[INFO]"
+            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cgreen,typestr,cend, 
+                self.__class__.__name__ , msg))
         elif type=='W':
-           typestr="WARNING! at"
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
-               self.__class__.__name__ , msg)) 
+            typestr="[WARNING]"
+            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cyellow,typestr,cend, 
+                self.__class__.__name__ , msg))
         elif type=='E':
-           typestr="ERROR! at"
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
-               self.__class__.__name__ , msg)) 
+            typestr="[ERROR]"
+            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cred,typestr,cend, 
+                self.__class__.__name__ , msg))
         elif type=='O':
-           typestr="OBSOLETE: at"
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
-               self.__class__.__name__ , msg)) 
-
+            typestr="[OBSOLETE]"
+            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cviolet,typestr,cend, 
+                self.__class__.__name__ , msg))
         elif type=='F':
-           typestr="FATAL ERROR! at"
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
-               self.__class__.__name__ , msg)) 
-           print("Quitting due to fatal error in %s" %(self.__class__.__name__))
-           if hasattr(self,"logfile"):
-               fid= open(thesdk.logfile, 'a')
-               fid.write("%s Quitting due to fatal error in %s.\n" 
-                       %( time.strftime("%H:%M:%S"), self.__class__.__name__))
-               fid.close()
-               quit()
+            typestr="[FATAL]"
+            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cred,typestr,cend, 
+                self.__class__.__name__ , msg))
+            print("Quitting due to fatal error in %s" %(self.__class__.__name__))
+            if hasattr(self,"logfile"):
+                fid= open(thesdk.logfile, 'a')
+                fid.write("%s Quitting due to fatal error in %s.\n" 
+                        %( time.strftime("%H:%M:%S"), self.__class__.__name__))
+                fid.close()
+                quit()
         else:
-           typestr="ERROR! at"
-           msg="Incorrect message type '%s'. Choose one of 'D', 'I', 'E' or 'F'." % type
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
-               self.__class__.__name__ , msg)) 
+            typestr="[ERROR]"
+            msg="Incorrect message type '%s'. Choose one of 'D', 'I', 'E' or 'F'." % type
+            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cred,typestr,cend, 
+                self.__class__.__name__ , msg))
 
         #If logfile set, print also there 
         if hasattr(self,"logfile"):
@@ -551,6 +565,19 @@ class thesdk(metaclass=abc.ABCMeta):
         self._statepath = value
 
     @property
+    def statedir(self):  
+        """ String
+        
+        Path to the most recently stored state.
+        """
+        if not hasattr(self,'_statedir'):
+            self._statedir = '%s/%s' % (self.statepath,self.runname)
+        return self._statedir
+    @statedir.setter
+    def statedir(self,value):
+        self._statedir = value
+
+    @property
     def save_state(self):  
         """ Boolean (default False)
         
@@ -604,16 +631,16 @@ class thesdk(metaclass=abc.ABCMeta):
         """
         pathname = '%s/%s' % (self.statepath,self.runname)
         try:
-            if not (os.path.exists(pathname)):
-                os.makedirs(pathname)
+            if not (os.path.exists(self.statedir)):
+                os.makedirs(self.statedir)
         except:
-            self.print_log(type='E',msg='Failed to create %s' % pathname)
+            self.print_log(type='E',msg='Failed to create %s' % os.path.relpath(self.statedir,start='../'))
         try:
-            with open('%s/state.pickle' % pathname,'wb') as f:
+            with open('%s/state.pickle' % self.statedir,'wb') as f:
                 pickle.dump(self,f)
-            self.print_log(type='I',msg='Saving state %s' % pathname)
+            self.print_log(type='I',msg='Saving state to ./%s' % os.path.relpath(self.statedir,start='../'))
         except:
-            self.print_log(type='E',msg='Failed saving state %s' % pathname)
+            self.print_log(type='E',msg='Failed saving state to ./%s' % os.path.relpath(self.statedir,start='../'))
 
     def _read_state(self):
         """ Read the entity state from a binary file.
