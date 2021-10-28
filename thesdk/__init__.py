@@ -31,6 +31,7 @@ from abc import *
 from functools import reduce
 import multiprocessing
 
+import traceback
 import time
 import functools
 import contextlib as cl
@@ -681,6 +682,7 @@ class thesdk(metaclass=abc.ABCMeta):
                 pickle.dump(self,f)
             self.print_log(type='I',msg='Saving state to ./%s' % os.path.relpath(self.statedir,start='../'))
         except:
+            self.print_log(type='E',msg=traceback.format_exc())
             self.print_log(type='E',msg='Failed saving state to ./%s' % os.path.relpath(self.statedir,start='../'))
 
     def _read_state(self):
@@ -717,7 +719,10 @@ class thesdk(metaclass=abc.ABCMeta):
             self.print_log(type='F',msg='Failed loading state from ./%s' % os.path.relpath(pathname,start='../'))
 
     def __getstate__(self):
-        return self.__dict__.copy()
+        state=self.__dict__.copy()
+        if '_queue' in state:
+            del state['_queue']
+        return state
     def __setstate__(self,state):
         self.__dict__.update(state)
 
