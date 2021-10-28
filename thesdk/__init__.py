@@ -36,6 +36,7 @@ import functools
 import contextlib as cl
 import pdb
 import pickle
+from datetime import datetime
 
 #Set 'must have methods' with abstractmethod
 #@abstractmethod
@@ -175,7 +176,6 @@ class thesdk(metaclass=abc.ABCMeta):
         return self._entitypath
     #No setter, no deleter.
 
-
     @property
     def model(self):
         ''' Simulation model to be used 
@@ -189,34 +189,26 @@ class thesdk(metaclass=abc.ABCMeta):
             return self._model
     @model.setter
     def model(self,val):
-        if val in [ 'py', 'sv', 'vhdl', 'eldo', 'spectre', 'hw' ]:
-            self._model=val
-        else:
-            self.print_log(type='W', msg= 'Simulator model %s not supported.' %(val))
-            self._model=val
-
+        if val not in [ 'py', 'sv', 'vhdl', 'eldo', 'spectre', 'hw' ]:
+            self.print_log(type='E', msg= 'Simulator model %s not supported.' %(val))
+        self._model=val
         return self._model
 
-    @property 
+    @property
     def simpath(self):
-        ''' Simulation directory according to model.
+        """String
 
-        Default: self.entitypath/Simulations/<simulator>sim
-        For verilog and vhdl <simulator> is 'rtl'.
-        '''
+        Simulation path. (./simulations/<model>/<runname>)
+        This is not meant to be set manually.
+        """
         if not hasattr(self,'_simpath'):
-            if self.model=='py':
-                self._simpath=self.entitypath+self.name
-            elif (self.model=='sv') or (self.model=='vhdl'):
-                # This is now defined in rtl library, and used here only to
-                # retain backwards compatibility. We should determine later on if we take
-                # Any stance towards the supported packages in this package.
-                # See: https://github.com/TheSystemDevelopmentKit/thesdk/issues/12
-                self._simpath=self.rtlsimpath
-            elif (self.model=='eldo'):
-                self._simpath=self.entitypath+'/Simulations/' +self.model + 'sim'
-            if not os.path.exists(self._simpath):
-                os.makedirs(self._simpath)
+            self._simpath = '%s/simulations/%s/%s' % (self.entitypath,self.model,self.runname)
+            try:
+                if not (os.path.exists(self._simpath)):
+                    os.makedirs(self._simpath)
+                    self.print_log(type='I',msg='Creating %s' % self._simpath)
+            except:
+                self.print_log(type='E',msg='Failed to create %s' % self._simpath)
         return self._simpath
     @simpath.setter
     def simpath(self,val):
@@ -278,7 +270,6 @@ class thesdk(metaclass=abc.ABCMeta):
         msg=kwargs.get('msg',"Print this to log")
 
         # Colors for stdout prints
-        self.print_colors = True
         cend    = '' if not self.print_colors else '\33[0m'
         cblack  = '' if not self.print_colors else '\33[30m'
         cred    = '' if not self.print_colors else '\33[31m'
@@ -426,7 +417,6 @@ class thesdk(metaclass=abc.ABCMeta):
         else:
             self._par=False
         return self._par
-
     @par.setter
     def par(self,value):
         self._par = value
@@ -441,7 +431,6 @@ class thesdk(metaclass=abc.ABCMeta):
         else:
             self._queue = []
         return self._queue
-
     @queue.setter
     def queue(self,value):
         self._queue = value
@@ -551,6 +540,45 @@ class thesdk(metaclass=abc.ABCMeta):
         self._extracts = value
 
     @property
+    def print_colors(self):  
+        """ True (default) | False
+        
+        Enable color tags in log print messages.
+        """
+        if not hasattr(self,'_print_colors'):
+            self._print_colors = True
+        return self._print_colors
+    @print_colors.setter
+    def print_colors(self,value):
+        self._print_colors = value
+
+    @property
+    def runname(self):
+        """String 
+        
+        Automatically generated name for the simulation. 
+        
+        Formatted as timestamp_randomtag, i.e. '20201002103638_tmpdbw11nr4'.
+        Can be overridden by assigning self.runname = 'myname'.
+
+        Example::
+
+            self.runname = 'test'
+
+        would generate the simulation files in `simulations/<model>/test/`.
+
+        """
+        if hasattr(self,'_runname'):
+            return self._runname
+        else:
+            self._runname='%s_%s' % \
+                    (datetime.now().strftime('%Y%m%d%H%M%S'),os.path.basename(tempfile.mkstemp()[1]))
+        return self._runname
+    @runname.setter
+    def runname(self,value):
+        self._runname=value
+
+    @property
     def statepath(self):  
         """ String
         
@@ -579,7 +607,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def save_state(self):  
-        """ Boolean (default False)
+        """ True | False (default)
         
         Save the entity state after simulation (including output data). Any
         stored state can be loaded using the matching state name passed to the
@@ -622,12 +650,25 @@ class thesdk(metaclass=abc.ABCMeta):
     def load_state(self,value):
         self._load_state=value
 
+    @property
+    def load_state_full(self):  
+        """ True (default) | False
+        
+        Whether to load the full entity state or not. If False, only IOs are
+        loaded in order to not override the entity state otherwise. In that
+        case, bundles `IOS` and `extracts` are updated.
+        """
+        if not hasattr(self,'_load_state_full'):
+            self._load_state_full = True
+        return self._load_state_full
+    @load_state_full.setter
+    def load_state_full(self,value):
+        self._load_state_full = value
+
     def _write_state(self):
         """ Write the entity state to a binary file.
 
-        This should be called after the simulation has finished. This will
-        probably need to be overloaded by the specific simulator module for
-        more specific result storing.
+        This should be called after the simulation has finished.
         """
         pathname = '%s/%s' % (self.statepath,self.runname)
         try:
@@ -659,13 +700,21 @@ class thesdk(metaclass=abc.ABCMeta):
             for f in existing:
                 self.print_log(type='I',msg='%s' % f)
         try:
+            self.print_log(type='I',msg='Loading state from ./%s' % os.path.relpath(pathname,start='../'))
             with open('%s/state.pickle' % pathname,'rb') as f:
                 obj = pickle.load(f)
-                # TODO: check if this breaks the IO pointers in hierarchical simulations
-                self.__dict__.update(obj.__dict__)
-            self.print_log(type='I',msg='Loaded state %s' % pathname)
+                for name,val in obj.__dict__.items():
+                    # For a bundle, assign the Data fields to preserve pointers
+                    if name == '_IOS' and type(val).__name__ == 'Bundle':
+                        for ioname,ioval in val.Members.items():
+                            self.print_log(type='D',msg='Assigning data to %s at %s' % \
+                                    (ioname,hex(id(self.__dict__[name].Members[ioname]))))
+                            self.__dict__[name].Members[ioname].Data = ioval.Data
+                    elif self.load_state_full or name == '_extracts':
+                        self.print_log(type='D',msg='Loading %s' % name)
+                        self.__dict__[name] = val
         except:
-            self.print_log(type='F',msg='Failed loading state %s' % pathname)
+            self.print_log(type='F',msg='Failed loading state from ./%s' % os.path.relpath(pathname,start='../'))
 
     def __getstate__(self):
         return self.__dict__.copy()
