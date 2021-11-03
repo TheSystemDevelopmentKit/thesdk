@@ -94,8 +94,9 @@ class thesdk(metaclass=abc.ABCMeta):
     MODULEPATHS=[os.path.split(os.path.split(y)[0])[0] for y in [ filename for filename in 
         glob.iglob( HOME+'/Entities/**/__init__.py',recursive=True)]] 
     for i in list(set(MODULEPATHS)-set(sys.path)):
-        print("Adding %s to system path" %(i))
-        sys.path.append(i)
+        if 'BagModules' not in i:
+            print("Adding %s to system path" %(i))
+            sys.path.append(i)
     
     logfile=("/tmp/TheSDK_" + os.path.basename(tempfile.mkstemp()[1])+"_"+getpass.getuser()
         +"_"+time.strftime("%Y%m%d%H%M")+".log")
@@ -147,6 +148,8 @@ class thesdk(metaclass=abc.ABCMeta):
     #Common properties
     @property
     def DEBUG(self):
+        '''Set this to True if you want the debug messages printed
+        '''
         if not hasattr(self,'_DEBUG'):
             self._DEBUG = False
         return self._DEBUG
@@ -181,7 +184,7 @@ class thesdk(metaclass=abc.ABCMeta):
     def model(self):
         ''' Simulation model to be used 
 
-        'py' |  'sv' |  'vhdl' |  'eldo' |  'spectre' | 'hw' 
+        'py' |  'sv' |  'vhdl' |  'eldo' |  'spectre' | 'ngspice' | 'hw' 
 
         '''
         if not hasattr(self,'_model'):
