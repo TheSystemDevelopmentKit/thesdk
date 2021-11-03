@@ -195,15 +195,21 @@ class thesdk(metaclass=abc.ABCMeta):
         self._model=val
         return self._model
 
+    # TODO: refactor to -> Simulation path. (./simulations/<model>/<runname>)
+    # self._simpath = '%s/simulations/%s/%s' % (self.entitypath,self.model,self.runname)
     @property
     def simpath(self):
         """String
 
-        Simulation path. (./simulations/<model>/<runname>)
+        Simulation path. (./Simulations/<spicesim | rtlsim>/<runname>)
         This is not meant to be set manually.
         """
         if not hasattr(self,'_simpath'):
-            self._simpath = '%s/simulations/%s/%s' % (self.entitypath,self.model,self.runname)
+            if self.model in ['spectre','eldo','ngspice']:
+                subdir = 'spicesim'
+            else:
+                subdir = 'rtlsim'
+            self._simpath = '%s/Simulations/%s/%s' % (self.entitypath,subdir,self.runname)
             try:
                 if not (os.path.exists(self._simpath)):
                     os.makedirs(self._simpath)
