@@ -158,6 +158,20 @@ class thesdk(metaclass=abc.ABCMeta):
         self._DEBUG=value
 
     @property
+    def print_relative_path(self):
+        ''' True (default) | False
+
+        If True, print all paths relative to the entity path. If False, paths
+        are printed as is (typically absolute paths).
+        '''
+        if not hasattr(self,'_print_relative_path'):
+            self._print_relative_path = True
+        return self._print_relative_path
+    @print_relative_path.setter
+    def print_relative_path(self,value):
+        self._print_relative_path=value
+
+    @property
     @abstractmethod
     def _classfile(self):
         ''' Abstract property of thesdk class. Defines the location of the
@@ -198,8 +212,6 @@ class thesdk(metaclass=abc.ABCMeta):
         self._model=val
         return self._model
 
-    # TODO: refactor to -> Simulation path. (./simulations/<model>/<runname>)
-    # self._simpath = '%s/simulations/%s/%s' % (self.entitypath,self.model,self.runname)
     @property
     def simpath(self):
         """String
@@ -208,11 +220,7 @@ class thesdk(metaclass=abc.ABCMeta):
         This is not meant to be set manually.
         """
         if not hasattr(self,'_simpath'):
-            if self.model in ['spectre','eldo','ngspice']:
-                subdir = 'spicesim'
-            else:
-                subdir = 'rtlsim'
-            self._simpath = '%s/Simulations/%s/%s' % (self.entitypath,subdir,self.runname)
+            self._simpath = '%s/simulations/%s/%s' % (self.entitypath,self.model,self.runname)
             try:
                 if not (os.path.exists(self._simpath)):
                     os.makedirs(self._simpath)
@@ -278,6 +286,12 @@ class thesdk(metaclass=abc.ABCMeta):
 
         type=kwargs.get('type','I')
         msg=kwargs.get('msg',"Print this to log")
+
+        # Converting absolute file paths to relative file paths
+        if self.print_relative_path:
+            msg = msg.replace(self.entitypath,'.')
+            if hasattr(self,'parent'):
+                msg = msg.replace(self.parent.entitypath,'.')
 
         # Colors for stdout prints
         cend    = '' if not self.print_colors else '\33[0m'
@@ -685,14 +699,14 @@ class thesdk(metaclass=abc.ABCMeta):
             if not (os.path.exists(self.statedir)):
                 os.makedirs(self.statedir)
         except:
-            self.print_log(type='E',msg='Failed to create %s' % os.path.relpath(self.statedir,start='../'))
+            self.print_log(type='E',msg='Failed to create %s' % self.statedir)
         try:
             with open('%s/state.pickle' % self.statedir,'wb') as f:
                 pickle.dump(self,f)
-            self.print_log(type='I',msg='Saving state to ./%s' % os.path.relpath(self.statedir,start='../'))
+            self.print_log(type='I',msg='Saving state to %s' % self.statedir)
         except:
             self.print_log(type='E',msg=traceback.format_exc())
-            self.print_log(type='E',msg='Failed saving state to ./%s' % os.path.relpath(self.statedir,start='../'))
+            self.print_log(type='E',msg='Failed saving state to %s' % self.statedir)
 
     def _read_state(self):
         """ Read the entity state from a binary file.
@@ -711,7 +725,7 @@ class thesdk(metaclass=abc.ABCMeta):
             for f in existing:
                 self.print_log(type='I',msg='%s' % f)
         try:
-            self.print_log(type='I',msg='Loading state from ./%s' % os.path.relpath(pathname,start='../'))
+            self.print_log(type='I',msg='Loading state from %s' % pathname)
             with open('%s/state.pickle' % pathname,'rb') as f:
                 obj = pickle.load(f)
                 for name,val in obj.__dict__.items():
@@ -725,7 +739,7 @@ class thesdk(metaclass=abc.ABCMeta):
                         self.print_log(type='D',msg='Loading %s' % name)
                         self.__dict__[name] = val
         except:
-            self.print_log(type='F',msg='Failed loading state from ./%s' % os.path.relpath(pathname,start='../'))
+            self.print_log(type='F',msg='Failed loading state from %s' % pathname)
 
     def __getstate__(self):
         state=self.__dict__.copy()
