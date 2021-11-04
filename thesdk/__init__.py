@@ -31,10 +31,13 @@ from abc import *
 from functools import reduce
 import multiprocessing
 
+import traceback
 import time
 import functools
 import contextlib as cl
 import pdb
+import pickle
+from datetime import datetime
 
 #Set 'must have methods' with abstractmethod
 #@abstractmethod
@@ -134,10 +137,11 @@ class thesdk(metaclass=abc.ABCMeta):
 
         if os.path.isfile(__class__.logfile):
             os.remove(__class__.logfile)
-        typestr="INFO at "
+        typestr="[INFO]"
         msg="Default logfile override. Initialized logging in %s" %(__class__.logfile)
+        print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cgreen,typestr,cend, 
+            self.__class__.__name__ , msg))
         fid= open(__class__.logfile, 'a')
-        print("%s %s  %s: %s" %(time.strftime("%H:%M:%S"),typestr, __class__.__name__ , msg))
         fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"),typestr, __class__.__name__ , msg))
         fid.close()
 
@@ -176,7 +180,6 @@ class thesdk(metaclass=abc.ABCMeta):
         return self._entitypath
     #No setter, no deleter.
 
-
     @property
     def model(self):
         ''' Simulation model to be used 
@@ -190,36 +193,33 @@ class thesdk(metaclass=abc.ABCMeta):
             return self._model
     @model.setter
     def model(self,val):
-        if val in [ 'py', 'sv', 'vhdl', 'eldo', 'spectre', 'ngspice', 'hw' ]:
-            self._model=val
-        else:
-            self.print_log(type='W', msg= 'Simulator model %s not supported.' %(val))
-            self._model=val
-
+        if val not in [ 'py', 'sv', 'vhdl', 'eldo', 'spectre', 'hw' ]:
+            self.print_log(type='E', msg= 'Simulator model %s not supported.' %(val))
+        self._model=val
         return self._model
 
-    @property 
+    # TODO: refactor to -> Simulation path. (./simulations/<model>/<runname>)
+    # self._simpath = '%s/simulations/%s/%s' % (self.entitypath,self.model,self.runname)
+    @property
     def simpath(self):
-        ''' Simulation directory according to model.
+        """String
 
-        Default: self.entitypath/Simulations/<simulator>sim
-        For verilog and vhdl <simulator> is 'rtl'.
-        '''
+        Simulation path. (./Simulations/<spicesim | rtlsim>/<runname>)
+        This is not meant to be set manually.
+        """
         if not hasattr(self,'_simpath'):
-            if self.model=='py':
-                self._simpath=self.entitypath+self.name
-            elif (self.model=='sv') or (self.model=='vhdl'):
-                # This is now defined in rtl library, and used here only to
-                # retain backwards compatibility. We should determine later on if we take
-                # Any stance towards the supported packages in this package.
-                # See: https://github.com/TheSystemDevelopmentKit/thesdk/issues/12
-                self._simpath=self.rtlsimpath
-            elif (self.model=='eldo'):
-                self._simpath=self.entitypath+'/Simulations/' +self.model + 'sim'
-            if not os.path.exists(self._simpath):
-                os.makedirs(self._simpath)
+            if self.model in ['spectre','eldo','ngspice']:
+                subdir = 'spicesim'
+            else:
+                subdir = 'rtlsim'
+            self._simpath = '%s/Simulations/%s/%s' % (self.entitypath,subdir,self.runname)
+            try:
+                if not (os.path.exists(self._simpath)):
+                    os.makedirs(self._simpath)
+                    self.print_log(type='I',msg='Creating %s' % self._simpath)
+            except:
+                self.print_log(type='E',msg='Failed to create %s' % self._simpath)
         return self._simpath
-
     @simpath.setter
     def simpath(self,val):
         self._simpath=val
@@ -278,19 +278,32 @@ class thesdk(metaclass=abc.ABCMeta):
 
         type=kwargs.get('type','I')
         msg=kwargs.get('msg',"Print this to log")
+
+        # Colors for stdout prints
+        cend    = '' if not self.print_colors else '\33[0m'
+        cblack  = '' if not self.print_colors else '\33[30m'
+        cred    = '' if not self.print_colors else '\33[31m'
+        cgreen  = '' if not self.print_colors else '\33[32m'
+        cyellow = '' if not self.print_colors else '\33[33m'
+        cblue   = '' if not self.print_colors else '\33[34m'
+        cviolet = '' if not self.print_colors else '\33[35m'
+        cbeige  = '' if not self.print_colors else '\33[36m'
+        cwhite  = '' if not self.print_colors else '\33[37m'
+
         if not os.path.isfile(thesdk.logfile):
-            typestr="INFO at"
+            typestr="[INFO]"
             initmsg="Initialized logging in %s" %(thesdk.logfile)
+            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cgreen,typestr,cend, 
+                self.__class__.__name__ , msg))
             fid= open(thesdk.logfile, 'a')
-            print("%s %s thesdk: %s" %(time.strftime("%H:%M:%S"), typestr , initmsg))
             fid.write("%s %s thesdk: %s\n" %(time.strftime("%H:%M:%S"), typestr, initmsg))
             fid.close()
 
         if type== 'D':
-            typestr="DEBUG at"
             if self.DEBUG:
-                print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
-                    self.__class__.__name__ , msg)) 
+                typestr="[DEBUG]"
+                print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cblue,typestr,cend, 
+                    self.__class__.__name__ , msg))
                 if hasattr(self,"logfile"):
                     fid= open(thesdk.logfile, 'a')
                     fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"), 
@@ -298,38 +311,37 @@ class thesdk(metaclass=abc.ABCMeta):
                     fid.close()
             return
         elif type== 'I':
-           typestr="INFO at"
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
-               self.__class__.__name__ , msg)) 
+            typestr="[INFO]"
+            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cgreen,typestr,cend, 
+                self.__class__.__name__ , msg))
         elif type=='W':
-           typestr="WARNING! at"
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
-               self.__class__.__name__ , msg)) 
+            typestr="[WARNING]"
+            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cyellow,typestr,cend, 
+                self.__class__.__name__ , msg))
         elif type=='E':
-           typestr="ERROR! at"
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
-               self.__class__.__name__ , msg)) 
+            typestr="[ERROR]"
+            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cred,typestr,cend, 
+                self.__class__.__name__ , msg))
         elif type=='O':
-           typestr="OBSOLETE: at"
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
-               self.__class__.__name__ , msg)) 
-
+            typestr="[OBSOLETE]"
+            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cviolet,typestr,cend, 
+                self.__class__.__name__ , msg))
         elif type=='F':
-           typestr="FATAL ERROR! at"
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
-               self.__class__.__name__ , msg)) 
-           print("Quitting due to fatal error in %s" %(self.__class__.__name__))
-           if hasattr(self,"logfile"):
-               fid= open(thesdk.logfile, 'a')
-               fid.write("%s Quitting due to fatal error in %s.\n" 
-                       %( time.strftime("%H:%M:%S"), self.__class__.__name__))
-               fid.close()
-               quit()
+            typestr="[FATAL]"
+            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cred,typestr,cend, 
+                self.__class__.__name__ , msg))
+            print("Quitting due to fatal error in %s" %(self.__class__.__name__))
+            if hasattr(self,"logfile"):
+                fid= open(thesdk.logfile, 'a')
+                fid.write("%s Quitting due to fatal error in %s.\n" 
+                        %( time.strftime("%H:%M:%S"), self.__class__.__name__))
+                fid.close()
+                quit()
         else:
-           typestr="ERROR! at"
-           msg="Incorrect message type '%s'. Choose one of 'D', 'I', 'E' or 'F'." % type
-           print("%s %s %s: %s" %(time.strftime("%H:%M:%S"), typestr, 
-               self.__class__.__name__ , msg)) 
+            typestr="[ERROR]"
+            msg="Incorrect message type '%s'. Choose one of 'D', 'I', 'E' or 'F'." % type
+            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cred,typestr,cend, 
+                self.__class__.__name__ , msg))
 
         #If logfile set, print also there 
         if hasattr(self,"logfile"):
@@ -415,7 +427,6 @@ class thesdk(metaclass=abc.ABCMeta):
         else:
             self._par=False
         return self._par
-
     @par.setter
     def par(self,value):
         self._par = value
@@ -430,7 +441,6 @@ class thesdk(metaclass=abc.ABCMeta):
         else:
             self._queue = []
         return self._queue
-
     @queue.setter
     def queue(self,value):
         self._queue = value
@@ -513,21 +523,21 @@ class thesdk(metaclass=abc.ABCMeta):
         else:
             self._IOS = Bundle()
         return self._IOS
-
     @IOS.setter
     def IOS(self,value):
         self._IOS = value
 
     @property
     def extracts(self):  
-        """ Type: Bundle 
+        """ Bundle
         
-        Bundle for holding the returned results from simulations that are not
-        attributes or IOs. 
+        Bundle for holding the returned results from simulations that are
+        not attributes or IOs. 
 
-        Example:
+        Example::
+
             self.extracts.Members['sndr']=60
-        
+
         """
 
         if hasattr(self,'_extracts'):
@@ -535,10 +545,195 @@ class thesdk(metaclass=abc.ABCMeta):
         else:
             self._extracts = Bundle()
         return self._extracts
-
     @extracts.setter
     def extracts(self,value):
         self._extracts = value
+
+    @property
+    def print_colors(self):  
+        """ True (default) | False
+        
+        Enable color tags in log print messages.
+        """
+        if not hasattr(self,'_print_colors'):
+            self._print_colors = True
+        return self._print_colors
+    @print_colors.setter
+    def print_colors(self,value):
+        self._print_colors = value
+
+    @property
+    def runname(self):
+        """String 
+        
+        Automatically generated name for the simulation. 
+        
+        Formatted as timestamp_randomtag, i.e. '20201002103638_tmpdbw11nr4'.
+        Can be overridden by assigning self.runname = 'myname'.
+
+        Example::
+
+            self.runname = 'test'
+
+        would generate the simulation files in `simulations/<model>/test/`.
+
+        """
+        if hasattr(self,'_runname'):
+            return self._runname
+        else:
+            self._runname='%s_%s' % \
+                    (datetime.now().strftime('%Y%m%d%H%M%S'),os.path.basename(tempfile.mkstemp()[1]))
+        return self._runname
+    @runname.setter
+    def runname(self,value):
+        self._runname=value
+
+    @property
+    def statepath(self):  
+        """ String
+        
+        Path where the entity state is stored and where existing states are
+        loaded from.
+        """
+        if not hasattr(self,'_statepath'):
+            self._statepath = '%s/states/%s' % (self.entitypath,self.model)
+        return self._statepath
+    @statepath.setter
+    def statepath(self,value):
+        self._statepath = value
+
+    @property
+    def statedir(self):  
+        """ String
+        
+        Path to the most recently stored state.
+        """
+        if not hasattr(self,'_statedir'):
+            self._statedir = '%s/%s' % (self.statepath,self.runname)
+        return self._statedir
+    @statedir.setter
+    def statedir(self,value):
+        self._statedir = value
+
+    @property
+    def save_state(self):  
+        """ True | False (default)
+        
+        Save the entity state after simulation (including output data). Any
+        stored state can be loaded using the matching state name passed to the
+        `load_state` property. The state is saved to `savestatepath` by default.
+        """
+        if not hasattr(self,'_save_state'):
+            self._save_state = False
+        return self._save_state
+    @save_state.setter
+    def save_state(self,value):
+        self._save_state = value
+
+    @property
+    def load_state(self):  
+        """ String (default '')
+
+        Feature for loading results of previous simulation. When calling run()
+        with this property set, the simulation is not re-executed, but the
+        entity state and output data will be read from the saved state. The
+        string value should be the `runname` of the desired simulation.
+        
+        Loading the most recent result automatically::
+
+            self.load_state = 'last'
+            # or
+            self.load_state = 'latest'
+
+        Loading a specific past result using the `runname`::
+
+            self.load_state = '20201002103638_tmpdbw11nr4'
+
+        List available results by providing any non-existent `runname`::
+
+            self.load_state = 'this_does_not_exist'
+        """
+        if not hasattr(self,'_load_state'):
+            self._load_state=''
+        return self._load_state
+    @load_state.setter
+    def load_state(self,value):
+        self._load_state=value
+
+    @property
+    def load_state_full(self):  
+        """ True (default) | False
+        
+        Whether to load the full entity state or not. If False, only IOs are
+        loaded in order to not override the entity state otherwise. In that
+        case, bundles `IOS` and `extracts` are updated.
+        """
+        if not hasattr(self,'_load_state_full'):
+            self._load_state_full = True
+        return self._load_state_full
+    @load_state_full.setter
+    def load_state_full(self,value):
+        self._load_state_full = value
+
+    def _write_state(self):
+        """ Write the entity state to a binary file.
+
+        This should be called after the simulation has finished.
+        """
+        pathname = '%s/%s' % (self.statepath,self.runname)
+        try:
+            if not (os.path.exists(self.statedir)):
+                os.makedirs(self.statedir)
+        except:
+            self.print_log(type='E',msg='Failed to create %s' % os.path.relpath(self.statedir,start='../'))
+        try:
+            with open('%s/state.pickle' % self.statedir,'wb') as f:
+                pickle.dump(self,f)
+            self.print_log(type='I',msg='Saving state to ./%s' % os.path.relpath(self.statedir,start='../'))
+        except:
+            self.print_log(type='E',msg=traceback.format_exc())
+            self.print_log(type='E',msg='Failed saving state to ./%s' % os.path.relpath(self.statedir,start='../'))
+
+    def _read_state(self):
+        """ Read the entity state from a binary file.
+
+        """
+        self.runname = self.load_state
+        if self.runname == 'latest' or self.runname == 'last':
+            results = glob.glob(self.statepath+'/*')
+            latest = max(results, key=os.path.getctime)
+            self.runname = latest.split('/')[-1]
+        pathname = '%s/%s' % (self.statepath,self.runname)
+        if not os.path.exists(pathname):
+            self.print_log(type='E',msg='Existing results not found in %s' % pathname)
+            existing = os.listdir(self.statepath)
+            self.print_log(type='I',msg='Found results:')
+            for f in existing:
+                self.print_log(type='I',msg='%s' % f)
+        try:
+            self.print_log(type='I',msg='Loading state from ./%s' % os.path.relpath(pathname,start='../'))
+            with open('%s/state.pickle' % pathname,'rb') as f:
+                obj = pickle.load(f)
+                for name,val in obj.__dict__.items():
+                    # For a bundle, assign the Data fields to preserve pointers
+                    if name == '_IOS' and type(val).__name__ == 'Bundle':
+                        for ioname,ioval in val.Members.items():
+                            self.print_log(type='D',msg='Assigning data to %s at %s' % \
+                                    (ioname,hex(id(self.__dict__[name].Members[ioname]))))
+                            self.__dict__[name].Members[ioname].Data = ioval.Data
+                    elif self.load_state_full or name == '_extracts':
+                        self.print_log(type='D',msg='Loading %s' % name)
+                        self.__dict__[name] = val
+        except:
+            self.print_log(type='F',msg='Failed loading state from ./%s' % os.path.relpath(pathname,start='../'))
+
+    def __getstate__(self):
+        state=self.__dict__.copy()
+        if '_queue' in state:
+            del state['_queue']
+        return state
+    def __setstate__(self,state):
+        self.__dict__.update(state)
 
 class IO(thesdk):
     ''' TheSyDeKick IO class. Child of thesdk to utilize logging method.
@@ -598,6 +793,11 @@ class IO(thesdk):
     def data(self,value):
         self._Data=value
 
+    def __getstate__(self):
+        return self.__dict__.copy()
+    def __setstate__(self,state):
+        self.__dict__.update(state)
+
 # Bundle is a Dict of something
 # Class is needed to define bundle operations
 class Bundle(metaclass=abc.ABCMeta):
@@ -638,3 +838,7 @@ class Bundle(metaclass=abc.ABCMeta):
         val=kwargs.get('val','')
         self.Members[name]=val
 
+    def __getstate__(self):
+        return self.__dict__.copy()
+    def __setstate__(self,state):
+        self.__dict__.update(state)
