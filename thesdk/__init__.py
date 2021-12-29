@@ -459,7 +459,7 @@ class thesdk(metaclass=abc.ABCMeta):
     def queue(self,value):
         self._queue = value
 
-    def run_parallel(self, **kwargs):
+    def run_parallel(self, num_jobs=5, **kwargs):
         """ Run instances in parallel and collect results
 
         Usage: Takes in a set of instances, runs a given method for them, and
@@ -499,27 +499,30 @@ class thesdk(metaclass=abc.ABCMeta):
         method=kwargs.get('method','run') 
         que=[]
         proc=[]
-        n=0
-        for i in duts:
-            que.append(multiprocessing.Queue())
-            proc.append(multiprocessing.Process(target=getattr(i,method)))
-            i.par = True
-            i.queue = que[n]
-            proc[n].start()
-            n+=1
-        n=0
-        for i in duts:
-            ret_dict=que[n].get() # returned dictionary
-            self.print_log(type='I', msg='Saving results from parallel run of %s' %(i))
-            for key,value in ret_dict.items():
-                if key in i.IOS.Members:
-                    i.IOS.Members[key] = value
-                elif hasattr(i,key):
-                    setattr(i,key,value)
-                else:
-                    i.extracts.Members[key] = value
-            proc[n].join()
-            n+=1
+        num_cycles = len(duts) // num_jobs if len(duts) % num_jobs == 0 else len(duts) // num_jobs + 1
+        # Now that we have ensured that num_jobs is not exceeded, calculate new value to distribute jobs evenly
+        num_jobs = int(len(duts) / num_cycles)
+        dutmat = [duts[i*num_jobs:(i+1)*num_jobs] for i in range(num_cycles)]
+        quemat = [[] for submat in dutmat]
+        procmat = [[] for submat in dutmat]
+        for procs, queues, submat in zip(procmat, quemat, dutmat):
+            for dut in submat:
+                queues.append(multiprocessing.Queue())
+                procs.append(multiprocessing.Process(target=getattr(dut,method)))
+                dut.par = True
+                dut.queue = queues[-1]
+                procs[-1].start()
+            for proc,que,dut in zip(procs,queues,submat):
+                ret_dict = que.get()
+                self.print_log(type='I', msg='Saving results from parallel run of %s' %(dut.runname))
+                for key,value in ret_dict.items():
+                    if key in dut.IOS.Members:
+                        dut.IOS.Members[key] = value
+                    elif hasattr(dut,key):
+                        setattr(dut,key,value)
+                    else:
+                        dut.extracts.Members[key] = value
+                proc.join()
 
     @property
     def IOS(self):  
