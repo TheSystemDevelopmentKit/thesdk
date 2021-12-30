@@ -506,6 +506,8 @@ class thesdk(metaclass=abc.ABCMeta):
         nbatch = int(np.ceil(len(duts)/max_jobs))
         for j in range(nbatch):
             dutrange = range(j*max_jobs,(j+1)*max_jobs)
+            if dutrange.stop > len(duts):
+                dutrange = range(j*max_jobs,len(duts))
             que=[]
             proc=[]
             for i in dutrange:
