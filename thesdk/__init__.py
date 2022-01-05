@@ -31,6 +31,7 @@ from abc import *
 from functools import reduce
 import multiprocessing
 
+import numpy as np
 import traceback
 import time
 import functools
@@ -492,34 +493,43 @@ class thesdk(metaclass=abc.ABCMeta):
                  duts: list
                     List of instances you want to simulate
                  method: str
-                     Method called for each instance (default: run)
+                    Method called for each instance (default: run)
+                 max_jobs: int
+                    Maximum number of concurrent jobs. Unlimited by default.
         """
 
         duts=kwargs.get('duts') 
         method=kwargs.get('method','run') 
-        que=[]
-        proc=[]
-        n=0
-        for i in duts:
-            que.append(multiprocessing.Queue())
-            proc.append(multiprocessing.Process(target=getattr(i,method)))
-            i.par = True
-            i.queue = que[n]
-            proc[n].start()
-            n+=1
-        n=0
-        for i in duts:
-            ret_dict=que[n].get() # returned dictionary
-            self.print_log(type='I', msg='Saving results from parallel run of %s' %(i))
-            for key,value in ret_dict.items():
-                if key in i.IOS.Members:
-                    i.IOS.Members[key] = value
-                elif hasattr(i,key):
-                    setattr(i,key,value)
-                else:
-                    i.extracts.Members[key] = value
-            proc[n].join()
-            n+=1
+        max_jobs=kwargs.get('max_jobs',None) 
+        if max_jobs is None:
+            max_jobs = len(duts)
+        nbatch = int(np.ceil(len(duts)/max_jobs))
+        for j in range(nbatch):
+            dutrange = range(j*max_jobs,(j+1)*max_jobs)
+            if dutrange.stop > len(duts):
+                dutrange = range(j*max_jobs,len(duts))
+            que=[]
+            proc=[]
+            for i in dutrange:
+                self.print_log(type='I', msg='Starting parallel run %d/%d' % (i+1,len(duts)))
+                que.append(multiprocessing.Queue())
+                proc.append(multiprocessing.Process(target=getattr(duts[i],method)))
+                duts[i].par = True
+                duts[i].queue = que[-1]
+                proc[-1].start()
+            n=0
+            for i in dutrange:
+                ret_dict=que[n].get() # returned dictionary
+                self.print_log(type='I', msg='Saving results from parallel run of %s' %(duts[i]))
+                for key,value in ret_dict.items():
+                    if key in duts[i].IOS.Members:
+                        duts[i].IOS.Members[key] = value
+                    elif hasattr(duts[i],key):
+                        setattr(duts[i],key,value)
+                    else:
+                        duts[i].extracts.Members[key] = value
+                proc[n].join()
+                n+=1
 
     @property
     def IOS(self):  
