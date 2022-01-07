@@ -290,8 +290,9 @@ class iofile(IO):
                  df.to_csv(path_or_buf=self.file,sep="\t",index=False,header=header_line)
              else:
                  df.to_csv(path_or_buf=self.file,sep="\t",index=False,header=False)
-         # This is to compensate filesystem delays
-         time.sleep(10)
+         # Flush cached file system writes
+         with open(self.file) as fd:
+             os.fsync(fd)
          
      # Reading
      def read(self,**kwargs):
