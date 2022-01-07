@@ -309,7 +309,7 @@ class thesdk(metaclass=abc.ABCMeta):
             typestr="[INFO]"
             initmsg="Initialized logging in %s" %(thesdk.logfile)
             print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cgreen,typestr,cend, 
-                self.__class__.__name__ , msg))
+                self.__class__.__name__ , initmsg))
             fid= open(thesdk.logfile, 'a')
             fid.write("%s %s thesdk: %s\n" %(time.strftime("%H:%M:%S"), typestr, initmsg))
             fid.close()
