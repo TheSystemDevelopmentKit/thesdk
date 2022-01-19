@@ -249,6 +249,21 @@ class thesdk(metaclass=abc.ABCMeta):
             self._has_lsf = False
         return self._has_lsf
 
+    @property
+    def preserve_iofiles(self):  
+        """True | False (default)
+
+        If True, do not delete IO files after 
+        simulations. Useful for debugging the file IO"""
+
+        if not hasattr(self,'_preserve_iofiles'):
+            self._preserve_iofiles = False
+        return self._preserve_iofiles
+    @preserve_iofiles.setter
+    def preserve_iofiles(self,value):
+        self._preserve_iofiles=value
+
+
     #Common method to propagate system parameters
     def copy_propval(self,*arg):
         ''' Method to copy attributes form parent. 
