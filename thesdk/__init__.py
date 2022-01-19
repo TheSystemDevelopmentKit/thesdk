@@ -208,7 +208,7 @@ class thesdk(metaclass=abc.ABCMeta):
             return self._model
     @model.setter
     def model(self,val):
-        if val not in [ 'py', 'sv', 'vhdl', 'eldo', 'spectre', 'hw' ]:
+        if val not in [ 'py', 'sv', 'vhdl', 'eldo', 'spectre', 'ngspice', 'hw' ]:
             self.print_log(type='E', msg= 'Simulator model %s not supported.' %(val))
         self._model=val
         return self._model
@@ -233,7 +233,22 @@ class thesdk(metaclass=abc.ABCMeta):
     def simpath(self,val):
         self._simpath=val
         return self._simpath
-    
+   
+    @property 
+    def has_lsf(self):
+        """ True | False (default)
+
+        True if LSFINTERACTIVE and LSFSUBMISSION global veriables are defined
+        in TheSDK.config.
+        """
+        if ('LSFINTERACTIVE' not in thesdk.GLOBALS.keys()) or ('LSFSUBMISSION' not in thesdk.GLOBALS.keys()):
+            self._has_lsf = False
+        elif ( not thesdk.GLOBALS['LSFINTERACTIVE'] == '' ) and (not thesdk.GLOBALS['LSFSUBMISSION'] == ''):
+            self._has_lsf = True
+        else:
+            self._has_lsf = False
+        return self._has_lsf
+
     #Common method to propagate system parameters
     def copy_propval(self,*arg):
         ''' Method to copy attributes form parent. 
