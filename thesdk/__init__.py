@@ -45,7 +45,7 @@ from datetime import datetime
 #Using this decorator requires that the class’s metaclass is ABCMeta or is 
 #derived from it. A class that has a metaclass derived from ABCMeta cannot 
 #be instantiated unless all of its abstract methods and properties are overridden.
-
+from thesdk.bundle import Bundle
 class thesdk(metaclass=abc.ABCMeta):
     '''
     Following class attributes are set when this class imported
@@ -217,7 +217,7 @@ class thesdk(metaclass=abc.ABCMeta):
     def simpath(self):
         """String
 
-        Simulation path. (./Simulations/<spicesim | rtlsim>/<runname>)
+        Simulation path. (./simulations/<model>/<runname>)
         This is not meant to be set manually.
         """
         if not hasattr(self,'_simpath'):
@@ -761,6 +761,39 @@ class thesdk(metaclass=abc.ABCMeta):
     def __setstate__(self,state):
         self.__dict__.update(state)
 
+    @property
+    def iofile_bundle(self):
+        """ Bundle
+
+        A thesdk.Bundle containing `iofile` objects. The `iofile`
+        objects are automatically added to this Bundle, nothing should be
+        manually added.
+        """
+        if not hasattr(self,'_iofile_bundle'):
+            self._iofile_bundle=Bundle()
+        return self._iofile_bundle
+    
+    @iofile_bundle.setter
+    def iofile_bundle(self,value):
+        self._iofile_bundle=value
+
+    def delete_iofile_bundle(self):
+        """ Method to delete all files in iofile bundle
+
+        For each of the member of the bundle of type iofile, it calls 'remove' method.
+        In case modifications are needed, define class for desired iofile type with remove method.
+        """
+        for name, val in self.iofile_bundle.Members.items():
+            if self.preserve_iofiles:
+                self.print_log(type="I", msg="Preserving iofiles for %s" %(name))
+            else:
+                if val.preserve:
+                    # In case preserve flag is set by other means
+                    self.print_log(type="I", msg="Preserve_value is %s" %(val.preserve))
+                    self.print_log(type="I", msg="Preserving file %s" %(val.file))
+                else:
+                    val.remove()
+
 class IO(thesdk):
     ''' TheSyDeKick IO class. Child of thesdk to utilize logging method.
 
@@ -824,47 +857,4 @@ class IO(thesdk):
     def __setstate__(self,state):
         self.__dict__.update(state)
 
-# Bundle is a Dict of something
-# Class is needed to define bundle operations
-class Bundle(metaclass=abc.ABCMeta):
-    '''Bundle class of named things.
-    
-    '''
-    def __getattr__(self,name):
-        '''Access the attribute <name> directly
-        Not tested.
-        
-        Returns
-        -------
-            type of dict member
-                self.Members['name']
 
-        '''
-        return self.Members[name]
-
-    def __init__(self): 
-        '''Attributes
-           ----------
-
-           Members: dict, dict([])
-
-        '''
-        self.Members=dict([])
-
-    def new(self,**kwargs):
-        '''Parameters
-           ----------
-
-           **kwargs:
-               name: str, optional
-               val: str, optional
-
-        '''
-        name=kwargs.get('name','')
-        val=kwargs.get('val','')
-        self.Members[name]=val
-
-    def __getstate__(self):
-        return self.__dict__.copy()
-    def __setstate__(self,state):
-        self.__dict__.update(state)
