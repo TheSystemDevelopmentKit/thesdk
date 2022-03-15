@@ -783,12 +783,16 @@ class thesdk(metaclass=abc.ABCMeta):
 
     def __getstate__(self):
         state=self.__dict__.copy()
-        exclude_list = ['_queue', 'generator']
+        exclude_list = ['_par', '_queue', 'generator']
         for item in exclude_list: 
             if item in state:
                 del state[item]
         return state
     def __setstate__(self,state):
+        exclude_list = ['_par', '_queue', 'generator']
+        for item in exclude_list:
+            if item in state:
+                del state[item]
         self.__dict__.update(state)
 
     @property
