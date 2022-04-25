@@ -89,11 +89,17 @@ class thesdk(metaclass=abc.ABCMeta):
     #This variable becomes redundant after the GLOBALS dictionary is created
     global_parameters=['LSFSUBMISSION','LSFINTERACTIVE','ELDOLIBFILE','SPECTRELIBFILE']
 
-    #Appending all TheSDK python modules to system path (only once, with set subtraction)
-    #This could be done as oneliner with lambda,filter, map and recude, but due to name scope 
-    #definitions, this is simpler method in class definition
-    MODULEPATHS=[os.path.split(os.path.split(y)[0])[0] for y in [ filename for filename in 
-        glob.iglob( HOME+'/Entities/**/__init__.py',recursive=True)]] 
+    # Append all SDK python modules to path. Strategy: 
+    # 1. iterate over paths starting from Entities directory
+    # 2.1 if Entities/<path> is not a file, check if Entities/<path>/<path>/__init__.py exists
+    # 3. If it does, it is a SDK module -> add to path
+
+    MODULEPATHS=[]
+    root = os.path.join(HOME, 'Entities')
+    for item in os.listdir(root):
+        if not os.path.isfile(os.path.join(root, item)):
+            if os.path.isfile(os.path.join(root, item, item, '__init__.py')):
+                MODULEPATHS.append(os.path.join(root, item))
     for i in list(set(MODULEPATHS)-set(sys.path)):
         if 'BagModules' not in i:
             print("Adding %s to system path" %(i))
