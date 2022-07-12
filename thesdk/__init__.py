@@ -610,6 +610,23 @@ class thesdk(metaclass=abc.ABCMeta):
         self._extracts = value
 
     @property
+    def netlist_params(self):  
+        """ List[string]
+        
+        List of strings containing the parameters of a netlist. List is populated by calling
+        ecd_methods.get_params(). Empty if no parameters were found in the netlist.
+        """
+        if not hasattr(self,'_netlist_params'):
+            self._netlist_params = []
+        return self._netlist_params
+    @netlist_params.setter
+    def netlist_params(self,value):
+        if isinstance(val, list):
+            self._netlist_params = value
+        else:
+            self.print_log(type='W', msg='Cannot set property netlist_params as type %s' % type(val))
+
+    @property
     def print_colors(self):  
         """ True (default) | False
         
