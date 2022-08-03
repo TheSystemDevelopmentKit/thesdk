@@ -2,23 +2,15 @@
    You can adapt this file completely to your liking, 
    but it should at least contain the root `toctree` directive.
 
+=======================================
+Thesdk Entity - The core of TheSyDeKick
+=======================================
+
 .. toctree::
    :maxdepth: 3
    :caption: Contents:
+   
+   sections
 
-.. automodule:: thesdk
-   :members:
-   :private-members:
-   :special-members: __getattr__
-   :member-order: bysource
+   indices_and_tables
 
-.. automodule:: thesdk.iofile
-   :members:
-   :undoc-members:
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

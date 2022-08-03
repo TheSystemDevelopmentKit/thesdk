@@ -1,7 +1,7 @@
 """
-======================
-Iofile package 
-======================
+==============
+Iofile package
+==============
 
 Provides Common file-io related attributes and methods 
 for TheSyDeKinck
@@ -43,14 +43,14 @@ class iofile(IO):
          '''
          Parameters
          -----------
-         parent : object, None 
+         parent: object, None 
              The parent object initializing the iofile instance. Default None
          
-         **kwargs :  
-                 name : str  
+         **kwargs:  
+                 name: str  
                      Name of the file. Appended with 
                      random string during the simulation.
-                 param : str,  -g g_file
+                 param: str,  -g g_file
                      The string defining the testbench parameter to be be 
                      passed to the simulator at command line.
          '''
@@ -132,10 +132,10 @@ class iofile(IO):
          ''' Type of the data. Controls the reading and writing of the data
               'complex' | 'int' | 'scomplex' | 'sint' | object
 
-              int | sint :
-                  Valeus of the data are handled as unsigned or signed integers
+              int | sint:
+                  Values of the data are handled as unsigned or signed integers
 
-              complex | scomplex : 
+              complex | scomplex: 
                   It is assumed that each column of the Data represents a complex number with
                   integer real and imaginary parts.  This is typical for RTL simulations.
                   when the data is read or written, the columns are treated as Real Imag pairs. 
@@ -213,9 +213,11 @@ class iofile(IO):
          
          **kwargs:
              data: numpy_array, self.Data
+                Data to be written.       
              datatype: str, self.Datatype
+                Datatype of the data.
              iotype: str, self.iotype
-
+                IO type of the IO file.
 
          '''
          self.dir='in'  # Only input files are written
@@ -288,8 +290,9 @@ class iofile(IO):
                  df.to_csv(path_or_buf=self.file,sep="\t",index=False,header=header_line)
              else:
                  df.to_csv(path_or_buf=self.file,sep="\t",index=False,header=False)
-         # This is to compensate filesystem delays
-         time.sleep(10)
+         # Flush cached file system writes
+         with open(self.file) as fd:
+             os.fsync(fd)
          
      # Reading
      def read(self,**kwargs):
@@ -297,10 +300,11 @@ class iofile(IO):
 
          Parameters
          ----------
+
          **kwargs:
             datatype: str, self.datatype
                 Controls if the data is read in as complex or real
-            dtype   : str, 'object'
+            dtype: str, 'object'
                 The datatype of the actual file. Default is object, 
                 i.e data is first read to internal variable as string. 
                 This is a help parameter to give more control over reading.

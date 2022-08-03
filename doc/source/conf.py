@@ -24,12 +24,12 @@ sys.path.insert(0, os.path.abspath('../../'))
 
 project = 'thesdk'
 copyright = '2019 TheSyDeKick Community'
-author = 'Your name'
+author = ''
 
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = '1.3'
+release = '1.7_RC'
 
 autoclass_content='both'
 
@@ -139,7 +139,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'thesdk.tex', 'thesdk Documentation',
-     'Your Name', 'manual'),
+     author, 'manual'),
 ]
 
 
