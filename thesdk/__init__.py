@@ -179,19 +179,16 @@ class thesdk(metaclass=abc.ABCMeta):
         self._print_relative_path=value
 
     @property
-    @abstractmethod
     def _classfile(self):
-        ''' Abstract property of thesdk class. Defines the location of the
+        ''' Defines the location of the
         classfile. 
 
-        Define in every child class of thesdk as:: 
-
-            def _classfile(self):
-                return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
+        Returns: <path>/Entities/<entity>/<entity>
 
         '''
-        return os.path.dirname(os.path.realpath(__file__)) + "/"+__name__
-    
+        path = os.path.dirname( os.path.abspath( sys.modules[self.__class__.__module__].__file__))
+        return os.path.join( path, self.__class__.__name__ )
+
     @property
     def entitypath(self):
         ''' Path to entity. Extracted from the location of __init__.py file.
