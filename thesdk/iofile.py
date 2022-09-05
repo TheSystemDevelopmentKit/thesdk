@@ -333,6 +333,7 @@ class iofile(IO):
                 self.Data=readd.values
          except pd.errors.EmptyDataError:
             # File was empty
+            self.print_log(type="W", msg="IOFile was empty! %s" %(self.file))
             self.Data = None
          fid.close()
  
