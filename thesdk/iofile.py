@@ -313,23 +313,27 @@ class iofile(IO):
          fid=open(self.file,'r')
          self.datatype=kwargs.get('datatype',self.datatype)
          dtype=kwargs.get('dtype',object)
-         readd = pd.read_csv(fid,dtype=dtype,sep='\t',header=None)
-         #read method for complex signal matrix
-         if self.datatype is 'complex' or self.datatype is 'scomplex':
-             self.print_log(type="I", msg="Reading complex")
-             rows=int(readd.values.shape[0])
-             cols=int(readd.values.shape[1]/2)
-             for i in range(cols):
-                 if i==0:
-                     self.Data=np.zeros((rows, cols),dtype=complex)
-                     self.Data[:,i]=readd.values[:,2*i].astype('int')\
-                             +1j*readd.values[:,2*i+1].astype('int')
-                 else:
-                     self.Data[:,i]=readd.values[:,2*i].astype('int')\
-                             +1j*readd.values[:,2*i+1].astype('int')
- 
-         else:
-             self.Data=readd.values
+         try:
+            readd = pd.read_csv(fid,dtype=dtype,sep='\t',header=None)
+            #read method for complex signal matrix
+            if self.datatype is 'complex' or self.datatype is 'scomplex':
+                self.print_log(type="I", msg="Reading complex")
+                rows=int(readd.values.shape[0])
+                cols=int(readd.values.shape[1]/2)
+                for i in range(cols):
+                    if i==0:
+                        self.Data=np.zeros((rows, cols),dtype=complex)
+                        self.Data[:,i]=readd.values[:,2*i].astype('int')\
+                                +1j*readd.values[:,2*i+1].astype('int')
+                    else:
+                        self.Data[:,i]=readd.values[:,2*i].astype('int')\
+                                +1j*readd.values[:,2*i+1].astype('int')
+    
+            else:
+                self.Data=readd.values
+         except pd.errors.EmptyDataError:
+            # File was empty
+            self.Data = None
          fid.close()
  
      # Remove the file when no longer needed
