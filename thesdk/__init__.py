@@ -276,7 +276,8 @@ class thesdk(metaclass=abc.ABCMeta):
            a=some_thesdk_class(self)
 
         Attributes listed in proplist attribute of 'some_thesdkclass' are copied from
-        self to a. Impemented by including following code at the end of __init__ method 
+        self to a, if and only if both self and a define the property mentioned in the 
+        proplist. Implemented by including following code at the end of __init__ method 
         of every entity::
         
             if len(arg)>=1:
@@ -289,13 +290,16 @@ class thesdk(metaclass=abc.ABCMeta):
         if len(arg)>=2:
             self.parent=arg[0]
             self.proplist=arg[1]
-            for i in range(1,len(self.proplist)+1):
-                if hasattr(self,self.proplist[i-1]):
+            for prop in self.proplist:
+                if hasattr(self,prop) and hasattr(self.parent, prop):
                     #Its nice to see how things propagate
-                    if  hasattr(self.parent,self.proplist[i-1]):
-                        msg="Setting %s: %s to %s" %(self, self.proplist[i-1], getattr(self.parent,self.proplist[i-1]))
-                        self.print_log(type= 'I', msg=msg)
-                        setattr(self,self.proplist[i-1],getattr(self.parent,self.proplist[i-1]))
+                    msg="Setting %s: %s to %s" %(self, prop, getattr(self.parent,prop))
+                    self.print_log(type= 'I', msg=msg)
+                    setattr(self,prop,getattr(self.parent,prop))
+                else:
+                    obj = self if not hasattr(self, prop) else self.parent
+                    msg = "Property %s not defined for entity %s, omitting copy!" % (prop,obj)
+                    self.print_log(type='W',msg=msg)
 
     #Method for logging
     #This is a method because it uses the logfile property
