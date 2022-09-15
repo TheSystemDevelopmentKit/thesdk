@@ -803,6 +803,7 @@ class thesdk(metaclass=abc.ABCMeta):
                         self.print_log(type='D',msg='Loading %s' % name)
                         self.__dict__[name] = val
         except:
+            self.print_log(type='W',msg=traceback.format_exc())
             self.print_log(type='F',msg='Failed loading state from %s' % pathname)
 
     def __getstate__(self):
