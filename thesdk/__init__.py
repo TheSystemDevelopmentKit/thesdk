@@ -87,7 +87,7 @@ class thesdk(metaclass=abc.ABCMeta):
     print("Config file of TheSDK is %s" %(CONFIGFILE))
 
     #This variable becomes redundant after the GLOBALS dictionary is created
-    global_parameters=['LSFSUBMISSION','LSFINTERACTIVE','ELDOLIBFILE','SPECTRELIBFILE']
+    global_parameters=['LSFSUBMISSION','LSFINTERACTIVE','ELDOLIBFILE','SPECTRELIBFILE','VLOGLIBFILE']
 
     # Append all SDK python modules to path. Strategy: 
     # 1. iterate over paths starting from Entities directory
