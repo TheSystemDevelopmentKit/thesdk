@@ -224,7 +224,8 @@ class thesdk(metaclass=abc.ABCMeta):
         This is not meant to be set manually.
         """
         if not hasattr(self,'_simpath'):
-            self._simpath = '%s/simulations/%s/%s' % (self.entitypath,self.model,self.runname)
+            name = self.runname if self.runname != '' else self.load_state
+            self._simpath = '%s/simulations/%s/%s' % (self.entitypath,self.model,name)
             try:
                 if not (os.path.exists(self._simpath)):
                     os.makedirs(self._simpath)
@@ -687,7 +688,10 @@ class thesdk(metaclass=abc.ABCMeta):
         Path to the most recently stored state.
         """
         if not hasattr(self,'_statedir'):
-            self._statedir = '%s/%s' % (self.statepath,self.runname)
+            if self.runname != '':
+                self._statedir = '%s/%s' % (self.statepath,self.runname)
+            else:
+                self._statedir = '%s/%s' % (self.statepath,self.load_state)
         return self._statedir
     @statedir.setter
     def statedir(self,value):
