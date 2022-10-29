@@ -240,7 +240,7 @@ class thesdk(metaclass=abc.ABCMeta):
    
     @property 
     def has_lsf(self):
-        """ True | False (default)
+        """True | False (default)
 
         True if LSFINTERACTIVE and LSFSUBMISSION global veriables are defined
         in TheSDK.config.
@@ -524,7 +524,6 @@ class thesdk(metaclass=abc.ABCMeta):
                 ret_dict = {**self.IOS.Members,**self.extracts.Members} 
                 self.queue.put(ret_dict)
 
-        ----------
         Parameters
         ----------
          **kwargs:  
