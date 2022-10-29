@@ -352,7 +352,7 @@ class thesdk(metaclass=abc.ABCMeta):
             fid.write("%s %s thesdk: %s\n" %(time.strftime("%H:%M:%S"), typestr, initmsg))
             fid.close()
 
-        if type== 'D':
+        if type == 'D':
             if self.DEBUG:
                 typestr="[DEBUG]"
                 print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cblue,typestr,cend, 
@@ -363,24 +363,24 @@ class thesdk(metaclass=abc.ABCMeta):
                     typestr, self.__class__.__name__ , msg)) 
                     fid.close()
             return
-        elif type== 'I':
-            typestr="[INFO]"
+        elif type == 'I':
+            typestr ="[INFO]"
             print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cgreen,typestr,cend, 
                 self.__class__.__name__ , msg))
-        elif type=='W':
-            typestr="[WARNING]"
+        elif type =='W':
+            typestr = "[WARNING]"
             print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cyellow,typestr,cend, 
                 self.__class__.__name__ , msg))
-        elif type=='E':
-            typestr="[ERROR]"
+        elif type =='E':
+            typestr = "[ERROR]"
             print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cred,typestr,cend, 
                 self.__class__.__name__ , msg))
-        elif type=='O':
-            typestr="[OBSOLETE]"
+        elif type =='O':
+            typestr = "[OBSOLETE]"
             print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cviolet,typestr,cend, 
                 self.__class__.__name__ , msg))
-        elif type=='F':
-            typestr="[FATAL]"
+        elif type =='F':
+            typestr = "[FATAL]"
             print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cred,typestr,cend, 
                 self.__class__.__name__ , msg))
             print("Quitting due to fatal error in %s" %(self.__class__.__name__))
@@ -391,7 +391,7 @@ class thesdk(metaclass=abc.ABCMeta):
                 fid.close()
                 quit()
         else:
-            typestr="[ERROR]"
+            typestr ="[ERROR]"
             msg="Incorrect message type '%s'. Choose one of 'D', 'I', 'E' or 'F'." % type
             print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cred,typestr,cend, 
                 self.__class__.__name__ , msg))
@@ -404,7 +404,7 @@ class thesdk(metaclass=abc.ABCMeta):
             fid.close()
 
     def timer(func):
-        """ Timer decorator
+        """Timer decorator
 
         Print execution time of member functions of classes inheriting
         thesdk to the logfile.
@@ -499,7 +499,7 @@ class thesdk(metaclass=abc.ABCMeta):
         self._queue = value
 
     def run_parallel(self, **kwargs):
-        """ Run instances in parallel and collect results
+        """Run instances in parallel and collect results
 
         Usage: Takes in a set of instances, runs a given method for them, and
         saves result data to the original instances.
@@ -570,7 +570,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def IOS(self):  
-        """ Type: Bundle of IO's
+        """Type: Bundle of IO's
         
         Property holding the IOS
 
@@ -590,7 +590,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def extracts(self):  
-        """ Bundle
+        """Bundle
         
         Bundle for holding the returned results from simulations that are
         not attributes or IOs. 
@@ -612,7 +612,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def netlist_params(self):  
-        """ List[string]
+        """List[string]
         
         List of strings containing the parameters of a netlist. List is populated by calling
         ecd_methods.get_params(). Empty if no parameters were found in the netlist.
@@ -629,7 +629,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def print_colors(self):  
-        """ True (default) | False
+        """True (default) | False
         
         Enable color tags in log print messages.
         """
@@ -668,7 +668,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def statepath(self):  
-        """ String
+        """String
         
         Path where the entity state is stored and where existing states are
         loaded from.
@@ -682,7 +682,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def statedir(self):  
-        """ String
+        """String
         
         Path to the most recently stored state.
         """
@@ -698,7 +698,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def save_state(self):  
-        """ True | False (default)
+        """True | False (default)
         
         Save the entity state after simulation (including output data). Any
         stored state can be loaded using the matching state name passed to the
@@ -713,7 +713,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def load_state(self):  
-        """ String (default '')
+        """String (default '')
 
         Feature for loading results of previous simulation. When calling run()
         with this property set, the simulation is not re-executed, but the
@@ -743,7 +743,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def load_state_full(self):  
-        """ True (default) | False
+        """True (default) | False
         
         Whether to load the full entity state or not. If False, only IOs are
         loaded in order to not override the entity state otherwise. In that
@@ -757,7 +757,7 @@ class thesdk(metaclass=abc.ABCMeta):
         self._load_state_full = value
 
     def _write_state(self):
-        """ Write the entity state to a binary file.
+        """Write the entity state to a binary file.
 
         This should be called after the simulation has finished.
         """
@@ -776,7 +776,7 @@ class thesdk(metaclass=abc.ABCMeta):
             self.print_log(type='E',msg='Failed saving state to %s' % self.statedir)
 
     def _read_state(self):
-        """ Read the entity state from a binary file.
+        """Read the entity state from a binary file.
 
         """
         self.runname = self.load_state
@@ -825,7 +825,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def iofile_bundle(self):
-        """ Bundle
+        """Bundle
 
         A thesdk.Bundle containing `iofile` objects. The `iofile`
         objects are automatically added to this Bundle, nothing should be
@@ -840,7 +840,7 @@ class thesdk(metaclass=abc.ABCMeta):
         self._iofile_bundle=value
 
     def delete_iofile_bundle(self):
-        """ Method to delete all files in iofile bundle
+        """Method to delete all files in iofile bundle
 
         For each of the member of the bundle of type iofile, it calls 'remove' method.
         In case modifications are needed, define class for desired iofile type with remove method.
