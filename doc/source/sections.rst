@@ -11,6 +11,7 @@ Thesdk core classes
    :members:
    :undoc-members:
 
-.. toctree:: 
+.. 
+   toctree:: 
    examples
 
