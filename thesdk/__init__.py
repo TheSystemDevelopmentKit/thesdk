@@ -267,6 +267,20 @@ class thesdk(metaclass=abc.ABCMeta):
     def preserve_iofiles(self,value):
         self._preserve_iofiles=value
 
+    @property
+    def pickle_excludes(self):
+        '''
+        Properties of entity to be excluded from pickling when saving entity state to disk.
+        Useful for filtering out e.g. lambdas and other non-serializable objects.
+        '''
+        if not hasattr(self, '_pickle_excludes'):
+            self._pickle_excludes=[]
+        return self._pickle_excludes
+
+    @pickle_excludes.setter
+    def pickle_excludes(self, val):
+        self._pickle_excludes=val
+
 
     #Common method to propagate system parameters
     def copy_propval(self,*arg):
@@ -811,13 +825,13 @@ class thesdk(metaclass=abc.ABCMeta):
 
     def __getstate__(self):
         state=self.__dict__.copy()
-        exclude_list = ['_par', '_queue', 'generator']
+        exclude_list = ['_par', '_queue', 'generator'] + self.pickle_excludes
         for item in exclude_list: 
             if item in state:
                 del state[item]
         return state
     def __setstate__(self,state):
-        exclude_list = ['_par', '_queue', 'generator']
+        exclude_list = ['_par', '_queue', 'generator'] + self.pickle_excludes
         for item in exclude_list:
             if item in state:
                 del state[item]
