@@ -314,7 +314,7 @@ class thesdk(metaclass=abc.ABCMeta):
                 else:
                     obj = self if not hasattr(self, prop) else self.parent
                     msg = "Property %s not defined for entity %s, omitting copy!" % (prop,obj)
-                    self.print_log(type='W',msg=msg)
+                    self.print_log(type='D',msg=msg)
 
     #Method for logging
     #This is a method because it uses the logfile property
