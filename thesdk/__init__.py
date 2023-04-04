@@ -825,13 +825,13 @@ class thesdk(metaclass=abc.ABCMeta):
 
     def __getstate__(self):
         state=self.__dict__.copy()
-        exclude_list = ['_par', '_queue', 'generator'] + self.pickle_excludes
+        exclude_list = ['_par', '_queue', 'generator', 'virtuoso_interface'] + self.pickle_excludes
         for item in exclude_list: 
             if item in state:
                 del state[item]
         return state
     def __setstate__(self,state):
-        exclude_list = ['_par', '_queue', 'generator'] + self.pickle_excludes
+        exclude_list = ['_par', '_queue', 'generator', 'virtuoso_interface'] + self.pickle_excludes
         for item in exclude_list:
             if item in state:
                 del state[item]
