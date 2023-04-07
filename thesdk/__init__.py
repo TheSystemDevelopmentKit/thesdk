@@ -223,15 +223,15 @@ class thesdk(metaclass=abc.ABCMeta):
         Simulation path. (./simulations/<model>/<runname>)
         This is not meant to be set manually.
         """
-        if not hasattr(self,'_simpath'):
-            name = self.runname if self.runname != '' else self.load_state
-            self._simpath = '%s/simulations/%s/%s' % (self.entitypath,self.model,name)
-            try:
-                if not (os.path.exists(self._simpath)):
-                    os.makedirs(self._simpath)
-                    self.print_log(type='I',msg='Creating %s' % self._simpath)
-            except:
-                self.print_log(type='E',msg='Failed to create %s' % self._simpath)
+        #This property is dependent, it should not be fixed in creation
+        name = self.runname if self.runname != '' else self.load_state
+        self._simpath = '%s/simulations/%s/%s' % (self.entitypath,self.model,name)
+        try:
+            if not (os.path.exists(self._simpath)):
+                os.makedirs(self._simpath)
+                self.print_log(type='I',msg='Creating %s' % self._simpath)
+        except:
+            self.print_log(type='E',msg='Failed to create %s' % self._simpath)
         return self._simpath
     @simpath.setter
     def simpath(self,val):
@@ -670,9 +670,7 @@ class thesdk(metaclass=abc.ABCMeta):
         would generate the simulation files in `simulations/<model>/test/`.
 
         """
-        if hasattr(self,'_runname'):
-            return self._runname
-        else:
+        if not hasattr(self,'_runname'):
             self._runname='%s_%s' % \
                     (datetime.now().strftime('%Y%m%d%H%M%S'),os.path.basename(tempfile.mkstemp()[1]))
         return self._runname
