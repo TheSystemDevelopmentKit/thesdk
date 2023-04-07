@@ -269,12 +269,16 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def pickle_excludes(self):
-        '''
-        Properties of entity to be excluded from pickling when saving entity state to disk.
+        ''' list : Properties of entity to be excluded from pickling when saving entity state to disk.
         Useful for filtering out e.g. lambdas and other non-serializable objects.
+
+        Default:
+        
+            ['_par', '_queue', 'generator', 'virtuoso_interface']
+
         '''
         if not hasattr(self, '_pickle_excludes'):
-            self._pickle_excludes=[]
+            self._pickle_excludes = ['_par', '_queue', 'generator', 'virtuoso_interface'] 
         return self._pickle_excludes
 
     @pickle_excludes.setter
@@ -823,14 +827,12 @@ class thesdk(metaclass=abc.ABCMeta):
 
     def __getstate__(self):
         state=self.__dict__.copy()
-        exclude_list = ['_par', '_queue', 'generator', 'virtuoso_interface'] + self.pickle_excludes
-        for item in exclude_list: 
+        for item in self.pickle_excludes: 
             if item in state:
                 del state[item]
         return state
     def __setstate__(self,state):
-        exclude_list = ['_par', '_queue', 'generator', 'virtuoso_interface'] + self.pickle_excludes
-        for item in exclude_list:
+        for item in self.pickle_excludes:
             if item in state:
                 del state[item]
         self.__dict__.update(state)
