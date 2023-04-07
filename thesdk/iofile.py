@@ -318,7 +318,7 @@ class iofile(IO):
          try:
             readd = pd.read_csv(fid,dtype=dtype,sep='\t',header=None)
             #read method for complex signal matrix
-            if self.datatype is 'complex' or self.datatype is 'scomplex':
+            if self.datatype == 'complex' or self.datatype == 'scomplex':
                 self.print_log(type="I", msg="Reading complex")
                 rows=int(readd.values.shape[0])
                 cols=int(readd.values.shape[1]/2)
