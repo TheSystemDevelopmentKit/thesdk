@@ -18,7 +18,7 @@ class Bundle(metaclass=abc.ABCMeta):
         '''
         return self.Members[name]
 
-    def __init__(self): 
+    def __init__(self,**kwargs): 
         '''Attributes
            ----------
 
