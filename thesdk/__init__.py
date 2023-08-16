@@ -407,6 +407,8 @@ class thesdk(metaclass=abc.ABCMeta):
                 fid.write("%s Quitting due to fatal error in %s.\n" 
                         %( time.strftime("%H:%M:%S"), self.__class__.__name__))
                 fid.close()
+                if self.par:
+                    self.queue.put({})
                 quit()
         else:
             typestr ="[ERROR]"
@@ -575,14 +577,17 @@ class thesdk(metaclass=abc.ABCMeta):
             n=0
             for i in dutrange:
                 ret_dict=que[n].get() # returned dictionary
-                self.print_log(type='I', msg='Saving results from parallel run of %s' %(duts[i]))
-                for key,value in ret_dict.items():
-                    if key in duts[i].IOS.Members:
-                        duts[i].IOS.Members[key] = value
-                    elif hasattr(duts[i],key):
-                        setattr(duts[i],key,value)
-                    else:
-                        duts[i].extracts.Members[key] = value
+                if ret_dict:
+                    self.print_log(type='I', msg='Saving results from parallel run of %s' %(duts[i]))
+                    for key,value in ret_dict.items():
+                        if key in duts[i].IOS.Members:
+                            duts[i].IOS.Members[key] = value
+                        elif hasattr(duts[i],key):
+                            setattr(duts[i],key,value)
+                        else:
+                            duts[i].extracts.Members[key] = value
+                else:
+                    self.print_log(type='W',msg='Parallel run %d/%d failed or returned dict was empty!' % (i+1, len(duts)))
                 proc[n].join()
                 n+=1
 
