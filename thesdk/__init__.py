@@ -224,7 +224,12 @@ class thesdk(metaclass=abc.ABCMeta):
         This is not meant to be set manually.
         """
         #This property is dependent, it should not be fixed in creation
-        name = self.runname if self.runname != '' else self.load_state
+        if hasattr(self, '_runname'):
+            name = self.runname
+        elif hasattr(self, '_load_state'):
+            name = self.load_state
+        else:
+            self.print_log(type='F', msg='Entity runname or load_state not set! This shouldn\'t happen')
         self._simpath = '%s/simulations/%s/%s' % (self.entitypath,self.model,name)
         try:
             if not (os.path.exists(self._simpath)):
