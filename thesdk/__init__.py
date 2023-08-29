@@ -146,18 +146,18 @@ class thesdk(metaclass=abc.ABCMeta):
             os.remove(__class__.logfile)
         typestr="[INFO]"
         # Colors for stdout prints
-        cend    = '' if not self.print_colors else '\33[0m'
-        cblack  = '' if not self.print_colors else '\33[30m'
-        cred    = '' if not self.print_colors else '\33[31m'
-        cgreen  = '' if not self.print_colors else '\33[32m'
-        cyellow = '' if not self.print_colors else '\33[33m'
-        cblue   = '' if not self.print_colors else '\33[34m'
-        cviolet = '' if not self.print_colors else '\33[35m'
-        cbeige  = '' if not self.print_colors else '\33[36m'
-        cwhite  = '' if not self.print_colors else '\33[37m'
+        cend    = '' if not cls.print_colors else '\33[0m'
+        cblack  = '' if not cls.print_colors else '\33[30m'
+        cred    = '' if not cls.print_colors else '\33[31m'
+        cgreen  = '' if not cls.print_colors else '\33[32m'
+        cyellow = '' if not cls.print_colors else '\33[33m'
+        cblue   = '' if not cls.print_colors else '\33[34m'
+        cviolet = '' if not cls.print_colors else '\33[35m'
+        cbeige  = '' if not cls.print_colors else '\33[36m'
+        cwhite  = '' if not cls.print_colors else '\33[37m'
         msg="Default logfile override. Initialized logging in %s" %(__class__.logfile)
         print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cgreen,typestr,cend, 
-            self.__class__.__name__ , msg))
+            __class__.__name__ , msg))
         fid= open(__class__.logfile, 'a')
         fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"),typestr, __class__.__name__ , msg))
         fid.close()
