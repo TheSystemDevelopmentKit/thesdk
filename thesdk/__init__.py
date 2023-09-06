@@ -597,7 +597,11 @@ class thesdk(metaclass=abc.ABCMeta):
                         else:
                             duts[i].extracts.Members[key] = value
                 else:
-                    self.print_log(type='W',msg='Parallel run %d/%d failed or returned dict was empty!' % (i+1, len(duts)))
+                    if duts[i].load_state == '':
+                        name = duts[i].runname
+                    else:
+                        name = duts[i].load_state
+                    self.print_log(type='W',msg='Parallel run %d/%d failed (with name: %s). Returned dict was empty!' % (i+1, len(duts), name))
                 proc[n].join()
                 n+=1
 
