@@ -247,7 +247,8 @@ class thesdk(metaclass=abc.ABCMeta):
         """String
 
         Simulation path. (./simulations/<model>/<runname>)
-        This is not meant to be set manually.
+        This is not meant to be set manually. Use 'simpathroot'
+        to relocate.
         """
         #This property is dependent, it should not be fixed in creation
         name = self.runname if self.runname != '' else self.load_state
@@ -261,7 +262,7 @@ class thesdk(metaclass=abc.ABCMeta):
         return self._simpath
     @simpath.setter
     def simpath(self,val):
-        self._simpath=val
+        self.print_log(type='F', msg="Setting simpath has no effect. Set 'simpathroot' instead.")
         return self._simpath
    
     @property 
