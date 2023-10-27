@@ -225,17 +225,34 @@ class thesdk(metaclass=abc.ABCMeta):
             self.print_log(type='E', msg= 'Simulator model %s not supported.' %(val))
         self._model=val
         return self._model
+    @property
+    def simpathroot(self):
+        """String
+
+        Simulation path root.
+
+        Default self.entitypath
+        """
+        if not hasattr(self,'_simpathroot'):
+            self._simpathroot=self.entitypath
+        return self._simpathroot
+
+    @simpathroot.setter
+    def simpathroot(self,val):
+        self._simpathroot=val
+        return self._simpathroot
 
     @property
     def simpath(self):
         """String
 
         Simulation path. (./simulations/<model>/<runname>)
-        This is not meant to be set manually.
+        This is not meant to be set manually. Use 'simpathroot'
+        to relocate.
         """
         #This property is dependent, it should not be fixed in creation
         name = self.runname if self.runname != '' else self.load_state
-        self._simpath = '%s/simulations/%s/%s' % (self.entitypath,self.model,name)
+        self._simpath = '%s/simulations/%s/%s' % (self.simpathroot,self.model,name)
         try:
             if not (os.path.exists(self._simpath)):
                 os.makedirs(self._simpath)
@@ -245,8 +262,7 @@ class thesdk(metaclass=abc.ABCMeta):
         return self._simpath
     @simpath.setter
     def simpath(self,val):
-        self._simpath=val
-        return self._simpath
+        self.print_log(type='F', msg="Setting simpath has no effect. Set 'simpathroot' instead.")
    
     @property 
     def has_lsf(self):
