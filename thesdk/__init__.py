@@ -225,6 +225,22 @@ class thesdk(metaclass=abc.ABCMeta):
             self.print_log(type='E', msg= 'Simulator model %s not supported.' %(val))
         self._model=val
         return self._model
+    @property
+    def simpathroot(self):
+        """String
+
+        Simulation path root.
+
+        Default self.entitypath
+        """
+        if not hasattr(self,'_simpathroot'):
+            self._simpathroot=sefl.entitypath
+        return self._simpathroot
+
+    @simpathroot.setter
+    def simpathroot(self,val):
+        self._simpathroot=val
+        return self._simpathroot
 
     @property
     def simpath(self):
@@ -235,7 +251,7 @@ class thesdk(metaclass=abc.ABCMeta):
         """
         #This property is dependent, it should not be fixed in creation
         name = self.runname if self.runname != '' else self.load_state
-        self._simpath = '%s/simulations/%s/%s' % (self.entitypath,self.model,name)
+        self._simpath = '%s/simulations/%s/%s' % (self.simpathroot,self.model,name)
         try:
             if not (os.path.exists(self._simpath)):
                 os.makedirs(self._simpath)
