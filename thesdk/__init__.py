@@ -234,7 +234,7 @@ class thesdk(metaclass=abc.ABCMeta):
         Default self.entitypath
         """
         if not hasattr(self,'_simpathroot'):
-            self._simpathroot=sefl.entitypath
+            self._simpathroot=self.entitypath
         return self._simpathroot
 
     @simpathroot.setter
