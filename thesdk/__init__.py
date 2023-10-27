@@ -263,7 +263,6 @@ class thesdk(metaclass=abc.ABCMeta):
     @simpath.setter
     def simpath(self,val):
         self.print_log(type='F', msg="Setting simpath has no effect. Set 'simpathroot' instead.")
-        return self._simpath
    
     @property 
     def has_lsf(self):
