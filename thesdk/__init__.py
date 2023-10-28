@@ -145,9 +145,19 @@ class thesdk(metaclass=abc.ABCMeta):
         if os.path.isfile(__class__.logfile):
             os.remove(__class__.logfile)
         typestr="[INFO]"
+        # Colors for stdout prints
+        cend    = '' if not cls.print_colors else '\33[0m'
+        cblack  = '' if not cls.print_colors else '\33[30m'
+        cred    = '' if not cls.print_colors else '\33[31m'
+        cgreen  = '' if not cls.print_colors else '\33[32m'
+        cyellow = '' if not cls.print_colors else '\33[33m'
+        cblue   = '' if not cls.print_colors else '\33[34m'
+        cviolet = '' if not cls.print_colors else '\33[35m'
+        cbeige  = '' if not cls.print_colors else '\33[36m'
+        cwhite  = '' if not cls.print_colors else '\33[37m'
         msg="Default logfile override. Initialized logging in %s" %(__class__.logfile)
         print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cgreen,typestr,cend, 
-            self.__class__.__name__ , msg))
+            __class__.__name__ , msg))
         fid= open(__class__.logfile, 'a')
         fid.write("%s %s %s: %s\n" %(time.strftime("%H:%M:%S"),typestr, __class__.__name__ , msg))
         fid.close()
@@ -202,7 +212,7 @@ class thesdk(metaclass=abc.ABCMeta):
     def model(self):
         ''' Simulation model to be used 
 
-        'py' |  'sv' |  'vhdl' |  'eldo' |  'spectre' | 'ngspice' | 'hw' | 'icarus'
+        'py' |  'sv' |  'vhdl' |  'eldo' |  'spectre' | 'ngspice' | 'hw' | 'icarus' | 'ghdl'
 
         '''
         if not hasattr(self,'_model'):
@@ -211,35 +221,52 @@ class thesdk(metaclass=abc.ABCMeta):
             return self._model
     @model.setter
     def model(self,val):
-        if val not in [ 'py', 'sv', 'vhdl', 'eldo', 'spectre', 'ngspice', 'hw', 'icarus']:
+        if val not in [ 'py', 'sv', 'vhdl', 'eldo', 'spectre', 'ngspice', 'hw', 'icarus', 'ghdl' ]:
             self.print_log(type='E', msg= 'Simulator model %s not supported.' %(val))
         self._model=val
         return self._model
+    @property
+    def simpathroot(self):
+        """String
+
+        Simulation path root.
+
+        Default self.entitypath
+        """
+        if not hasattr(self,'_simpathroot'):
+            self._simpathroot=self.entitypath
+        return self._simpathroot
+
+    @simpathroot.setter
+    def simpathroot(self,val):
+        self._simpathroot=val
+        return self._simpathroot
 
     @property
     def simpath(self):
         """String
 
         Simulation path. (./simulations/<model>/<runname>)
-        This is not meant to be set manually.
+        This is not meant to be set manually. Use 'simpathroot'
+        to relocate.
         """
-        if not hasattr(self,'_simpath'):
-            self._simpath = '%s/simulations/%s/%s' % (self.entitypath,self.model,self.runname)
-            try:
-                if not (os.path.exists(self._simpath)):
-                    os.makedirs(self._simpath)
-                    self.print_log(type='I',msg='Creating %s' % self._simpath)
-            except:
-                self.print_log(type='E',msg='Failed to create %s' % self._simpath)
+        #This property is dependent, it should not be fixed in creation
+        name = self.runname if self.runname != '' else self.load_state
+        self._simpath = '%s/simulations/%s/%s' % (self.simpathroot,self.model,name)
+        try:
+            if not (os.path.exists(self._simpath)):
+                os.makedirs(self._simpath)
+                self.print_log(type='I',msg='Creating %s' % self._simpath)
+        except:
+            self.print_log(type='E',msg='Failed to create %s' % self._simpath)
         return self._simpath
     @simpath.setter
     def simpath(self,val):
-        self._simpath=val
-        return self._simpath
+        self.print_log(type='F', msg="Setting simpath has no effect. Set 'simpathroot' instead.")
    
     @property 
     def has_lsf(self):
-        """ True | False (default)
+        """True | False (default)
 
         True if LSFINTERACTIVE and LSFSUBMISSION global veriables are defined
         in TheSDK.config.
@@ -265,6 +292,24 @@ class thesdk(metaclass=abc.ABCMeta):
     @preserve_iofiles.setter
     def preserve_iofiles(self,value):
         self._preserve_iofiles=value
+
+    @property
+    def pickle_excludes(self):
+        ''' list : Properties of entity to be excluded from pickling when saving entity state to disk.
+        Useful for filtering out e.g. lambdas and other non-serializable objects.
+
+        Default:
+        
+            ['_par', '_queue', 'generator', 'virtuoso_interface']
+
+        '''
+        if not hasattr(self, '_pickle_excludes'):
+            self._pickle_excludes = ['_par', '_queue', 'generator', 'virtuoso_interface'] 
+        return self._pickle_excludes
+
+    @pickle_excludes.setter
+    def pickle_excludes(self, val):
+        self._pickle_excludes=val
 
 
     #Common method to propagate system parameters
@@ -299,7 +344,7 @@ class thesdk(metaclass=abc.ABCMeta):
                 else:
                     obj = self if not hasattr(self, prop) else self.parent
                     msg = "Property %s not defined for entity %s, omitting copy!" % (prop,obj)
-                    self.print_log(type='W',msg=msg)
+                    self.print_log(type='D',msg=msg)
 
     #Method for logging
     #This is a method because it uses the logfile property
@@ -351,7 +396,7 @@ class thesdk(metaclass=abc.ABCMeta):
             fid.write("%s %s thesdk: %s\n" %(time.strftime("%H:%M:%S"), typestr, initmsg))
             fid.close()
 
-        if type== 'D':
+        if type == 'D':
             if self.DEBUG:
                 typestr="[DEBUG]"
                 print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cblue,typestr,cend, 
@@ -362,24 +407,24 @@ class thesdk(metaclass=abc.ABCMeta):
                     typestr, self.__class__.__name__ , msg)) 
                     fid.close()
             return
-        elif type== 'I':
-            typestr="[INFO]"
+        elif type == 'I':
+            typestr ="[INFO]"
             print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cgreen,typestr,cend, 
                 self.__class__.__name__ , msg))
-        elif type=='W':
-            typestr="[WARNING]"
+        elif type =='W':
+            typestr = "[WARNING]"
             print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cyellow,typestr,cend, 
                 self.__class__.__name__ , msg))
-        elif type=='E':
-            typestr="[ERROR]"
+        elif type =='E':
+            typestr = "[ERROR]"
             print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cred,typestr,cend, 
                 self.__class__.__name__ , msg))
-        elif type=='O':
-            typestr="[OBSOLETE]"
+        elif type =='O':
+            typestr = "[OBSOLETE]"
             print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cviolet,typestr,cend, 
                 self.__class__.__name__ , msg))
-        elif type=='F':
-            typestr="[FATAL]"
+        elif type =='F':
+            typestr = "[FATAL]"
             print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cred,typestr,cend, 
                 self.__class__.__name__ , msg))
             print("Quitting due to fatal error in %s" %(self.__class__.__name__))
@@ -388,9 +433,11 @@ class thesdk(metaclass=abc.ABCMeta):
                 fid.write("%s Quitting due to fatal error in %s.\n" 
                         %( time.strftime("%H:%M:%S"), self.__class__.__name__))
                 fid.close()
+                if self.par:
+                    self.queue.put({})
                 quit()
         else:
-            typestr="[ERROR]"
+            typestr ="[ERROR]"
             msg="Incorrect message type '%s'. Choose one of 'D', 'I', 'E' or 'F'." % type
             print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cred,typestr,cend, 
                 self.__class__.__name__ , msg))
@@ -403,7 +450,7 @@ class thesdk(metaclass=abc.ABCMeta):
             fid.close()
 
     def timer(func):
-        """ Timer decorator
+        """Timer decorator
 
         Print execution time of member functions of classes inheriting
         thesdk to the logfile.
@@ -498,7 +545,7 @@ class thesdk(metaclass=abc.ABCMeta):
         self._queue = value
 
     def run_parallel(self, **kwargs):
-        """ Run instances in parallel and collect results
+        """Run instances in parallel and collect results
 
         Usage: Takes in a set of instances, runs a given method for them, and
         saves result data to the original instances.
@@ -523,7 +570,6 @@ class thesdk(metaclass=abc.ABCMeta):
                 ret_dict = {**self.IOS.Members,**self.extracts.Members} 
                 self.queue.put(ret_dict)
 
-        ----------
         Parameters
         ----------
          **kwargs:  
@@ -557,20 +603,23 @@ class thesdk(metaclass=abc.ABCMeta):
             n=0
             for i in dutrange:
                 ret_dict=que[n].get() # returned dictionary
-                self.print_log(type='I', msg='Saving results from parallel run of %s' %(duts[i]))
-                for key,value in ret_dict.items():
-                    if key in duts[i].IOS.Members:
-                        duts[i].IOS.Members[key] = value
-                    elif hasattr(duts[i],key):
-                        setattr(duts[i],key,value)
-                    else:
-                        duts[i].extracts.Members[key] = value
+                if ret_dict:
+                    self.print_log(type='I', msg='Saving results from parallel run of %s' %(duts[i]))
+                    for key,value in ret_dict.items():
+                        if key in duts[i].IOS.Members:
+                            duts[i].IOS.Members[key] = value
+                        elif hasattr(duts[i],key):
+                            setattr(duts[i],key,value)
+                        else:
+                            duts[i].extracts.Members[key] = value
+                else:
+                    self.print_log(type='W',msg='Parallel run %d/%d failed or returned dict was empty!' % (i+1, len(duts)))
                 proc[n].join()
                 n+=1
 
     @property
     def IOS(self):  
-        """ Type: Bundle of IO's
+        """Type: Bundle of IO's
         
         Property holding the IOS
 
@@ -590,7 +639,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def extracts(self):  
-        """ Bundle
+        """Bundle
         
         Bundle for holding the returned results from simulations that are
         not attributes or IOs. 
@@ -612,7 +661,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def netlist_params(self):  
-        """ List[string]
+        """List[string]
         
         List of strings containing the parameters of a netlist. List is populated by calling
         ecd_methods.get_params(). Empty if no parameters were found in the netlist.
@@ -629,7 +678,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def print_colors(self):  
-        """ True (default) | False
+        """True (default) | False
         
         Enable color tags in log print messages.
         """
@@ -656,9 +705,7 @@ class thesdk(metaclass=abc.ABCMeta):
         would generate the simulation files in `simulations/<model>/test/`.
 
         """
-        if hasattr(self,'_runname'):
-            return self._runname
-        else:
+        if not hasattr(self,'_runname'):
             self._runname='%s_%s' % \
                     (datetime.now().strftime('%Y%m%d%H%M%S'),os.path.basename(tempfile.mkstemp()[1]))
         return self._runname
@@ -668,12 +715,13 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def statepath(self):  
-        """ String
+        """String
         
         Path where the entity state is stored and where existing states are
         loaded from.
         """
         if not hasattr(self,'_statepath'):
+            #self._statepath = '%s/states/%s/new_sweep' % (self.entitypath,self.model)
             self._statepath = '%s/states/%s' % (self.entitypath,self.model)
         return self._statepath
     @statepath.setter
@@ -682,12 +730,15 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def statedir(self):  
-        """ String
+        """String
         
         Path to the most recently stored state.
         """
         if not hasattr(self,'_statedir'):
-            self._statedir = '%s/%s' % (self.statepath,self.runname)
+            if self.runname != '':
+                self._statedir = '%s/%s' % (self.statepath,self.runname)
+            else:
+                self._statedir = '%s/%s' % (self.statepath,self.load_state)
         return self._statedir
     @statedir.setter
     def statedir(self,value):
@@ -695,7 +746,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def save_state(self):  
-        """ True | False (default)
+        """True | False (default)
         
         Save the entity state after simulation (including output data). Any
         stored state can be loaded using the matching state name passed to the
@@ -710,7 +761,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def load_state(self):  
-        """ String (default '')
+        """String (default '')
 
         Feature for loading results of previous simulation. When calling run()
         with this property set, the simulation is not re-executed, but the
@@ -740,7 +791,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def load_state_full(self):  
-        """ True (default) | False
+        """True (default) | False
         
         Whether to load the full entity state or not. If False, only IOs are
         loaded in order to not override the entity state otherwise. In that
@@ -754,7 +805,7 @@ class thesdk(metaclass=abc.ABCMeta):
         self._load_state_full = value
 
     def _write_state(self):
-        """ Write the entity state to a binary file.
+        """Write the entity state to a binary file.
 
         This should be called after the simulation has finished.
         """
@@ -773,7 +824,7 @@ class thesdk(metaclass=abc.ABCMeta):
             self.print_log(type='E',msg='Failed saving state to %s' % self.statedir)
 
     def _read_state(self):
-        """ Read the entity state from a binary file.
+        """Read the entity state from a binary file.
 
         """
         self.runname = self.load_state
@@ -808,21 +859,19 @@ class thesdk(metaclass=abc.ABCMeta):
 
     def __getstate__(self):
         state=self.__dict__.copy()
-        exclude_list = ['_par', '_queue', 'generator']
-        for item in exclude_list: 
+        for item in self.pickle_excludes: 
             if item in state:
                 del state[item]
         return state
     def __setstate__(self,state):
-        exclude_list = ['_par', '_queue', 'generator']
-        for item in exclude_list:
+        for item in self.pickle_excludes:
             if item in state:
                 del state[item]
         self.__dict__.update(state)
 
     @property
     def iofile_bundle(self):
-        """ Bundle
+        """Bundle
 
         A thesdk.Bundle containing `iofile` objects. The `iofile`
         objects are automatically added to this Bundle, nothing should be
@@ -837,7 +886,7 @@ class thesdk(metaclass=abc.ABCMeta):
         self._iofile_bundle=value
 
     def delete_iofile_bundle(self):
-        """ Method to delete all files in iofile bundle
+        """Method to delete all files in iofile bundle
 
         For each of the member of the bundle of type iofile, it calls 'remove' method.
         In case modifications are needed, define class for desired iofile type with remove method.

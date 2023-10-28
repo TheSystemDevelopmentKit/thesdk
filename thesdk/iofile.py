@@ -21,6 +21,8 @@ Generalized for common file-io by Marko Kosunen, marko.kosunen@aalto.fi,
 
 import os
 import sys
+import random
+import string
 from abc import * 
 from thesdk import *
 import numpy as np
@@ -59,7 +61,7 @@ class iofile(IO):
          try:  
              super(iofile,self).__init__(**kwargs)
              self.parent=parent
-             self.rndpart=os.path.basename(tempfile.mkstemp()[1])
+             self.rndpart=''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(16))
              self.name=kwargs.get('name') 
  
              # IO's are output by default
@@ -316,7 +318,7 @@ class iofile(IO):
          try:
             readd = pd.read_csv(fid,dtype=dtype,sep='\t',header=None)
             #read method for complex signal matrix
-            if self.datatype is 'complex' or self.datatype is 'scomplex':
+            if self.datatype == 'complex' or self.datatype == 'scomplex':
                 self.print_log(type="I", msg="Reading complex")
                 rows=int(readd.values.shape[0])
                 cols=int(readd.values.shape[1]/2)
