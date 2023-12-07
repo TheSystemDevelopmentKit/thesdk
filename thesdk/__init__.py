@@ -346,7 +346,8 @@ class thesdk(metaclass=abc.ABCMeta):
                 if hasattr(self,prop) and hasattr(self.parent, prop):
                     #Its nice to see how things propagate
                     msg="Setting %s: %s to %s" %(self, prop, getattr(self.parent,prop))
-                    self.print_log(type= 'I', msg=msg)
+                    # As nice as it is to see how things propagate, it quickly fill the logfiles with garbage
+                    self.print_log(type= 'D', msg=msg)
                     setattr(self,prop,getattr(self.parent,prop))
                 else:
                     obj = self if not hasattr(self, prop) else self.parent
