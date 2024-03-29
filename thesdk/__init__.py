@@ -342,6 +342,8 @@ class thesdk(metaclass=abc.ABCMeta):
         if len(arg)>=2:
             self.parent=arg[0]
             self.proplist=arg[1]
+            msg="Propagating parent properties at %s from %s" %(self, self.parent)
+            self.print_log(type= 'I', msg=msg)
             for prop in self.proplist:
                 if hasattr(self,prop) and hasattr(self.parent, prop):
                     #Its nice to see how things propagate
