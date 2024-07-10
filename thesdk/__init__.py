@@ -343,6 +343,9 @@ class thesdk(metaclass=abc.ABCMeta):
 
         if len(arg)>=2:
             self.parent=arg[0]
+            # We wish to propagate this throughout the hierarchy
+            # TODO figure out way to set global parameters
+            self.copy_propval_verbosity = self.parent.copy_propval_verbosity
             self.proplist=arg[1]
             msg="Propagating parent properties at %s from %s" %(self, self.parent)
             self.print_log(type= 'I', msg=msg)
