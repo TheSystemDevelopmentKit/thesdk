@@ -367,8 +367,8 @@ class thesdk(metaclass=abc.ABCMeta):
 
         '''
         if not hasattr(self,'_copy_propval_verbosity'):
-            self._copy_proval_verbosity = 'I'
-        return self._copy_proval_verbosity
+            self._copy_propval_verbosity = 'I'
+        return self._copy_propval_verbosity
     @copy_propval_verbosity.setter
     def copy_propval_verbosity(self,value):
         if value not in [ 'I', 'D' ]:
