@@ -442,7 +442,8 @@ class thesdk(metaclass=abc.ABCMeta):
                 fid.close()
                 if self.par:
                     self.queue.put({})
-                quit()
+                # Exit with non-zero exit code
+                sys.exit(1)
         else:
             typestr ="[ERROR]"
             msg="Incorrect message type '%s'. Choose one of 'D', 'I', 'E' or 'F'." % type
