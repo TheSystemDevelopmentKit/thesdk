@@ -356,7 +356,9 @@ class thesdk(metaclass=abc.ABCMeta):
     @property
     def supress_output(self):
         """
-        Optional flag to supress all print_log output to stdout
+        Bool : Optional flag to supress all print_log output to stdout
+
+        Defaul: False
         """
         if not hasattr(self, '_supress_output'):
             self._supress_output=False
