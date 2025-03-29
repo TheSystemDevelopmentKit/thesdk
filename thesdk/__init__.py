@@ -183,7 +183,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def print_relative_path(self):
-        ''' True (default) | False
+        ''' True (default) | False
 
         If True, print all paths relative to the entity path. If False, paths
         are printed as is (typically absolute paths).
@@ -273,7 +273,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
     @property
     def has_lsf(self):
-        """True | False (default)
+        """True | False (default)
 
         True if LSFINTERACTIVE and LSFSUBMISSION global veriables are defined
         in TheSDK.config.
@@ -378,6 +378,21 @@ class thesdk(metaclass=abc.ABCMeta):
             self._copy_propval_verbosity = value
 
 
+    @property
+    def supress_output(self):
+        """
+        Bool : Optional flag to supress all print_log output to stdout
+
+        Defaul: False
+        """
+        if not hasattr(self, '_supress_output'):
+            self._supress_output=False
+        return self._supress_output
+
+    @supress_output.setter
+    def supress_output(self, val):
+        self._supress_output=val
+
     #Method for logging
     #This is a method because it uses the logfile property
     def print_log(self,**kwargs):
@@ -431,7 +446,8 @@ class thesdk(metaclass=abc.ABCMeta):
         if type == 'D':
             if self.DEBUG:
                 typestr="[DEBUG]"
-                print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cblue,typestr,cend,
+                if not self.supress_output:
+                    print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cblue,typestr,cend, 
                     self.__class__.__name__ , msg))
                 if hasattr(self,"logfile"):
                     fid= open(thesdk.logfile, 'a')
@@ -441,23 +457,28 @@ class thesdk(metaclass=abc.ABCMeta):
             return
         elif type == 'I':
             typestr ="[INFO]"
-            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cgreen,typestr,cend,
+            if not self.supress_output:
+                print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cgreen,typestr,cend, 
                 self.__class__.__name__ , msg))
         elif type =='W':
             typestr = "[WARNING]"
-            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cyellow,typestr,cend,
+            if not self.supress_output:
+                print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cyellow,typestr,cend, 
                 self.__class__.__name__ , msg))
         elif type =='E':
             typestr = "[ERROR]"
-            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cred,typestr,cend,
+            if not self.supress_output:
+                print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cred,typestr,cend, 
                 self.__class__.__name__ , msg))
         elif type =='O':
             typestr = "[OBSOLETE]"
-            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cviolet,typestr,cend,
+            if not self.supress_output:
+                print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cviolet,typestr,cend, 
                 self.__class__.__name__ , msg))
         elif type =='F':
             typestr = "[FATAL]"
-            print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cred,typestr,cend,
+            if not self.supress_output:
+                print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cred,typestr,cend, 
                 self.__class__.__name__ , msg))
             print("Quitting due to fatal error in %s" %(self.__class__.__name__))
             if hasattr(self,"logfile"):
