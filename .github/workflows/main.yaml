@@ -3,15 +3,12 @@ on:
     branches:
       - master
       - v1.14_RC
-    env:
-      #BRANCH_NAME: "${{ github.head_ref || github.ref_name }}"
-      MSG: "content=Update on thesdk test"
-        #MSG: "content=Update on $GITHUB_REPOSITORY $BRANCH_NAME"
 
 jobs:
   notify_update:
     env:
-      commitmsg: ${{ github.event.head_commit.message }}
+      REPO_NAME: ${{ github.event.repository.name }}
+      COMMITMSG: ${{ github.event.head_commit.message }}
     runs-on: ubuntu-latest
     # This project MUST be given permission to use the image blow. at
     # Package settings-> Manage action access of the project hosting the
@@ -22,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Notification action
-        run: curl -X POST --data-urlencode type=stream --data-binary "content=Update on $GITHUB_REPOSITORY ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} \n ${{ env.commitmsg }}" --data-urlencode 'to="Update notifications"' --data-urlencode topic=test ${{ secrets.ZULIPWEBHOOK }} || exit 1
+        run: curl -X POST --data-urlencode type=stream --data-urlencode "content=Update on $GITHUB_REPOSITORY , branch: ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}, message: ${{ env.COMMITMSG }}" --data-urlencode 'to="Update notifications"' --data-urlencode "topic=${{ env.REPO_NAME }}" ${{ secrets.ZULIPWEBHOOK }} || exit 1
 
   #doc_build_job:
   #  runs-on: ubuntu-latest
