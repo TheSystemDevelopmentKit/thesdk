@@ -25,6 +25,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Variable definition
+        #from https://medium.com/@ibraheemabukaff/github-actions-exporting-multi-line-one-line-value-environment-variable-5bb86d01e866
         run: |
           MULTI_LINES_TEXT="Update on $GITHUB_REPOSITORY \n
           Branch ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} \n
@@ -35,7 +36,7 @@ jobs:
           echo $MULTI_LINES_TEXT >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
       - name: Notification
-        run:  curl -X POST --data-urlencode type=stream --data-urlencode "content=${{ env.MULTI_LINES_TEXT }}" --data-urlencode 'to="Update notifications"' --data-urlencode "topic=${{ env.topic }}" ${{ secrets.ZULIPWEBHOOK }} || exit 1
+        run:  curl -X POST --data-urlencode type=stream --data-urlencode "content=${{ env.MULTI_LINES_TEXT_ENV_VAR }}" --data-urlencode 'to="Update notifications"' --data-urlencode "topic=${{ env.topic }}" ${{ secrets.ZULIPWEBHOOK }} || exit 1
 
   #doc_build_job:
   #  runs-on: ubuntu-latest
