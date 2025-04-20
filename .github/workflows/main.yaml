@@ -13,7 +13,8 @@ jobs:
     env:
       commitmsg: ${{ github.event.head_commit.message }}
       topic: ${{ github.event.repository.name }}
-      message:  "Update on $GITHUB_REPOSITORY, branch: ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}, message: ${{ env.commitmsg }}"
+      message:  "Update on $GITHUB_REPOSITORY, branch: ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}, message: ${{ github.event.head_commit.message }}
+ "
     runs-on: ubuntu-latest
     # This project MUST be given permission to use the image blow. at
     # Package settings-> Manage action access of the project hosting the
