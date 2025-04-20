@@ -24,8 +24,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Notification action
-        run: curl -X POST --data-urlencode type=stream --data-urlencode "content=${{ env.message }}" --data-urlencode 'to="Update notifications"' --data-urlencode "topic=${{ env.topic }}" ${{ secrets.ZULIPWEBHOOK }} || exit 1
+      - name: Variable definition
+        run: |
+          MULTI_LINES_TEXT="Update on $GITHUB_REPOSITORY \n
+          Branch ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} \n
+          Commit message \n
+          ${{ github.event.head_commit.message }} "
+          echo "MULTI_LINES_TEXT_ENV_VAR<<EOF" >> $GITHUB_ENV
+          # here we can place the command that will generate multi-line text
+          echo $MULTI_LINES_TEXT >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+      - name: Notification
+        run:  curl -X POST --data-urlencode type=stream --data-urlencode "content=${{ env.MULTI_LINES_TEXT }}" --data-urlencode 'to="Update notifications"' --data-urlencode "topic=${{ env.topic }}" ${{ secrets.ZULIPWEBHOOK }} || exit 1
 
   #doc_build_job:
   #  runs-on: ubuntu-latest
