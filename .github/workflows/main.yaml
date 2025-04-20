@@ -4,8 +4,9 @@ on:
       - master
       - v1.14_RC
     env:
-      BRANCH_NAME: "${{ github.head_ref || github.ref_name }}"
-      MSG: "content=Update on $GITHUB_REPOSITORY $BRANCH_NAME"
+      #BRANCH_NAME: "${{ github.head_ref || github.ref_name }}"
+      MSG: "content=Update on thesdk test"
+        #MSG: "content=Update on $GITHUB_REPOSITORY $BRANCH_NAME"
 
 jobs:
   notify_update:
