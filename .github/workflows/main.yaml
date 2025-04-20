@@ -20,7 +20,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Notificatio action
-        run: curl -X POST --data-urlencode type=stream --data-urlencode "content=Update on $GITHUB_REPOSITORY $BRANCH_NAME" --data-urlencode 'to="Update notifications"' --data-urlencode topic=test $ZULIPWEBHOOK
+        run: curl -X POST --data-urlencode type=stream --data-urlencode "content=Update on $GITHUB_REPOSITORY $BRANCH_NAME" --data-urlencode 'to="Update notifications"' --data-urlencode topic=test ${{ secrets.ZULIPWEBHOOK }}
+
   #doc_build_job:
   #  runs-on: ubuntu-latest
   #  # This project MUST be given permission to use the image blow. at
