@@ -23,8 +23,8 @@ jobs:
       - name: Variable definition
         run: |
           MESSAGE_TEXT="Update on $GITHUB_REPOSITORY \n
-          Branch ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} \n
-          Commit message \n
+          Branch: ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} \n
+          Commit message: \n
           ${{ github.event.head_commit.message }} "
           echo "MESSAGE<<EOF" >> $GITHUB_ENV
           # here we can place the command that will generate multi-line text
