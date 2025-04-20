@@ -22,7 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Notification action
-        run: curl -X POST --data-urlencode type=stream --data-urlencode "$(echo -e "content=Update on $GITHUB_REPOSITORY ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} \n ${{ env.commitmsg }}")" --data-urlencode 'to="Update notifications"' --data-urlencode topic=test ${{ secrets.ZULIPWEBHOOK }} || exit 1
+        run: curl -X POST --data-urlencode type=stream --data-binary "content=Update on $GITHUB_REPOSITORY ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} \n ${{ env.commitmsg }}" --data-urlencode 'to="Update notifications"' --data-urlencode topic=test ${{ secrets.ZULIPWEBHOOK }} || exit 1
 
   #doc_build_job:
   #  runs-on: ubuntu-latest
