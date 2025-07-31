@@ -26,17 +26,14 @@ import getpass
 import time
 import tempfile
 import re
-import abc
-from abc import *
+from abc import ABCMeta
 from functools import reduce
 import multiprocessing
 
 import numpy as np
 import traceback
-import time
 import functools
 import contextlib as cl
-import pdb
 import pickle
 from datetime import datetime
 
@@ -46,7 +43,7 @@ from datetime import datetime
 #derived from it. A class that has a metaclass derived from ABCMeta cannot
 #be instantiated unless all of its abstract methods and properties are overridden.
 from thesdk.bundle import Bundle
-class thesdk(metaclass=abc.ABCMeta):
+class thesdk(metaclass=ABCMeta):
     '''
     Following class attributes are set when this class imported
 
@@ -154,14 +151,14 @@ class thesdk(metaclass=abc.ABCMeta):
         typestr="[INFO]"
         # Colors for stdout prints
         cend    = '' if not cls.print_colors else '\33[0m'
-        cblack  = '' if not cls.print_colors else '\33[30m'
-        cred    = '' if not cls.print_colors else '\33[31m'
+        # cblack  = '' if not cls.print_colors else '\33[30m'
+        # cred    = '' if not cls.print_colors else '\33[31m'
         cgreen  = '' if not cls.print_colors else '\33[32m'
-        cyellow = '' if not cls.print_colors else '\33[33m'
-        cblue   = '' if not cls.print_colors else '\33[34m'
-        cviolet = '' if not cls.print_colors else '\33[35m'
-        cbeige  = '' if not cls.print_colors else '\33[36m'
-        cwhite  = '' if not cls.print_colors else '\33[37m'
+        # cyellow = '' if not cls.print_colors else '\33[33m'
+        # cblue   = '' if not cls.print_colors else '\33[34m'
+        # cviolet = '' if not cls.print_colors else '\33[35m'
+        # cbeige  = '' if not cls.print_colors else '\33[36m'
+        # cwhite  = '' if not cls.print_colors else '\33[37m'
         msg="Default logfile override. Initialized logging in %s" %(__class__.logfile)
         print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cgreen,typestr,cend,
             __class__.__name__ , msg))
@@ -264,7 +261,7 @@ class thesdk(metaclass=abc.ABCMeta):
             if not (os.path.exists(self._simpath)):
                 os.makedirs(self._simpath)
                 self.print_log(type='I',msg='Creating %s' % self._simpath)
-        except:
+        except Exception:
             self.print_log(type='E',msg='Failed to create %s' % self._simpath)
         return self._simpath
     @simpath.setter
@@ -425,14 +422,14 @@ class thesdk(metaclass=abc.ABCMeta):
 
         # Colors for stdout prints
         cend    = '' if not self.print_colors else '\33[0m'
-        cblack  = '' if not self.print_colors else '\33[30m'
+        # cblack  = '' if not self.print_colors else '\33[30m'
         cred    = '' if not self.print_colors else '\33[31m'
         cgreen  = '' if not self.print_colors else '\33[32m'
         cyellow = '' if not self.print_colors else '\33[33m'
         cblue   = '' if not self.print_colors else '\33[34m'
         cviolet = '' if not self.print_colors else '\33[35m'
-        cbeige  = '' if not self.print_colors else '\33[36m'
-        cwhite  = '' if not self.print_colors else '\33[37m'
+        # cbeige  = '' if not self.print_colors else '\33[36m'
+        # cwhite  = '' if not self.print_colors else '\33[37m'
 
         if not os.path.isfile(thesdk.logfile):
             typestr="[INFO]"
@@ -867,17 +864,17 @@ class thesdk(metaclass=abc.ABCMeta):
 
         This should be called after the simulation has finished.
         """
-        pathname = '%s/%s' % (self.statepath,self.runname)
+        # pathname = '%s/%s' % (self.statepath,self.runname)
         try:
             if not (os.path.exists(self.statedir)):
                 os.makedirs(self.statedir)
-        except:
+        except Exception:
             self.print_log(type='E',msg='Failed to create %s' % self.statedir)
         try:
             with open('%s/state.pickle' % self.statedir,'wb') as f:
                 pickle.dump(self,f)
             self.print_log(type='I',msg='Saving state to %s' % self.statedir)
-        except:
+        except Exception:
             self.print_log(type='E',msg=traceback.format_exc())
             self.print_log(type='E',msg='Failed saving state to %s' % self.statedir)
 
@@ -911,7 +908,7 @@ class thesdk(metaclass=abc.ABCMeta):
                     elif self.load_state_full or name == '_extracts':
                         self.print_log(type='D',msg='Loading %s' % name)
                         self.__dict__[name] = val
-        except:
+        except Exception:
             self.print_log(type='W',msg=traceback.format_exc())
             self.print_log(type='F',msg='Failed loading state from %s' % pathname)
 
