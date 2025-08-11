@@ -151,14 +151,14 @@ class thesdk(metaclass=ABCMeta):
         typestr="[INFO]"
         # Colors for stdout prints
         cend    = '' if not cls.print_colors else '\33[0m'
-        # cblack  = '' if not cls.print_colors else '\33[30m'
-        # cred    = '' if not cls.print_colors else '\33[31m'
+        cblack  = '' if not cls.print_colors else '\33[30m'
+        cred    = '' if not cls.print_colors else '\33[31m'
         cgreen  = '' if not cls.print_colors else '\33[32m'
-        # cyellow = '' if not cls.print_colors else '\33[33m'
-        # cblue   = '' if not cls.print_colors else '\33[34m'
-        # cviolet = '' if not cls.print_colors else '\33[35m'
-        # cbeige  = '' if not cls.print_colors else '\33[36m'
-        # cwhite  = '' if not cls.print_colors else '\33[37m'
+        cyellow = '' if not cls.print_colors else '\33[33m'
+        cblue   = '' if not cls.print_colors else '\33[34m'
+        cviolet = '' if not cls.print_colors else '\33[35m'
+        cbeige  = '' if not cls.print_colors else '\33[36m'
+        cwhite  = '' if not cls.print_colors else '\33[37m'
         msg="Default logfile override. Initialized logging in %s" %(__class__.logfile)
         print("%s %s%s%s %s: %s" %(time.strftime("%H:%M:%S"),cgreen,typestr,cend,
             __class__.__name__ , msg))
@@ -422,14 +422,14 @@ class thesdk(metaclass=ABCMeta):
 
         # Colors for stdout prints
         cend    = '' if not self.print_colors else '\33[0m'
-        # cblack  = '' if not self.print_colors else '\33[30m'
+        cblack  = '' if not self.print_colors else '\33[30m'
         cred    = '' if not self.print_colors else '\33[31m'
         cgreen  = '' if not self.print_colors else '\33[32m'
         cyellow = '' if not self.print_colors else '\33[33m'
         cblue   = '' if not self.print_colors else '\33[34m'
         cviolet = '' if not self.print_colors else '\33[35m'
-        # cbeige  = '' if not self.print_colors else '\33[36m'
-        # cwhite  = '' if not self.print_colors else '\33[37m'
+        cbeige  = '' if not self.print_colors else '\33[36m'
+        cwhite  = '' if not self.print_colors else '\33[37m'
 
         if not os.path.isfile(thesdk.logfile):
             typestr="[INFO]"
@@ -864,7 +864,7 @@ class thesdk(metaclass=ABCMeta):
 
         This should be called after the simulation has finished.
         """
-        # pathname = '%s/%s' % (self.statepath,self.runname)
+        pathname = '%s/%s' % (self.statepath,self.runname)
         try:
             if not (os.path.exists(self.statedir)):
                 os.makedirs(self.statedir)
