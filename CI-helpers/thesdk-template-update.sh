@@ -73,8 +73,14 @@ WORKDIR="$(pwd)"
 
 #Submodule can not know where it is and how it is called
 UNDERDEVEL_CANDIDATE="$RELATIVEPATH"
-
-git clone git@github.com:TheSystemDevelopmentKit/thesdk_template.git ./thesdk_template_${PID}
+if [ ${CICD} == "1" ]; then
+    git config --global user.name "ecdbot"
+    git config --global user.email "${GITHUB_ACTOR}@noreply.github.com"
+    #git clone git@github.com:TheSystemDevelopmentKit/thesdk_template.git ./thesdk_template_${PID}
+    git clone https://x-access-token:${TOKEN}@github.com/TheSystemDevelopmentKit/thesdk_template.git ./thesdk_template_${PID}
+else
+    git clone git@github.com:TheSystemDevelopmentKit/thesdk_template.git ./thesdk_template_${PID}
+fi
 cd ./thesdk_template_${PID}
 TEMPLATEDIR="$(pwd)"
 
@@ -190,11 +196,6 @@ done)
 EOF
 )"
     echo "$COMMITMESSAGE"
-    if [ ${CICD} == "1" ]; then
-        git config --global user.name "ecdbot"
-        git config --global user.email "${GITHUB_ACTOR}@noreply.github.com"
-        git remote set-url origin "https://x-access-token:${TOKEN}@github.com/TheSystemDevelopmentKit/thesdk_template.git"
-    fi
     git commit -m"$COMMITMESSAGE"
     git push
     STATUS=$?
