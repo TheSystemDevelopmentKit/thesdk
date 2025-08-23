@@ -54,11 +54,12 @@ do
     \?) help_f;;
   esac
 done
+
+NAME="$(git remote -v | sed -n '/fetch/p' | sed -n 's/\(^.*[://]\)\(.*\)\(\.git.*$\)/\2/p')"
 if [ ${CICD} == "1" ]; then
     git config --global user.name "ecdbot"
     git config --global user.email "${GITHUB_ACTOR}@noreply.github.com"
-    git config --global --add safe.directory /__w/thesdk/thesdk
-    #git clone git@github.com:TheSystemDevelopmentKit/thesdk_template.git ./thesdk_template_${PID}
+    git config --global --add safe.directory /__w/${NAME}/${NAME}
 fi
 
 if [ -z "${BRANCH}" ]; then
