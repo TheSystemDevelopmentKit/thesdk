@@ -54,6 +54,12 @@ do
     \?) help_f;;
   esac
 done
+if [ ${CICD} == "1" ]; then
+    git config --global user.name "ecdbot"
+    git config --global user.email "${GITHUB_ACTOR}@noreply.github.com"
+    git config --global --add safe.directory /__w/thesdk/thesdk
+    #git clone git@github.com:TheSystemDevelopmentKit/thesdk_template.git ./thesdk_template_${PID}
+fi
 
 if [ -z "${BRANCH}" ]; then
     echo "Branch not given"
@@ -68,15 +74,13 @@ fi
 PID="$$"
 #Get the current hash
 HASH="$(git rev-parse --verify HEAD)"
+echo "Hash is ${HASH}"
 MESSAGE="$(git log -1 --pretty=%B | head -n 1)"
 WORKDIR="$(pwd)"
 
 #Submodule can not know where it is and how it is called
 UNDERDEVEL_CANDIDATE="$RELATIVEPATH"
 if [ ${CICD} == "1" ]; then
-    git config --global user.name "ecdbot"
-    git config --global user.email "${GITHUB_ACTOR}@noreply.github.com"
-    #git clone git@github.com:TheSystemDevelopmentKit/thesdk_template.git ./thesdk_template_${PID}
     git clone https://x-access-token:${TOKEN}@github.com/TheSystemDevelopmentKit/thesdk_template.git ./thesdk_template_${PID}
 else
     git clone git@github.com:TheSystemDevelopmentKit/thesdk_template.git ./thesdk_template_${PID}
@@ -141,7 +145,6 @@ echo "In ${TEMPLATEDIR}/${UNDERDEVEL_CANDIDATE}):"
 CURRENT="$(git rev-parse HEAD)"
 git checkout ${HASH} 2> /dev/null
 if [ "$?" == "0" ]; then
-    UPDATED="$(git rev-parse HEAD)"
     if [ "${CURRENT}" != "${HASH}" ]; then
         UNDERDEVEL="${UNDERDEVEL_CANDIDATE}"
     else
@@ -174,6 +177,8 @@ cd ${TEMPLATEDIR}
 #        echo "Tests OK in ${entity}, proceeding"
 #    fi
 #done
+STATUS="0"
+echo "Tests OK in ${entity}, proceeding"
 
 # This is copy of the structure used in thesdk_template.
 # Works for all entities
@@ -196,11 +201,11 @@ done)
 EOF
 )"
     echo "$COMMITMESSAGE"
+    git status
     git commit -m"$COMMITMESSAGE"
     git push
     STATUS=$?
 fi
-echo "$(git remote -v)"
 
 cd ${WORKDIR} && rm -rf ./thesdk_template_${PID}
 exit $STATUS
