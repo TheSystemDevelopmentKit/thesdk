@@ -57,12 +57,12 @@ do
 done
 
 #NAME="$(git remote -v | sed -n '/fetch/p' | sed -n 's/\(^.*[://]\)\(.*\)\(\.git.*$\)/\2/p')"
-echo "${WORKSPACE}"
-NAME="thesdk"
+#echo "${WORKSPACE}"
+#NAME="thesdk"
 if [ ${CICD} == "1" ]; then
     git config --global user.name "ecdbot"
     git config --global user.email "${GITHUB_ACTOR}@noreply.github.com"
-    git config --global --add safe.directory /__w/${NAME}/${NAME}
+    git config --global --add safe.directory ${WORKSPACE}
 fi
 
 if [ -z "${BRANCH}" ]; then
