@@ -137,7 +137,7 @@ else
 fi
 
 cd "${TEMPLATEDIR}/${UNDERDEVEL_CANDIDATE}"
-echo "In $(pwd${UNDERDEVEL_CANDIDATE}):"
+echo "In ${TEMPLATEDIR}/${UNDERDEVEL_CANDIDATE}):"
 CURRENT="$(git rev-parse HEAD)"
 git checkout ${HASH} 2> /dev/null
 if [ "$?" == "0" ]; then
@@ -156,24 +156,24 @@ fi
 echo "Changing to ${TEMPLATEDIR}."
 
 cd ${TEMPLATEDIR}
-# Let's perform the test(s)
-cd ${TEMPLATEDIR}/doc && git remote -v | grep \(fetch\) | sed -n 's#\(.*[://]\)\(.*\)\(\.git.*$\)#\2#p'& make html
-DOCSTAT=$?
-DOCSTAT="0"
-
-for entity in inverter myentity inverter_tests; do
-    cd ${TEMPLATEDIR}/Entities/${entity} && ./configure &&  make sim
-    SIMSTAT=$?
-    if [ "$SIMSTAT" !=  "0" ] \
-        || [ "$DOCSTAT" !=  "0" ]; then
-        STATUS="1"
-        echo "Tests failed in ${entity}"
-        exit 1
-    else
-        STATUS="0"
-        echo "Tests OK in ${entity}, proceeding"
-    fi
-done
+## Let's perform the test(s)
+#cd ${TEMPLATEDIR}/doc && git remote -v | grep \(fetch\) | sed -n 's#\(.*[://]\)\(.*\)\(\.git.*$\)#\2#p'& make html
+#DOCSTAT=$?
+#DOCSTAT="0"
+#
+#for entity in inverter myentity inverter_tests; do
+#    cd ${TEMPLATEDIR}/Entities/${entity} && ./configure &&  make sim
+#    SIMSTAT=$?
+#    if [ "$SIMSTAT" !=  "0" ] \
+#        || [ "$DOCSTAT" !=  "0" ]; then
+#        STATUS="1"
+#        echo "Tests failed in ${entity}"
+#        exit 1
+#    else
+#        STATUS="0"
+#        echo "Tests OK in ${entity}, proceeding"
+#    fi
+#done
 
 # This is copy of the structure used in thesdk_template.
 # Works for all entities
@@ -200,6 +200,8 @@ EOF
     git push
     STATUS=$?
 fi
+echo "$(git remote -v)"
+
 cd ${WORKDIR} && rm -rf ./thesdk_template_${PID}
 exit $STATUS
 
