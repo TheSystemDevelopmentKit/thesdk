@@ -55,7 +55,8 @@ do
   esac
 done
 
-NAME="$(git remote -v | sed -n '/fetch/p' | sed -n 's/\(^.*[://]\)\(.*\)\(\.git.*$\)/\2/p')"
+#NAME="$(git remote -v | sed -n '/fetch/p' | sed -n 's/\(^.*[://]\)\(.*\)\(\.git.*$\)/\2/p')"
+NAME="thesdk"
 if [ ${CICD} == "1" ]; then
     git config --global user.name "ecdbot"
     git config --global user.email "${GITHUB_ACTOR}@noreply.github.com"
