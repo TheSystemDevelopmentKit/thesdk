@@ -43,7 +43,7 @@ EOF
 CICD="0"
 TOKEN=""
 BRANCH=""
-while getopts b:ct:h opt
+while getopts b:ct:r:h opt
 do
   case "$opt" in
     b) BRANCH="$OPTARG";;
@@ -121,6 +121,8 @@ if [ -z "$SUBMODULES" ]; then
     echo "Submodule $UNDERDEVEL_CANDIDATE not found"
     exit 1
 else
+    echo "Submodule $UNDERDEVEL_CANDIDATE found, proceeding."
+fi
 
 cd "${TEMPLATEDIR}/${UNDERDEVEL_CANDIDATE}"
 echo "In $(pwd):"
@@ -129,11 +131,13 @@ git checkout ${HASH} 2> /dev/null
 if [ "$?" == "0" ]; then
     UPDATED="$(git rev-parse HEAD)"
     if [ "${UPDATED}" != "${CURRENT}" ]; then 
-        UNDERDEVEL="${UNDERDEVEL} ${entity}"
+        UNDERDEVEL="${UNDERDEVEL_CANDIDATE}"
     fi
 else
-    echo "Branch ${HASH} does not exist for submodule ${entity}. No changes made."
+    echo "Commit ${HASH} does not exist for submodule ${UNDERDEVEL_CANDIDATE}. No changes made."
+    exit 0
 fi
+
 cd ${ROOTDIR}
 
 cd ${TEMPLATEDIR}
