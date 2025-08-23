@@ -2,17 +2,17 @@
 #############################################################################
 # Update TheSyDeKick thesdk_template with submodule push
 # Intended operation: When pushed to the latest release-candidate branch
-# Module is automatically updated in thesdk_template and the operation 
+# Module is automatically updated in thesdk_template and the operation
 # is tested by running the inverter selftest (probably other tests in the future)
 # If the tests are passed, the resulting updated thesdk_template module is pushed to
 # the latest development branch.
-# 
+#
 # Written by Marko Kosunen, marko.kosunen@aalto.fi, 18.9.2022
 #############################################################################
 
 help_f()
 {
-cat << EOF    
+cat << EOF
 test_and_release Release 1.0 (18.09.2022)
 For testing and releasing TheSyDeKick releases
 Written by Marko Pikkis Kosunen
@@ -23,16 +23,16 @@ DESCRIPTION
    Defines and runs tests for the submodules of thesdk_template
 
 OPTIONS
-  -b 
+  -b
      Branch of thesdk_template to operate on
      Commit and push to that branch after testing.
 
-  -c Run in CI/CD with this option 
+  -c Run in CI/CD with this option
 
   -t
-     STRING : Access token 
+     STRING : Access token
   -r
-     STRING : Relative path from main project root 
+     STRING : Relative path from main project root
   -h
       Show this help.
 EOF
@@ -69,7 +69,7 @@ PID="$$"
 #Get the current hash
 HASH="$(git rev-parse --verify HEAD)"
 MESSAGE="$(git log -1 --pretty=%B | head -n 1)"
-ROOTDIR=$(pwd)
+WORKDIR="$(pwd)"
 
 #Submodule can not know where it is and how it is called
 UNDERDEVEL_CANDIDATE="$RELATIVEPATH"
@@ -77,14 +77,20 @@ UNDERDEVEL_CANDIDATE="$RELATIVEPATH"
 git clone git@github.com:TheSystemDevelopmentKit/thesdk_template.git ./thesdk_template_${PID}
 cd ./thesdk_template_${PID}
 TEMPLATEDIR="$(pwd)"
-WORKDIR="$(pwd)"
 
 # Operate on given branch of thesdk_template
-git checkout "$BRANCH"
-git pull
+git checkout "$BRANCH" 2> /dev/null
+if [ "$?" == "0" ]; then
+    echo "Updating ${BRANCH} of thesdk_template"
+    git pull
+else
+    echo "Branch ${BRANCH} not exist in thesdk_template. Update request rejected."
+    cd ${WORKDIR} && rm -rf ./thesdk_template_${PID}
+    exit 1
+fi
+
 
 #git config --global --add safe.directory /__w/thesdk_template/thesdk_template
-#WORKDIR=$(pwd)
 
 PYTHONPATH="$(pwd)/Entities"
 export PYTHONPATH
@@ -103,12 +109,12 @@ fi
 #Currently fails on ssh cloned subsubmodules
 #Must initialize other means
 if [ "$CICD" == "1" ]; then
-    git submodule update --init 
+    git submodule update --init
     find ./ -name .gitmodules -exec sed -i 's#\(url = \)\(git@\)\(.*\)\(:\)\(.*$\)#\1https://\3/\5#g' {} \;
     git submodule update --init --recursive
     find ./ -name .gitmodules -exec sed -i 's#\(url = \)\(git@\)\(.*\)\(:\)\(.*$\)#\1https://\3/\5#g' {} \;
 else
-    ${WORKDIR}/init_submodules.sh
+    ${TEMPLATEDIR}/init_submodules.sh
 fi
 
 
@@ -125,20 +131,23 @@ else
 fi
 
 cd "${TEMPLATEDIR}/${UNDERDEVEL_CANDIDATE}"
-echo "In $(pwd):"
+echo "In $(pwd${UNDERDEVEL_CANDIDATE}):"
 CURRENT="$(git rev-parse HEAD)"
 git checkout ${HASH} 2> /dev/null
 if [ "$?" == "0" ]; then
     UPDATED="$(git rev-parse HEAD)"
-    if [ "${UPDATED}" != "${CURRENT}" ]; then 
+    if [ "${CURRENT}" != "${HASH}" ]; then
         UNDERDEVEL="${UNDERDEVEL_CANDIDATE}"
+    else
+        echo "Submodule ${UNDERDEVEL_CANDIDATE} already up to date. No need for update"
+        exit 0
     fi
 else
     echo "Commit ${HASH} does not exist for submodule ${UNDERDEVEL_CANDIDATE}. No changes made."
     exit 0
 fi
 
-cd ${ROOTDIR}
+echo "Changing to ${TEMPLATEDIR}."
 
 cd ${TEMPLATEDIR}
 # Let's perform the test(s)
@@ -154,15 +163,17 @@ for entity in inverter myentity inverter_tests; do
         STATUS="1"
         echo "Tests failed in ${entity}"
         exit 1
-    else 
+    else
         STATUS="0"
         echo "Tests OK in ${entity}, proceeding"
     fi
 done
 
+# This is copy of the structure used in thesdk_template.
+# Works for all entities
 if [ "$STATUS" == "0" ]; then
     cd ${TEMPLATEDIR}
-    for entity in ${UNDERDEVEL}; do 
+    for entity in ${UNDERDEVEL}; do
         echo "Staging $entity"
         git add ${entity}
     done
@@ -179,15 +190,15 @@ done)
 EOF
 )"
     echo "$COMMITMESSAGE"
-    if [ ${CICD} == "1" ]; then 
+    if [ ${CICD} == "1" ]; then
         git config --global user.name "ecdbot"
         git config --global user.email "${GITHUB_ACTOR}@noreply.github.com"
         git remote set-url origin "https://x-access-token:${TOKEN}@github.com/TheSystemDevelopmentKit/thesdk_template.git"
     fi
     git commit -m"$COMMITMESSAGE"
-    #git push
+    git push
     STATUS=$?
 fi
-#cd ${WORKDIR} && rm -rf ./thesdk_template_${PID} 
+cd ${WORKDIR} && rm -rf ./thesdk_template_${PID}
 exit $STATUS
 
