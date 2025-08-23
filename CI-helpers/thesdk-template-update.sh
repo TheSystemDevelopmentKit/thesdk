@@ -43,19 +43,21 @@ EOF
 CICD="0"
 TOKEN=""
 BRANCH=""
-while getopts b:ct:r:h opt
+while getopts b:ct:r:w:h opt
 do
   case "$opt" in
     b) BRANCH="$OPTARG";;
     c) CICD="1";;
     t) TOKEN="$OPTARG";;
     r) RELATIVEPATH="$OPTARG";;
+    w) WORKSPACE="$OPTARG";;
     h) help_f; exit 0;;
     \?) help_f;;
   esac
 done
 
 #NAME="$(git remote -v | sed -n '/fetch/p' | sed -n 's/\(^.*[://]\)\(.*\)\(\.git.*$\)/\2/p')"
+echo "${WORKSPACE}
 NAME="thesdk"
 if [ ${CICD} == "1" ]; then
     git config --global user.name "ecdbot"
