@@ -1254,23 +1254,6 @@ class IO(thesdk):
             io._Data = shared_ref
             shared_ref.connections.add(io)
 
-    @property
-    def data(self):
-        if hasattr(self, "_Data"):
-            return self._Data
-        else:
-            self._Data = None
-
-        self.print_log(
-            type="O",
-            msg="IO attribute 'data' is obsoleted by attribute 'Data' Will be removed in release 1.4",
-        )
-        return self._Data
-
-    @data.setter
-    def data(self, value):
-        self._Data = value
-
     def __getstate__(self):
         return self.__dict__.copy()
 
