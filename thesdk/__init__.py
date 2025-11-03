@@ -1191,6 +1191,13 @@ class thesdk(metaclass=abc.ABCMeta):
                     val.remove()
 
 
+class _Data:
+    """Helper class to store shared data and track connected IOs."""
+    def __init__(self, value=None):
+        self.value = value
+        self.connections = set()
+
+
 class IO(thesdk):
     """TheSyDeKick IO class. Child of thesdk to utilize logging method.
 
@@ -1219,20 +1226,33 @@ class IO(thesdk):
 
         """
 
-        self._Data = kwargs.get("Data", None)
+        self._Data = _Data(kwargs.get('Data', None))
+        self._Data.connections.add(self)
 
     @property
     def Data(self):
         """Data value of this IO"""
-        if hasattr(self, "_Data"):
-            return self._Data
-        else:
-            self._Data = None
-        return self._Data
+        return self._Data.value
 
     @Data.setter
     def Data(self, value):
-        self._Data = value
+        self._Data.value = value
+
+    def connect(self, other):
+        """Connect this IO to another IO so they share data."""
+        if not isinstance(other, IO):
+            raise TypeError("Can only connect IO to IO")
+
+        # Merge connection groups: all IOs will share the same _dataref
+        all_ios = self._Data.connections | other._Data.connections
+
+        # Use one of the existing datarefs as the shared one
+        shared_ref = other._Data
+
+        # Update all IOs to point to the shared ref
+        for io in all_ios:
+            io._Data = shared_ref
+            shared_ref.connections.add(io)
 
     @property
     def data(self):
