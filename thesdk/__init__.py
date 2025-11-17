@@ -26,7 +26,7 @@ import getpass
 import time
 import tempfile
 import re
-from abc import ABCMeta
+import abc 
 from functools import reduce
 import multiprocessing
 
@@ -43,7 +43,7 @@ from datetime import datetime
 #derived from it. A class that has a metaclass derived from ABCMeta cannot
 #be instantiated unless all of its abstract methods and properties are overridden.
 from thesdk.bundle import Bundle
-class thesdk(metaclass=ABCMeta):
+class thesdk(metaclass=abc.ABCMeta):
     '''
     Following class attributes are set when this class imported
 
