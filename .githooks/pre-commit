@@ -6,36 +6,38 @@ LL="79"
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.py$' | xargs)
 FORMATTER="black -l $LL --check -q"
 CHECKER="black -l $LL --check --diff --color"
-LINTER="ruff check --line-length $LL --quiet"
+LINTER="pylint"
 
-## If there are Python files staged for commit, run black on them
+# If there are Python files staged for commit, run linter on them
 #if [ -n "$STAGED_FILES" ]; then
 #  echo "Running $LINTER on staged Python files..."
-#
-## Firs we run formatter
+#fi
+
+## Firs we run linter
 #  $LINTER $STAGED_FILES
 #  if [ "$?" != "0" ]; then
 #    echo "ERROR: Some Python files are not structured properly. Please run:"
 #    echo "To check:"
 #    echo "    $LINTER ${STAGED_FILES}"
-#    echo "Pereferable correct manually. Autofix does not fix everything."
+#    echo "Correct with care. Autofixes does not fix everything properly."
 #    exit 1
 #  fi
 #fi
-#
-## Run black in check mode (it won't modify files, just checks for formatting issues)
-#  $FORMATTER $STAGED_FILES
-#
-#  # If black returns a non-zero exit code (i.e., files aren't formatted correctly), exit with an error
-#  if [ "$?" != "0" ]; then
-#    echo "ERROR: Some Python files are not formatted correctly. Please run:"
-#    echo "To check:"
-#    echo "    $CHECKER ${STAGED_FILES}"
-#    echo "To correct:"
-#    echo "     $FORMATTER ${STAGED_FILES}"
-#    exit 1
-#  fi
-#fi
+
+# Run black in check mode (it won't modify files, just checks for formatting issues)
+if [ ! -z ${STAGED_FILES} ]; then
+    $FORMATTER $STAGED_FILES
+
+# If black returns a non-zero exit code (i.e., files aren't formatted correctly), exit with an error
+    if [ "$?" != "0" ]; then
+      echo "ERROR: Some Python files are not formatted correctly. Please run:"
+      echo "To check:"
+      echo "    $CHECKER ${STAGED_FILES}"
+      echo "To correct:"
+      echo "     $FORMATTER ${STAGED_FILES}"
+      exit 1
+    fi
+fi
 
 exit 0
 
