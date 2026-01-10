@@ -31,13 +31,13 @@ import re
 import abc
 from functools import reduce
 import multiprocessing
-
-import numpy as np
 import traceback
 import functools
 import contextlib as cl
 import pickle
 from datetime import datetime
+
+import numpy as np
 
 
 # Set 'must have methods' with abstractmethod
