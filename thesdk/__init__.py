@@ -567,7 +567,9 @@ class thesdk(metaclass=abc.ABCMeta):
                             )
                         )
                     fid.close()
-        elif msgtype == "I":
+            return
+
+        if msgtype == "I":
             typestr = "[INFO]"
             if not self.supress_output:
                 print(
