@@ -256,8 +256,7 @@ class thesdk(metaclass=abc.ABCMeta):
         if not hasattr(self, "_model"):
             self.print_log(type="F", msg="You MUST set the simulation model.")
             return None
-        else:
-            return self._model
+        return self._model
 
     @model.setter
     def model(self, val):
@@ -567,7 +566,6 @@ class thesdk(metaclass=abc.ABCMeta):
                             )
                         )
                     fid.close()
-            return
         elif type == "I":
             typestr = "[INFO]"
             if not self.supress_output:
@@ -769,9 +767,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
         Property defines whether parallel run is intended or not"""
 
-        if hasattr(self, "_par"):
-            return self._par
-        else:
+        if not hasattr(self, "_par"):
             self._par = False
         return self._par
 
@@ -782,9 +778,7 @@ class thesdk(metaclass=abc.ABCMeta):
     @property
     def queue(self):
         """Property holding the queue for parallel run result"""
-        if hasattr(self, "_queue"):
-            return self._queue
-        else:
+        if not hasattr(self, "_queue"):
             self._queue = []
         return self._queue
 
@@ -893,9 +887,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
         """
 
-        if hasattr(self, "_IOS"):
-            return self._IOS
-        else:
+        if not hasattr(self, "_IOS"):
             self._IOS = Bundle()
         return self._IOS
 
@@ -916,9 +908,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
         """
 
-        if hasattr(self, "_extracts"):
-            return self._extracts
-        else:
+        if not hasattr(self, "_extracts"):
             self._extracts = Bundle()
         return self._extracts
 
@@ -1238,9 +1228,7 @@ class IO(thesdk):
     @property
     def Data(self):
         """Data value of this IO"""
-        if hasattr(self, "_Data"):
-            return self._Data
-        else:
+        if not hasattr(self, "_Data"):
             self._Data = None
         return self._Data
 
@@ -1251,9 +1239,7 @@ class IO(thesdk):
     @property
     def data(self):
         """IO attribute 'data' is obsoleted by attribute 'Data'."""
-        if hasattr(self, "_Data"):
-            return self._Data
-        else:
+        if not hasattr(self, "_Data"):
             self._Data = None
 
         self.print_log(
