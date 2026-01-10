@@ -4,7 +4,7 @@
 #Line length from PEP8 standard
 LL="79"
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.py$' | xargs)
-FORMATTER="black -l $LL --check -q"
+FORMATTER="black -l $LL"
 CHECKER="black -l $LL --check --diff --color"
 LINTER="pylint"
 

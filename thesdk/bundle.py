@@ -1,7 +1,10 @@
-# Bundle is a Dict of something
-# Class is needed to define bundle operations
+"""
+Bundle is a Dict
+Defining it as class enables custom operationscustom  on Bundles
+
+"""
+
 import abc
-from abc import *
 
 
 class Bundle(metaclass=abc.ABCMeta):
@@ -19,7 +22,7 @@ class Bundle(metaclass=abc.ABCMeta):
         """
         return self.Members[name]
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs):  # pylint: disable=W0613
         """Attributes
         ----------
 
