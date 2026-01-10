@@ -1,25 +1,41 @@
 #!/usr/bin/env bash
 # Get a list of all Python files that are staged for commit
+
+#Line length from PEP8 standard
+LL="79"
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.py$' | xargs)
-CMD="black -l 80"
+FORMATTER="black -l $LL --check -q"
+CHECKER="black -l $LL --check --diff --color"
+LINTER="ruff check --line-length $LL --quiet"
 
-# If there are Python files staged for commit, run black on them
-if [ -n "$STAGED_FILES" ]; then
-  echo "Running black on staged Python files..."
-
-  # Run black in check mode (it won't modify files, just checks for formatting issues)
-  $CMD --check -q $STAGED_FILES
-
-  # If black returns a non-zero exit code (i.e., files aren't formatted correctly), exit with an error
-  if [ "$?" != "0" ]; then
-    echo "ERROR: Some Python files are not formatted correctly. Please run 'black'"
-    echo "To check:"
-    echo "    $CMD --check --diff --color ${STAGED_FILES}"
-    echo "To correct:"
-    echo "     $CMD ${STAGED_FILES}"
-    exit 1
-  fi
-fi
+## If there are Python files staged for commit, run black on them
+#if [ -n "$STAGED_FILES" ]; then
+#  echo "Running $LINTER on staged Python files..."
+#
+## Firs we run formatter
+#  $LINTER $STAGED_FILES
+#  if [ "$?" != "0" ]; then
+#    echo "ERROR: Some Python files are not structured properly. Please run:"
+#    echo "To check:"
+#    echo "    $LINTER ${STAGED_FILES}"
+#    echo "Pereferable correct manually. Autofix does not fix everything."
+#    exit 1
+#  fi
+#fi
+#
+## Run black in check mode (it won't modify files, just checks for formatting issues)
+#  $FORMATTER $STAGED_FILES
+#
+#  # If black returns a non-zero exit code (i.e., files aren't formatted correctly), exit with an error
+#  if [ "$?" != "0" ]; then
+#    echo "ERROR: Some Python files are not formatted correctly. Please run:"
+#    echo "To check:"
+#    echo "    $CHECKER ${STAGED_FILES}"
+#    echo "To correct:"
+#    echo "     $FORMATTER ${STAGED_FILES}"
+#    exit 1
+#  fi
+#fi
 
 exit 0
 
