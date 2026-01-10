@@ -1099,7 +1099,7 @@ class thesdk(metaclass=abc.ABCMeta):
     def _read_state(self):
         """Read the entity state from a binary file."""
         self.runname = self.load_state
-        if self.runname == "latest" or self.runname == "last":
+        if self.runname in {"latest", "last"}:
             results = glob.glob(self.statepath + "/*")
             latest = max(results, key=os.path.getctime)
             self.runname = latest.split("/")[-1]
