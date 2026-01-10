@@ -190,11 +190,11 @@ class thesdk(metaclass=abc.ABCMeta):
                 msg,
             )
         )
-        fid = open(__class__.logfile, "a")
-        fid.write(
-            "%s %s %s: %s\n"
-            % (time.strftime("%H:%M:%S"), typestr, __class__.__name__, msg)
-        )
+        with open(__class__.logfile, "a") as fid:
+            fid.write(
+                "%s %s %s: %s\n"
+                % (time.strftime("%H:%M:%S"), typestr, __class__.__name__, msg)
+            )
         fid.close()
 
     # Common properties
@@ -533,11 +533,11 @@ class thesdk(metaclass=abc.ABCMeta):
                     initmsg,
                 )
             )
-            fid = open(thesdk.logfile, "a")
-            fid.write(
-                "%s %s thesdk: %s\n"
-                % (time.strftime("%H:%M:%S"), typestr, initmsg)
-            )
+            with open(thesdk.logfile, "a") as fid:
+                fid.write(
+                    "%s %s thesdk: %s\n"
+                    % (time.strftime("%H:%M:%S"), typestr, initmsg)
+                )
             fid.close()
 
         if type == "D":
@@ -556,16 +556,16 @@ class thesdk(metaclass=abc.ABCMeta):
                         )
                     )
                 if hasattr(self, "logfile"):
-                    fid = open(thesdk.logfile, "a")
-                    fid.write(
-                        "%s %s %s: %s\n"
-                        % (
-                            time.strftime("%H:%M:%S"),
-                            typestr,
-                            self.__class__.__name__,
-                            msg,
+                    with open(thesdk.logfile, "a") as fid:
+                        fid.write(
+                            "%s %s %s: %s\n"
+                            % (
+                                time.strftime("%H:%M:%S"),
+                                typestr,
+                                self.__class__.__name__,
+                                msg,
+                            )
                         )
-                    )
                     fid.close()
             return
         elif type == "I":
@@ -642,11 +642,11 @@ class thesdk(metaclass=abc.ABCMeta):
                 "Quitting due to fatal error in %s" % (self.__class__.__name__)
             )
             if hasattr(self, "logfile"):
-                fid = open(thesdk.logfile, "a")
-                fid.write(
-                    "%s Quitting due to fatal error in %s.\n"
-                    % (time.strftime("%H:%M:%S"), self.__class__.__name__)
-                )
+                with  open(thesdk.logfile, "a") as fid:
+                    fid.write(
+                        "%s Quitting due to fatal error in %s.\n"
+                        % (time.strftime("%H:%M:%S"), self.__class__.__name__)
+                    )
                 fid.close()
                 if self.par:
                     self.queue.put({})
@@ -672,16 +672,16 @@ class thesdk(metaclass=abc.ABCMeta):
 
         # If logfile set, print also there
         if hasattr(self, "logfile"):
-            fid = open(thesdk.logfile, "a")
-            fid.write(
-                "%s %s %s: %s\n"
-                % (
-                    time.strftime("%H:%M:%S"),
-                    typestr,
-                    self.__class__.__name__,
-                    msg,
+            with  open(thesdk.logfile, "a") as fid:
+                fid.write(
+                    "%s %s %s: %s\n"
+                    % (
+                        time.strftime("%H:%M:%S"),
+                        typestr,
+                        self.__class__.__name__,
+                        msg,
+                    )
                 )
-            )
             fid.close()
 
     def timer(func): # Can we have 'self' pylint: disable=E0213
