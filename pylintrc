@@ -1,0 +1,14 @@
+[MESSAGES CONTROL]
+disable =
+    attribute-defined-outside-init,
+    broad-exception-caught,
+    unspecified-encoding,
+    too-many-instance-attributes,
+    too-many-public-methods,
+    too-many-branches,
+    too-many-locals,
+    too-many-statements,
+    invalid-name,
+    consider-using-f-string,
+    too-many-lines,
+
