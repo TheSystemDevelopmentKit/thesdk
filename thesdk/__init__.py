@@ -44,7 +44,8 @@ from datetime import datetime
 # @abstractmethod
 # Using this decorator requires that the class’s metaclass is ABCMeta or is
 # derived from it. A class that has a metaclass derived from ABCMeta cannot
-# be instantiated unless all of its abstract methods and properties are overridden.
+# be instantiated unless all of its abstract methods and properties are
+# overridden.
 from thesdk.bundle import Bundle
 
 
@@ -71,7 +72,8 @@ class thesdk(metaclass=abc.ABCMeta):
        Override with initlog if you want something else
 
     global_parameters: list(str)
-       List of global parameters to be read to GLOBALS dictionary from CONFIGFILE
+       List of global parameters to be read to GLOBALS dictionary from
+       CONFIGFILE
 
     GLOBALS: dict
        Dictionary of global parameters, keys defined by global_parameters,
@@ -134,10 +136,10 @@ class thesdk(metaclass=abc.ABCMeta):
     GLOBALS = {}
     for name in global_parameters:
         with open(CONFIGFILE, "r") as fid:
-            global match
+            global match # pylint: disable=W0601
             match = "(" + name + "=)(.*)"
             func_list = (
-                lambda s: re.sub(match, r"\2", s),
+                         lambda s: re.sub(match, r"\2", s), # pylint: disable=E0602
                 lambda s: re.sub(r'"', "", s),
                 lambda s: re.sub(r"\n", "", s),
             )
@@ -163,6 +165,7 @@ class thesdk(metaclass=abc.ABCMeta):
             os.remove(__class__.logfile)
         typestr = "[INFO]"
         # Colors for stdout prints. Disable linter check for unused variable
+        # pylint: disable=W0612
         cend = "" if not cls.print_colors else "\33[0m"
         cblack = "" if not cls.print_colors else "\33[30m" # noqa: F841
         cred = "" if not cls.print_colors else "\33[31m" # noqa: F841
@@ -172,6 +175,7 @@ class thesdk(metaclass=abc.ABCMeta):
         cviolet = "" if not cls.print_colors else "\33[35m" # noqa: F841
         cbeige = "" if not cls.print_colors else "\33[36m" # noqa: F841
         cwhite = "" if not cls.print_colors else "\33[37m" # noqa: F841
+        # pylint: enable=W0612
         msg = "Default logfile override. Initialized logging in %s" % (
             __class__.logfile
         )
@@ -251,6 +255,7 @@ class thesdk(metaclass=abc.ABCMeta):
         """
         if not hasattr(self, "_model"):
             self.print_log(type="F", msg="You MUST set the simulation model.")
+            return None
         else:
             return self._model
 
@@ -310,7 +315,7 @@ class thesdk(metaclass=abc.ABCMeta):
             name,
         )
         try:
-            if not (os.path.exists(self._simpath)):
+            if not os.path.exists(self._simpath):
                 os.makedirs(self._simpath)
                 self.print_log(type="I", msg="Creating %s" % self._simpath)
         except Exception:
@@ -318,7 +323,7 @@ class thesdk(metaclass=abc.ABCMeta):
         return self._simpath
 
     @simpath.setter
-    def simpath(self, val):
+    def simpath(self, val): # pylint: disable=W0613
         self.print_log(
             type="F",
             msg="Setting simpath has no effect. Set 'simpathroot' instead.",
@@ -331,6 +336,7 @@ class thesdk(metaclass=abc.ABCMeta):
         True if LSFINTERACTIVE and LSFSUBMISSION global veriables are defined
         in TheSDK.config.
         """
+        # Checking 'if in Dict' checks if in keys of the dict
         if ("LSFINTERACTIVE" not in thesdk.GLOBALS.keys()) or (
             "LSFSUBMISSION" not in thesdk.GLOBALS.keys()
         ):
@@ -406,7 +412,7 @@ class thesdk(metaclass=abc.ABCMeta):
         if len(arg) >= 2:
             self.parent = arg[0]
             # We wish to propagate this throughout the hierarchy
-            # TODO figure out way to set global parameters
+            # TODO figure out way to set global parameters pylint:disable=W0511
             self.copy_propval_verbosity = self.parent.copy_propval_verbosity
             self.proplist = arg[1]
             msg = "Propagating parent properties at %s from %s" % (
@@ -501,6 +507,7 @@ class thesdk(metaclass=abc.ABCMeta):
                 msg = msg.replace(self.parent.entitypath, ".")
 
         # Colors for stdout prints. Disable linter check for unused variable..
+        # pylint: disable=W0612
         cend = "" if not self.print_colors else "\33[0m"
         cblack = "" if not self.print_colors else "\33[30m" # noqa: F841
         cred = "" if not self.print_colors else "\33[31m"
@@ -510,6 +517,7 @@ class thesdk(metaclass=abc.ABCMeta):
         cviolet = "" if not self.print_colors else "\33[35m"
         cbeige = "" if not self.print_colors else "\33[36m" # noqa: F841
         cwhite = "" if not self.print_colors else "\33[37m" # noqa: F841
+        # pylint: enable=W0612
 
         if not os.path.isfile(thesdk.logfile):
             typestr = "[INFO]"
@@ -676,7 +684,8 @@ class thesdk(metaclass=abc.ABCMeta):
             )
             fid.close()
 
-    def timer(func):
+    def timer(func): # Can we have 'self' pylint: disable=E0213
+        # No escape check pylint: disable=W1401
         """Timer decorator
 
         Print execution time of member functions of classes inheriting
@@ -703,17 +712,22 @@ class thesdk(metaclass=abc.ABCMeta):
             42
 
         """
+        # pylint: enable=W1401
 
         @functools.wraps(func)
         def wrapper_timer(*args, **kwargs):
             start = time.perf_counter()
-            retval = func(*args, **kwargs)
+            retval = func(*args, **kwargs) # Func is not callable pylint: disable=E1102
             stop = time.perf_counter()
             duration = stop - start
+            # Instance of 'thesdk' has no '__name__'
+            # pylint: disable=E1101
             args[0].print_log(
                 type="I",
                 msg="Finished '%s' in %.03f s." % (func.__name__, duration),
             )
+            # pylint: enable=E1101
+
             return retval
 
         return wrapper_timer
@@ -1078,7 +1092,7 @@ class thesdk(metaclass=abc.ABCMeta):
         This should be called after the simulation has finished.
         """
         try:
-            if not (os.path.exists(self.statedir)):
+            if not os.path.exists(self.statedir):
                 os.makedirs(self.statedir)
         except Exception:
             self.print_log(type="E", msg="Failed to create %s" % self.statedir)
@@ -1236,6 +1250,7 @@ class IO(thesdk):
 
     @property
     def data(self):
+        """IO attribute 'data' is obsoleted by attribute 'Data'."""
         if hasattr(self, "_Data"):
             return self._Data
         else:
@@ -1243,7 +1258,7 @@ class IO(thesdk):
 
         self.print_log(
             type="O",
-            msg="IO attribute 'data' is obsoleted by attribute 'Data' Will be removed in release 1.4",
+            msg="IO attribute 'data' is obsoleted by attribute 'Data'. Will be removed in release 1.4",
         )
         return self._Data
 
