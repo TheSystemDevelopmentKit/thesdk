@@ -20,7 +20,6 @@ and in every way we are getting better and better :).
 
 """
 
-
 import sys
 import os
 import glob
@@ -136,10 +135,10 @@ class thesdk(metaclass=abc.ABCMeta):
     GLOBALS = {}
     for name in global_parameters:
         with open(CONFIGFILE, "r") as fid:
-            global match # pylint: disable=W0601
+            global match  # pylint: disable=W0601
             match = "(" + name + "=)(.*)"
             func_list = (
-                         lambda s: re.sub(match, r"\2", s), # pylint: disable=E0602
+                lambda s: re.sub(match, r"\2", s),  # pylint: disable=E0602
                 lambda s: re.sub(r'"', "", s),
                 lambda s: re.sub(r"\n", "", s),
             )
@@ -167,14 +166,14 @@ class thesdk(metaclass=abc.ABCMeta):
         # Colors for stdout prints. Disable linter check for unused variable
         # pylint: disable=W0612
         cend = "" if not cls.print_colors else "\33[0m"
-        cblack = "" if not cls.print_colors else "\33[30m" # noqa: F841
-        cred = "" if not cls.print_colors else "\33[31m" # noqa: F841
-        cgreen = "" if not cls.print_colors else "\33[32m" # noqa: F841
-        cyellow = "" if not cls.print_colors else "\33[33m" # noqa: F841
-        cblue = "" if not cls.print_colors else "\33[34m" # noqa: F841
-        cviolet = "" if not cls.print_colors else "\33[35m" # noqa: F841
-        cbeige = "" if not cls.print_colors else "\33[36m" # noqa: F841
-        cwhite = "" if not cls.print_colors else "\33[37m" # noqa: F841
+        cblack = "" if not cls.print_colors else "\33[30m"  # noqa: F841
+        cred = "" if not cls.print_colors else "\33[31m"  # noqa: F841
+        cgreen = "" if not cls.print_colors else "\33[32m"  # noqa: F841
+        cyellow = "" if not cls.print_colors else "\33[33m"  # noqa: F841
+        cblue = "" if not cls.print_colors else "\33[34m"  # noqa: F841
+        cviolet = "" if not cls.print_colors else "\33[35m"  # noqa: F841
+        cbeige = "" if not cls.print_colors else "\33[36m"  # noqa: F841
+        cwhite = "" if not cls.print_colors else "\33[37m"  # noqa: F841
         # pylint: enable=W0612
         msg = "Default logfile override. Initialized logging in %s" % (
             __class__.logfile
@@ -241,7 +240,9 @@ class thesdk(metaclass=abc.ABCMeta):
     def entitypath(self):
         """Path to entity. Extracted from the location of __init__.py file."""
         if not hasattr(self, "_entitypath"):
-            self._entitypath = os.path.dirname(os.path.dirname(self._classfile))
+            self._entitypath = os.path.dirname(
+                os.path.dirname(self._classfile)
+            )
         return self._entitypath
 
     # No setter, no deleter.
@@ -322,7 +323,7 @@ class thesdk(metaclass=abc.ABCMeta):
         return self._simpath
 
     @simpath.setter
-    def simpath(self, val): # pylint: disable=W0613
+    def simpath(self, val):  # pylint: disable=W0613
         self.print_log(
             type="F",
             msg="Setting simpath has no effect. Set 'simpathroot' instead.",
@@ -508,14 +509,14 @@ class thesdk(metaclass=abc.ABCMeta):
         # Colors for stdout prints. Disable linter check for unused variable..
         # pylint: disable=W0612
         cend = "" if not self.print_colors else "\33[0m"
-        cblack = "" if not self.print_colors else "\33[30m" # noqa: F841
+        cblack = "" if not self.print_colors else "\33[30m"  # noqa: F841
         cred = "" if not self.print_colors else "\33[31m"
         cgreen = "" if not self.print_colors else "\33[32m"
         cyellow = "" if not self.print_colors else "\33[33m"
         cblue = "" if not self.print_colors else "\33[34m"
         cviolet = "" if not self.print_colors else "\33[35m"
-        cbeige = "" if not self.print_colors else "\33[36m" # noqa: F841
-        cwhite = "" if not self.print_colors else "\33[37m" # noqa: F841
+        cbeige = "" if not self.print_colors else "\33[36m"  # noqa: F841
+        cwhite = "" if not self.print_colors else "\33[37m"  # noqa: F841
         # pylint: enable=W0612
 
         if not os.path.isfile(thesdk.logfile):
@@ -640,7 +641,7 @@ class thesdk(metaclass=abc.ABCMeta):
                 "Quitting due to fatal error in %s" % (self.__class__.__name__)
             )
             if hasattr(self, "logfile"):
-                with  open(thesdk.logfile, "a") as fid:
+                with open(thesdk.logfile, "a") as fid:
                     fid.write(
                         "%s Quitting due to fatal error in %s.\n"
                         % (time.strftime("%H:%M:%S"), self.__class__.__name__)
@@ -670,7 +671,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
         # If logfile set, print also there
         if hasattr(self, "logfile"):
-            with  open(thesdk.logfile, "a") as fid:
+            with open(thesdk.logfile, "a") as fid:
                 fid.write(
                     "%s %s %s: %s\n"
                     % (
@@ -682,7 +683,7 @@ class thesdk(metaclass=abc.ABCMeta):
                 )
             fid.close()
 
-    def timer(func): # Can we have 'self' pylint: disable=E0213
+    def timer(func):  # Can we have 'self' pylint: disable=E0213
         # No escape check pylint: disable=W1401
         """Timer decorator
 
@@ -715,7 +716,9 @@ class thesdk(metaclass=abc.ABCMeta):
         @functools.wraps(func)
         def wrapper_timer(*args, **kwargs):
             start = time.perf_counter()
-            retval = func(*args, **kwargs) # Func is not callable pylint: disable=E1102
+            retval = func(
+                *args, **kwargs
+            )  # Func is not callable pylint: disable=E1102
             stop = time.perf_counter()
             duration = stop - start
             # Instance of 'thesdk' has no '__name__'
@@ -936,7 +939,8 @@ class thesdk(metaclass=abc.ABCMeta):
         else:
             self.print_log(
                 type="W",
-                msg="Cannot set property netlist_params as type %s" % type(value),
+                msg="Cannot set property netlist_params as type %s"
+                % type(value),
             )
 
     @property
