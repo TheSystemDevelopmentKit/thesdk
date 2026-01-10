@@ -337,8 +337,8 @@ class thesdk(metaclass=abc.ABCMeta):
         in TheSDK.config.
         """
         # Checking 'if in Dict' checks if in keys of the dict
-        if ("LSFINTERACTIVE" not in thesdk.GLOBALS.keys()) or (
-            "LSFSUBMISSION" not in thesdk.GLOBALS.keys()
+        if ("LSFINTERACTIVE" not in thesdk.GLOBALS) or (
+            "LSFSUBMISSION" not in thesdk.GLOBALS
         ):
             self._has_lsf = False
         elif (not thesdk.GLOBALS["LSFINTERACTIVE"] == "") and (
