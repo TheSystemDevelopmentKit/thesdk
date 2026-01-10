@@ -496,7 +496,7 @@ class thesdk(metaclass=abc.ABCMeta):
 
         """
 
-        type = kwargs.get("type", "I")
+        msgtype = kwargs.get("type", "I")
         msg = kwargs.get("msg", "Print this to log")
 
         # Converting absolute file paths to relative file paths
@@ -539,7 +539,7 @@ class thesdk(metaclass=abc.ABCMeta):
                 )
             fid.close()
 
-        if type == "D":
+        if msgtype == "D":
             if self.DEBUG:
                 typestr = "[DEBUG]"
                 if not self.supress_output:
@@ -566,7 +566,7 @@ class thesdk(metaclass=abc.ABCMeta):
                             )
                         )
                     fid.close()
-        elif type == "I":
+        elif msgtype == "I":
             typestr = "[INFO]"
             if not self.supress_output:
                 print(
@@ -580,7 +580,7 @@ class thesdk(metaclass=abc.ABCMeta):
                         msg,
                     )
                 )
-        elif type == "W":
+        elif msgtype == "W":
             typestr = "[WARNING]"
             if not self.supress_output:
                 print(
@@ -594,7 +594,7 @@ class thesdk(metaclass=abc.ABCMeta):
                         msg,
                     )
                 )
-        elif type == "E":
+        elif msgtype == "E":
             typestr = "[ERROR]"
             if not self.supress_output:
                 print(
@@ -608,7 +608,7 @@ class thesdk(metaclass=abc.ABCMeta):
                         msg,
                     )
                 )
-        elif type == "O":
+        elif msgtype == "O":
             typestr = "[OBSOLETE]"
             if not self.supress_output:
                 print(
@@ -622,7 +622,7 @@ class thesdk(metaclass=abc.ABCMeta):
                         msg,
                     )
                 )
-        elif type == "F":
+        elif msgtype == "F":
             typestr = "[FATAL]"
             if not self.supress_output:
                 print(
