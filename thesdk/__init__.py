@@ -93,6 +93,7 @@ class thesdk(metaclass=abc.ABCMeta):
         "LSFINTERACTIVE",
         "ELDOLIBFILE",
         "SPECTRELIBFILE",
+        "NGSPICELIBFILE",
         "VLOGLIBFILE",
         "VHDLLIBFILE",
     ]
