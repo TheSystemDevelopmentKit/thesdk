@@ -469,6 +469,27 @@ class thesdk(metaclass=abc.ABCMeta):
     def supress_output(self, val):
         self._supress_output = val
 
+    def is_in_except(self):
+        """Method to determine if we are in 'try-exept' structure.
+
+
+        """
+        # Get the current exception information
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+
+        # Check if we are in an except block
+        if exc_traceback is not None:
+            # Get the frame of the current exception
+            frame = exc_traceback.tb_frame
+
+            # Check if the frame is in an except block
+            while frame is not None:
+                if frame.f_code.co_name == 'except':
+                    return True, exc_value
+                frame = frame.f_back
+
+        return False, None
+
     # Method for logging
     # This is a method because it uses the logfile property
     def print_log(self, **kwargs):
@@ -486,11 +507,19 @@ class thesdk(metaclass=abc.ABCMeta):
                     'O' = Obsolete, used for obsolition warnings.
 
                  msg: str
-                     The messge to be printed
+                     The messge to be printed. If 'F' message is called in
+                     try-except, message returned by except is used if 'msg' is
+                     left empty.
 
         """
 
         type = kwargs.get("type", "I")
+        in_except, error = self.is_in_except()
+        if in_except:
+            msg = kwargs.get("msg", error)
+        else:
+            msg = kwargs.get("msg", "Print this to log")
+
         msg = kwargs.get("msg", "Print this to log")
 
         # Converting absolute file paths to relative file paths
@@ -641,8 +670,9 @@ class thesdk(metaclass=abc.ABCMeta):
                 fid.close()
                 if self.par:
                     self.queue.put({})
-                # Exit with non-zero exit code
-                sys.exit(1)
+                # Exit with non-zero exit code if not in try-except
+                if not in_except:
+                    sys.exit(1)
         else:
             typestr = "[ERROR]"
             msg = (
