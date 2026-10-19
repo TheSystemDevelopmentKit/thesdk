@@ -38,7 +38,6 @@ import contextlib as cl
 import pickle
 from datetime import datetime
 
-
 # Set 'must have methods' with abstractmethod
 # @abstractmethod
 # Using this decorator requires that the class’s metaclass is ABCMeta or is
@@ -94,6 +93,7 @@ class thesdk(metaclass=abc.ABCMeta):
         "ELDOLIBFILE",
         "SPECTRELIBFILE",
         "NGSPICELIBFILE",
+        "VACASKLIBFILE",
         "VLOGLIBFILE",
         "VHDLLIBFILE",
     ]
@@ -246,7 +246,7 @@ class thesdk(metaclass=abc.ABCMeta):
     def model(self):
         """Simulation model to be used
 
-        'py' |  'sv' |  'vhdl' |  'eldo' |  'spectre' | 'ngspice' | 'hw' | 'icarus' | 'ghdl' | 'verilator' | 'ads' | 'emx' | 'xcelium'
+        'py' |  'sv' |  'vhdl' |  'eldo' |  'spectre' | 'ngspice' | 'vacask' | 'hw' | 'icarus' | 'ghdl' | 'verilator' | 'ads' | 'emx' | 'xcelium'
 
         """
         if not hasattr(self, "_model"):
@@ -263,6 +263,7 @@ class thesdk(metaclass=abc.ABCMeta):
             "eldo",
             "spectre",
             "ngspice",
+            "vacask",
             "hw",
             "icarus",
             "ghdl",
