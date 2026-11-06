@@ -94,6 +94,7 @@ class thesdk(metaclass=abc.ABCMeta):
         "SPECTRELIBFILE",
         "NGSPICELIBFILE",
         "VACASKLIBFILE",
+        "VACASKTOMLFILE",
         "VLOGLIBFILE",
         "VHDLLIBFILE",
     ]
